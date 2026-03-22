@@ -33,6 +33,11 @@ frontend-run: ## Run Flutter frontend locally
 frontend-build: ## Build Flutter frontend
 	cd frontend && flutter build web
 
+# === Docs ===
+
+docs: ## Open Swagger UI in the browser, for Linux/Mac use xdg-open, for Windows use start
+	cmd /c start http://localhost:8080/swagger-ui/index.html
+
 # === Testing ===
 
 test-api: ## Run core-api tests
