@@ -25,6 +25,7 @@ import 'package:orizon/src/domain/usecase/transaction/create_transaction_usecase
 import 'package:orizon/src/domain/usecase/transaction/get_transactions_usecase.dart';
 import 'package:orizon/src/domain/usecase/category/create_category_usecase.dart';
 import 'package:orizon/src/domain/usecase/category/get_categories_usecase.dart';
+import 'package:orizon/src/domain/usecase/goal/get_goals_usecase.dart';
 import 'package:orizon/src/domain/usecase/goal/create_goal_usecase.dart';
 import 'package:orizon/src/domain/usecase/goal/contribute_to_goal_usecase.dart';
 import 'package:orizon/src/domain/usecase/budget/create_budget_usecase.dart';
@@ -32,6 +33,8 @@ import 'package:orizon/src/domain/usecase/budget/get_budgets_usecase.dart';
 import 'package:orizon/src/presentation/bloc/auth/auth_bloc.dart';
 import 'package:orizon/src/presentation/bloc/category/category_bloc.dart';
 import 'package:orizon/src/presentation/bloc/transaction/transaction_bloc.dart';
+import 'package:orizon/src/presentation/bloc/goal/goal_bloc.dart';
+import 'package:orizon/src/presentation/bloc/budget/budget_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -78,6 +81,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetTransactionsUseCase(sl()));
   sl.registerLazySingleton(() => CreateCategoryUseCase(sl()));
   sl.registerLazySingleton(() => GetCategoriesUseCase(sl()));
+  sl.registerLazySingleton(() => GetGoalsUseCase(sl()));
   sl.registerLazySingleton(() => CreateGoalUseCase(sl()));
   sl.registerLazySingleton(() => ContributeToGoalUseCase(sl()));
   sl.registerLazySingleton(() => CreateBudgetUseCase(sl()));
@@ -90,4 +94,10 @@ Future<void> init() async {
       getCategoriesUseCase: sl(), createCategoryUseCase: sl()));
   sl.registerFactory(() => TransactionBloc(
       getTransactionsUseCase: sl(), createTransactionUseCase: sl()));
+  sl.registerFactory(() => GoalBloc(
+      getGoalsUseCase: sl(),
+      createGoalUseCase: sl(),
+      contributeToGoalUseCase: sl()));
+  sl.registerFactory(() => BudgetBloc(
+      getBudgetsUseCase: sl(), createBudgetUseCase: sl()));
 }

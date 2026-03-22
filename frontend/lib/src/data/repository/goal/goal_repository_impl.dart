@@ -14,6 +14,16 @@ class GoalRepositoryImpl implements GoalRepository {
   GoalRepositoryImpl({required this.remoteDataSource});
 
   @override
+  Future<Either<Failure, List<GoalEntity>>> getAll() async {
+    try {
+      final result = await remoteDataSource.getAll();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
   Future<Either<Failure, GoalEntity>> create(
     String title,
     double targetAmount,

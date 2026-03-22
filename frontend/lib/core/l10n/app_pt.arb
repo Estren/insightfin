@@ -46,5 +46,9 @@
   "transactionCreated": "Transação criada!",
   "selectCategory": "Selecione uma categoria",
   "invalidAmount": "Valor inválido",
-  "required": "Obrigatório"
+  "required": "Obrigatório",
+  "goalCreated": "Objetivo criado!",
+  "contributionAdded": "Contribuição adicionada!",
+  "remaining": "restante",
+  "completed": "Concluído"
 }

@@ -4,6 +4,7 @@ import 'package:orizon/src/domain/entities/goal/goal_entity.dart';
 import 'package:orizon/src/domain/entities/goal/goal_contribution_entity.dart';
 
 abstract class GoalRepository {
+  Future<Either<Failure, List<GoalEntity>>> getAll();
   Future<Either<Failure, GoalEntity>> create(
     String title,
     double targetAmount,
