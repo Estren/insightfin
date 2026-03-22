@@ -31,6 +31,7 @@ import 'package:orizon/src/domain/usecase/budget/create_budget_usecase.dart';
 import 'package:orizon/src/domain/usecase/budget/get_budgets_usecase.dart';
 import 'package:orizon/src/presentation/bloc/auth/auth_bloc.dart';
 import 'package:orizon/src/presentation/bloc/category/category_bloc.dart';
+import 'package:orizon/src/presentation/bloc/transaction/transaction_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -87,4 +88,6 @@ Future<void> init() async {
       loginUseCase: sl(), registerUseCase: sl(), authRepository: sl()));
   sl.registerFactory(() => CategoryBloc(
       getCategoriesUseCase: sl(), createCategoryUseCase: sl()));
+  sl.registerFactory(() => TransactionBloc(
+      getTransactionsUseCase: sl(), createTransactionUseCase: sl()));
 }

@@ -42,5 +42,9 @@
   "type": "Type",
   "createCategory": "Create Category",
   "categoryCreated": "Category created!",
-  "allTypes": "All"
+  "allTypes": "All",
+  "transactionCreated": "Transaction created!",
+  "selectCategory": "Please select a category",
+  "invalidAmount": "Invalid amount",
+  "required": "Required"
 }
