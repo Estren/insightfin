@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <defs>
+    <linearGradient id="sunGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#0D9488"/>
+      <stop offset="100%" style="stop-color:#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="horizonGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0D9488"/>
+      <stop offset="50%" style="stop-color:#14B8A6"/>
+      <stop offset="100%" style="stop-color:#0D9488"/>
+    </linearGradient>
+    <clipPath id="sunClip">
+      <rect x="0" y="0" width="400" height="95"/>
+    </clipPath>
+  </defs>
+
+  <!-- Sun (upper half of circle) -->
+  <g clip-path="url(#sunClip)">
+    <circle cx="200" cy="95" r="45" fill="url(#sunGradient)"/>
+  </g>
+
+  <!-- Sun rays -->
+  <g stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" opacity="0.7">
+    <line x1="200" y1="38" x2="200" y2="28"/>
+    <line x1="225" y1="42" x2="231" y2="33"/>
+    <line x1="245" y1="55" x2="254" y2="49"/>
+    <line x1="175" y1="42" x2="169" y2="33"/>
+    <line x1="155" y1="55" x2="146" y2="49"/>
+  </g>
+
+  <!-- Horizon line -->
+  <line x1="80" y1="95" x2="320" y2="95" stroke="url(#horizonGradient)" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Text: ORIZON -->
+  <text x="200" y="150" text-anchor="middle" font-family="Inter, sans-serif" font-size="42" font-weight="700" letter-spacing="8" fill="#0F172A">
+    ORIZON
+  </text>
+
+  <!-- Tagline -->
+  <text x="200" y="175" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" font-weight="400" letter-spacing="3" fill="#64748B">
+    YOUR FINANCIAL HORIZON
+  </text>
+</svg>

@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:orizon/config/injection_container.dart' as di;
 import 'package:orizon/config/router.dart';
+import 'package:orizon/core/theme/app_theme.dart';
 import 'package:orizon/src/presentation/bloc/auth/auth_bloc.dart';
 
 class App extends StatelessWidget {
@@ -18,16 +19,8 @@ class App extends StatelessWidget {
       child: MaterialApp.router(
         title: 'Orizon',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorSchemeSeed: Colors.teal,
-          useMaterial3: true,
-          brightness: Brightness.light,
-        ),
-        darkTheme: ThemeData(
-          colorSchemeSeed: Colors.teal,
-          useMaterial3: true,
-          brightness: Brightness.dark,
-        ),
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
         themeMode: ThemeMode.system,
         localizationsDelegates: const [
           AppLocalizations.delegate,

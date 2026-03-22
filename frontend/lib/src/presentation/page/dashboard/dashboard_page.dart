@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:orizon/core/theme/app_colors.dart';
+import 'package:orizon/core/theme/app_spacing.dart';
+import 'package:orizon/core/theme/app_typography.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -20,20 +23,21 @@ class DashboardPage extends StatelessWidget {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: AppSpacing.paddingPage,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              l10n.monthlySummary,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 16),
-            // TODO: Add monthly summary cards
-            const Card(
+            Text(l10n.monthlySummary, style: AppTypography.h2),
+            const SizedBox(height: AppSpacing.md),
+            Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('Monthly summary will be displayed here'),
+                padding: AppSpacing.paddingCard,
+                child: Text(
+                  'Monthly summary will be displayed here',
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.neutral500,
+                  ),
+                ),
               ),
             ),
           ],
@@ -42,19 +46,23 @@ class DashboardPage extends StatelessWidget {
       bottomNavigationBar: NavigationBar(
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.dashboard),
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: const Icon(Icons.dashboard),
             label: l10n.dashboard,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.receipt_long),
+            icon: const Icon(Icons.receipt_long_outlined),
+            selectedIcon: const Icon(Icons.receipt_long),
             label: l10n.transactions,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.flag),
+            icon: const Icon(Icons.flag_outlined),
+            selectedIcon: const Icon(Icons.flag),
             label: l10n.goals,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.account_balance_wallet),
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: const Icon(Icons.account_balance_wallet),
             label: l10n.budgets,
           ),
         ],
