@@ -1,10 +1,6 @@
-FROM eclipse-temurin:21-jdk AS build
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 COPY . .
-RUN chmod +x ./gradlew && ./gradlew bootJar --no-daemon
-
-FROM eclipse-temurin:21-jre
-WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
+RUN chmod +x ./gradlew && ./gradlew classes --no-daemon
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["./gradlew", "bootRun", "--no-daemon"]

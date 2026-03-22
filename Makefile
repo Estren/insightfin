@@ -1,4 +1,4 @@
-.PHONY: up down up-db up-api up-ai up-prod build logs clean frontend-run frontend-build test-api help
+.PHONY: up down up-db up-api up-ai build logs clean frontend-run frontend-build test-api help
 
 # === Full Stack ===
 
@@ -7,9 +7,6 @@ up: ## Start all services (dev mode with hot reload)
 
 down: ## Stop all services
 	docker compose down
-
-up-prod: ## Start all services (production mode)
-	docker compose -f docker-compose.yml up -d
 
 build: ## Rebuild all images
 	docker compose build

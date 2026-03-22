@@ -36,9 +36,8 @@ make frontend-run
 
 | Command | Description |
 |---|---|
-| `make up` | 🟢 Start all services (dev mode) |
+| `make up` | 🟢 Start all services (dev mode with hot reload) |
 | `make down` | 🔴 Stop all services |
-| `make up-prod` | 🚀 Start all services (production mode) |
 | `make up-db` | 🗄️ Start only PostgreSQL |
 | `make up-api` | 🔧 Start core-api + PostgreSQL |
 | `make up-ai` | 🧠 Start ai + core-api + PostgreSQL |

@@ -17,10 +17,14 @@ services:
       retries: 5
 
   core-api:
-    build: ./core-api
+    build:
+      context: ./core-api
+      dockerfile: Dockerfile
     container_name: orizon-core-api
     ports:
       - "8080:8080"
+    volumes:
+      - ./core-api/src:/app/src
     depends_on:
       postgres:
         condition: service_healthy
@@ -29,6 +33,7 @@ services:
       DB_PASSWORD: orizon
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orizon
       JWT_SECRET: orizon-dev-secret-key-change-in-production-min-32-chars
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
 
   ai:
     build: ./ai
