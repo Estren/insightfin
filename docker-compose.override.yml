@@ -1,0 +1,10 @@
+services:
+  core-api:
+    build:
+      context: ./core-api
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./core-api/src:/app/src
+      - ./core-api/build.gradle.kts:/app/build.gradle.kts
+    environment:
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"

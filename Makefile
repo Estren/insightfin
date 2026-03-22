@@ -1,12 +1,15 @@
-.PHONY: up down up-db up-api up-ai build logs clean frontend-run frontend-build test-api
+.PHONY: up down up-db up-api up-ai up-prod build logs clean frontend-run frontend-build test-api help
 
 # === Full Stack ===
 
-up: ## Start all services
+up: ## Start all services (dev mode with hot reload)
 	docker compose up -d
 
 down: ## Stop all services
 	docker compose down
+
+up-prod: ## Start all services (production mode)
+	docker compose -f docker-compose.yml up -d
 
 build: ## Rebuild all images
 	docker compose build
@@ -19,7 +22,7 @@ logs: ## Show logs from all services
 up-db: ## Start only PostgreSQL
 	docker compose up -d postgres
 
-up-api: ## Start core-api + PostgreSQL
+up-api: ## Start core-api + PostgreSQL (dev mode)
 	docker compose up -d postgres core-api
 
 up-ai: ## Start ai + core-api + PostgreSQL
