@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: orizon-postgres
+    environment:
+      POSTGRES_DB: orizon
+      POSTGRES_USER: orizon
+      POSTGRES_PASSWORD: orizon
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orizon"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  core-api:
+    build: ./core-api
+    container_name: orizon-core-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_USERNAME: orizon
+      DB_PASSWORD: orizon
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orizon
+      JWT_SECRET: orizon-dev-secret-key-change-in-production-min-32-chars
+
+  ai:
+    build: ./ai
+    container_name: orizon-ai
+    ports:
+      - "8081:8081"
+    depends_on:
+      - core-api
+    environment:
+      CORE_API_URL: http://core-api:8080/api
+
+volumes:
+  postgres_data:
