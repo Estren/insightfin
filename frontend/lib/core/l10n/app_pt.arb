@@ -50,5 +50,7 @@
   "goalCreated": "Objetivo criado!",
   "contributionAdded": "Contribuição adicionada!",
   "remaining": "restante",
-  "completed": "Concluído"
+  "completed": "Concluído",
+  "seeAll": "Ver tudo",
+  "yourFinancialHorizon": "Seu horizonte financeiro"
 }

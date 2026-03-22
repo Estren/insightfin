@@ -21,12 +21,17 @@ import 'package:orizon/src/presentation/page/goal/create_goal_page.dart';
 import 'package:orizon/src/presentation/page/goal/contribute_goal_page.dart';
 import 'package:orizon/src/presentation/page/budget/budgets_page.dart';
 import 'package:orizon/src/presentation/page/budget/create_budget_page.dart';
+import 'package:orizon/src/presentation/page/splash/splash_page.dart';
 import 'package:orizon/src/presentation/page/transaction/transactions_page.dart';
 import 'package:orizon/src/presentation/page/transaction/create_transaction_page.dart';
 
 final router = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/',
   routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SplashPage(),
+    ),
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginPage(),
@@ -37,7 +42,31 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/dashboard',
-      builder: (context, state) => const DashboardPage(),
+      builder: (context, state) {
+        final now = DateTime.now();
+        final month =
+            '${now.year}-${now.month.toString().padLeft(2, '0')}';
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => di.sl<TransactionBloc>()
+                ..add(TransactionsLoadRequested(
+                  startDate: DateTime(now.year, now.month, 1),
+                  endDate: DateTime(now.year, now.month + 1, 0),
+                )),
+            ),
+            BlocProvider(
+              create: (_) =>
+                  di.sl<GoalBloc>()..add(GoalsLoadRequested()),
+            ),
+            BlocProvider(
+              create: (_) => di.sl<BudgetBloc>()
+                ..add(BudgetsLoadRequested(month: month)),
+            ),
+          ],
+          child: const DashboardPage(),
+        );
+      },
     ),
     GoRoute(
       path: '/categories',

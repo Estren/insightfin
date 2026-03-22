@@ -50,5 +50,7 @@
   "goalCreated": "Goal created!",
   "contributionAdded": "Contribution added!",
   "remaining": "remaining",
-  "completed": "Completed"
+  "completed": "Completed",
+  "seeAll": "See all",
+  "yourFinancialHorizon": "Your financial horizon"
 }
