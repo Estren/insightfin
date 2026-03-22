@@ -1,0 +1,45 @@
+package com.orizon.coreapi.adapter.in.web.mapper;
+
+import com.orizon.coreapi.adapter.in.web.dto.*;
+import com.orizon.coreapi.domain.model.*;
+
+public class WebMapper {
+
+    private WebMapper() {}
+
+    public static UserResponse toResponse(User user) {
+        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getCreatedAt());
+    }
+
+    public static TransactionResponse toResponse(Transaction transaction) {
+        return new TransactionResponse(
+                transaction.getId(), transaction.getCategoryId(), transaction.getType(),
+                transaction.getAmount(), transaction.getDescription(),
+                transaction.getDate(), transaction.getCreatedAt());
+    }
+
+    public static CategoryResponse toResponse(Category category) {
+        return new CategoryResponse(
+                category.getId(), category.getName(), category.getType(),
+                category.getIcon(), category.getColor(), category.getCreatedAt());
+    }
+
+    public static GoalResponse toResponse(Goal goal) {
+        return new GoalResponse(
+                goal.getId(), goal.getTitle(), goal.getTargetAmount(),
+                goal.getCurrentAmount(), goal.getDeadline(),
+                goal.getStatus(), goal.getCreatedAt());
+    }
+
+    public static GoalContributionResponse toResponse(GoalContribution contribution) {
+        return new GoalContributionResponse(
+                contribution.getId(), contribution.getGoalId(),
+                contribution.getAmount(), contribution.getDate(), contribution.getCreatedAt());
+    }
+
+    public static BudgetResponse toResponse(Budget budget) {
+        return new BudgetResponse(
+                budget.getId(), budget.getCategoryId(),
+                budget.getAmount(), budget.getMonth(), budget.getCreatedAt());
+    }
+}
