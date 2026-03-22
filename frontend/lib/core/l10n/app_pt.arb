@@ -36,5 +36,11 @@
   "totalIncome": "Total de Receitas",
   "balance": "Saldo",
   "progress": "Progresso",
-  "logout": "Sair"
+  "logout": "Sair",
+  "noCategories": "Nenhuma categoria encontrada",
+  "categoryName": "Nome da categoria",
+  "type": "Tipo",
+  "createCategory": "Criar Categoria",
+  "categoryCreated": "Categoria criada!",
+  "allTypes": "Todos"
 }

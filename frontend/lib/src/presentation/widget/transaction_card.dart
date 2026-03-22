@@ -60,7 +60,7 @@ class TransactionCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${categoryName} · ${dateFormat.format(transaction.date)}',
+                      '$categoryName · ${dateFormat.format(transaction.date)}',
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.neutral500,
                       ),

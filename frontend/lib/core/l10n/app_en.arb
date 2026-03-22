@@ -36,5 +36,11 @@
   "totalIncome": "Total Income",
   "balance": "Balance",
   "progress": "Progress",
-  "logout": "Logout"
+  "logout": "Logout",
+  "noCategories": "No categories found",
+  "categoryName": "Category name",
+  "type": "Type",
+  "createCategory": "Create Category",
+  "categoryCreated": "Category created!",
+  "allTypes": "All"
 }
