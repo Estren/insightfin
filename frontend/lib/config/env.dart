@@ -12,7 +12,7 @@ class Env {
   static String get apiBaseUrl {
     switch (_flavor) {
       case Flavor.development:
-        return 'http://10.0.2.2:8080/api'; // Android emulator -> host localhost
+        return 'http://localhost:8080/api'; // Android emulator -> host localhost
       case Flavor.production:
         return 'https://api.orizon.app/api';
     }
