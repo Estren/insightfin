@@ -42,14 +42,14 @@ testem.log
 Thumbs.db
 
 # Java / Maven
-backend/target/
+core-api/target/
 *.class
 *.jar
 *.war
 
 # Maven wrapper (downloaded binaries)
-backend/.mvn/wrapper/maven-wrapper.jar
-backend/.mvn/maven/
+core-api/.mvn/wrapper/maven-wrapper.jar
+core-api/.mvn/maven/
 
 # Secrets
 /src/environments/environment.ts

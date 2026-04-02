@@ -1,17 +1,16 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
-# Install Gradle and generate wrapper
-ENV GRADLE_VERSION=8.12
-RUN apt-get update && apt-get install -y wget unzip && \
-    wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip && \
-    unzip -q gradle-${GRADLE_VERSION}-bin.zip -d /opt && \
-    rm gradle-${GRADLE_VERSION}-bin.zip && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-ENV PATH="/opt/gradle-${GRADLE_VERSION}/bin:${PATH}"
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 
-COPY . .
-RUN gradle wrapper --no-daemon && ./gradlew classes --no-daemon
+COPY src/ src/
+RUN ./mvnw package -DskipTests -B
+
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
-ENTRYPOINT ["./gradlew", "bootRun", "--no-daemon"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
