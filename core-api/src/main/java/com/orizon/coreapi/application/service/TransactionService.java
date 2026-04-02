@@ -4,7 +4,9 @@ import com.orizon.coreapi.domain.exception.ResourceNotFoundException;
 import com.orizon.coreapi.domain.model.Transaction;
 import com.orizon.coreapi.domain.model.TransactionType;
 import com.orizon.coreapi.domain.port.in.CreateTransactionUseCase;
+import com.orizon.coreapi.domain.port.in.DeleteTransactionUseCase;
 import com.orizon.coreapi.domain.port.in.ListTransactionsUseCase;
+import com.orizon.coreapi.domain.port.in.UpdateTransactionUseCase;
 import com.orizon.coreapi.domain.port.out.CategoryRepository;
 import com.orizon.coreapi.domain.port.out.TransactionRepository;
 
@@ -14,7 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public class TransactionService implements CreateTransactionUseCase, ListTransactionsUseCase {
+public class TransactionService implements CreateTransactionUseCase, ListTransactionsUseCase,
+        UpdateTransactionUseCase, DeleteTransactionUseCase {
 
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
@@ -47,5 +50,39 @@ public class TransactionService implements CreateTransactionUseCase, ListTransac
     @Override
     public List<Transaction> execute(UUID userId, LocalDate startDate, LocalDate endDate) {
         return transactionRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
+    }
+
+    @Override
+    public Transaction execute(UUID userId, UUID transactionId, UUID categoryId, TransactionType type,
+                               BigDecimal amount, String description, LocalDate date) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction", transactionId));
+
+        if (!transaction.getUserId().equals(userId)) {
+            throw new ResourceNotFoundException("Transaction", transactionId);
+        }
+
+        categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", categoryId));
+
+        transaction.setCategoryId(categoryId);
+        transaction.setType(type);
+        transaction.setAmount(amount);
+        transaction.setDescription(description);
+        transaction.setDate(date);
+
+        return transactionRepository.save(transaction);
+    }
+
+    @Override
+    public void execute(UUID userId, UUID transactionId) {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction", transactionId));
+
+        if (!transaction.getUserId().equals(userId)) {
+            throw new ResourceNotFoundException("Transaction", transactionId);
+        }
+
+        transactionRepository.deleteById(transactionId);
     }
 }

@@ -3,25 +3,33 @@ package com.orizon.coreapi.application.service;
 import com.orizon.coreapi.domain.exception.DuplicateResourceException;
 import com.orizon.coreapi.domain.exception.ResourceNotFoundException;
 import com.orizon.coreapi.domain.model.Budget;
+import com.orizon.coreapi.domain.model.BudgetStatus;
 import com.orizon.coreapi.domain.port.in.CreateBudgetUseCase;
+import com.orizon.coreapi.domain.port.in.GetBudgetStatusUseCase;
 import com.orizon.coreapi.domain.port.in.ListBudgetsUseCase;
 import com.orizon.coreapi.domain.port.out.BudgetRepository;
 import com.orizon.coreapi.domain.port.out.CategoryRepository;
+import com.orizon.coreapi.domain.port.out.TransactionRepository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class BudgetService implements CreateBudgetUseCase, ListBudgetsUseCase {
+public class BudgetService implements CreateBudgetUseCase, ListBudgetsUseCase, GetBudgetStatusUseCase {
 
     private final BudgetRepository budgetRepository;
     private final CategoryRepository categoryRepository;
+    private final TransactionRepository transactionRepository;
 
     public BudgetService(BudgetRepository budgetRepository,
-                         CategoryRepository categoryRepository) {
+                         CategoryRepository categoryRepository,
+                         TransactionRepository transactionRepository) {
         this.budgetRepository = budgetRepository;
         this.categoryRepository = categoryRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     @Override
@@ -49,5 +57,30 @@ public class BudgetService implements CreateBudgetUseCase, ListBudgetsUseCase {
     @Override
     public List<Budget> execute(UUID userId, String month) {
         return budgetRepository.findByUserIdAndMonth(userId, month);
+    }
+
+    @Override
+    public List<BudgetStatus> execute(UUID userId, String month, boolean withStatus) {
+        List<Budget> budgets = budgetRepository.findByUserIdAndMonth(userId, month);
+        List<BudgetStatus> statuses = new ArrayList<>();
+
+        for (Budget budget : budgets) {
+            String categoryName = categoryRepository.findById(budget.getCategoryId())
+                    .map(c -> c.getName())
+                    .orElse("Unknown");
+
+            BigDecimal spent = transactionRepository.sumAmountByUserIdAndCategoryIdAndMonth(
+                    userId, budget.getCategoryId(), month);
+
+            BigDecimal percentage = budget.getAmount().compareTo(BigDecimal.ZERO) > 0
+                    ? spent.multiply(BigDecimal.valueOf(100)).divide(budget.getAmount(), 2, RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO;
+
+            statuses.add(new BudgetStatus(
+                    budget.getId(), budget.getCategoryId(), categoryName,
+                    budget.getAmount(), spent, percentage));
+        }
+
+        return statuses;
     }
 }

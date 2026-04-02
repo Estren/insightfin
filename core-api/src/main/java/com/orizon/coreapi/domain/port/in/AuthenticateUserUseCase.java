@@ -1,5 +1,7 @@
 package com.orizon.coreapi.domain.port.in;
 
+import com.orizon.coreapi.domain.model.AuthTokens;
+
 public interface AuthenticateUserUseCase {
-    String execute(String email, String password);
+    AuthTokens execute(String email, String password);
 }

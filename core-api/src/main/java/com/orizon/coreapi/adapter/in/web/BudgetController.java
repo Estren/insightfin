@@ -1,10 +1,12 @@
 package com.orizon.coreapi.adapter.in.web;
 
 import com.orizon.coreapi.adapter.in.web.dto.BudgetResponse;
+import com.orizon.coreapi.adapter.in.web.dto.BudgetStatusResponse;
 import com.orizon.coreapi.adapter.in.web.dto.CreateBudgetRequest;
 import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
 import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.CreateBudgetUseCase;
+import com.orizon.coreapi.domain.port.in.GetBudgetStatusUseCase;
 import com.orizon.coreapi.domain.port.in.ListBudgetsUseCase;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -26,6 +28,9 @@ public class BudgetController {
     ListBudgetsUseCase listBudgetsUseCase;
 
     @Inject
+    GetBudgetStatusUseCase getBudgetStatusUseCase;
+
+    @Inject
     AuthenticatedUser authenticatedUser;
 
     @POST
@@ -38,6 +43,15 @@ public class BudgetController {
     @GET
     public List<BudgetResponse> list(@QueryParam("month") String month) {
         return listBudgetsUseCase.execute(authenticatedUser.getUserId(), month)
+                .stream()
+                .map(WebMapper::toResponse)
+                .toList();
+    }
+
+    @GET
+    @Path("/status")
+    public List<BudgetStatusResponse> status(@QueryParam("month") String month) {
+        return getBudgetStatusUseCase.execute(authenticatedUser.getUserId(), month, true)
                 .stream()
                 .map(WebMapper::toResponse)
                 .toList();

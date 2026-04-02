@@ -8,7 +8,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,5 +46,14 @@ public class TransactionRepositoryAdapter implements TransactionRepository {
     @Transactional
     public void deleteById(UUID id) {
         jpaTransactionRepository.deleteById(id);
+    }
+
+    @Override
+    public BigDecimal sumAmountByUserIdAndCategoryIdAndMonth(UUID userId, UUID categoryId, String month) {
+        YearMonth yearMonth = YearMonth.parse(month);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+        return jpaTransactionRepository.sumAmountByUserIdAndCategoryIdAndDateBetween(
+                userId, categoryId, startDate, endDate);
     }
 }

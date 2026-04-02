@@ -71,7 +71,9 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
     }
 
     private boolean isPublicPath(String path) {
-        return path.startsWith("api/auth/")
+        return path.startsWith("api/auth/login")
+                || path.startsWith("api/auth/register")
+                || path.startsWith("api/auth/refresh")
                 || path.startsWith("swagger-ui")
                 || path.startsWith("q/")
                 || path.startsWith("v3/api-docs")

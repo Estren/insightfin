@@ -42,4 +42,27 @@ public class WebMapper {
                 budget.getId(), budget.getCategoryId(),
                 budget.getAmount(), budget.getMonth(), budget.getCreatedAt());
     }
+
+    public static BudgetStatusResponse toResponse(BudgetStatus status) {
+        return new BudgetStatusResponse(
+                status.getBudgetId(), status.getCategoryId(), status.getCategoryName(),
+                status.getBudgetAmount(), status.getSpentAmount(), status.getPercentageUsed());
+    }
+
+    public static AiFeedbackResponse toResponse(AiFeedback feedback) {
+        return new AiFeedbackResponse(
+                feedback.getId(), feedback.getType(), feedback.getTitle(),
+                feedback.getContent(), feedback.getMetadata(), feedback.getReferenceMonth(),
+                feedback.isRead(), feedback.getCreatedAt());
+    }
+
+    public static DashboardResponse toResponse(DashboardSummary summary) {
+        return new DashboardResponse(
+                summary.getTotalIncome(),
+                summary.getTotalExpense(),
+                summary.getBalance(),
+                summary.getRecentTransactions().stream().map(WebMapper::toResponse).toList(),
+                summary.getActiveGoals().stream().map(WebMapper::toResponse).toList(),
+                summary.getBudgetStatuses().stream().map(WebMapper::toResponse).toList());
+    }
 }

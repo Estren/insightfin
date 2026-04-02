@@ -12,4 +12,6 @@ public interface CategoryRepository {
     Optional<Category> findById(UUID id);
     List<Category> findByUserIdAndType(UUID userId, TransactionType type);
     List<Category> findByUserId(UUID userId);
+    boolean hasTransactions(UUID categoryId);
+    void deleteById(UUID categoryId);
 }

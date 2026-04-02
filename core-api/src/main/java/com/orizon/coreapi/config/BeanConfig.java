@@ -12,8 +12,9 @@ public class BeanConfig {
     @ApplicationScoped
     public UserService userService(UserRepository userRepository,
                                    PasswordEncoder passwordEncoder,
-                                   TokenProvider tokenProvider) {
-        return new UserService(userRepository, passwordEncoder, tokenProvider);
+                                   TokenProvider tokenProvider,
+                                   RefreshTokenRepository refreshTokenRepository) {
+        return new UserService(userRepository, passwordEncoder, tokenProvider, refreshTokenRepository);
     }
 
     @Produces
@@ -39,7 +40,22 @@ public class BeanConfig {
     @Produces
     @ApplicationScoped
     public BudgetService budgetService(BudgetRepository budgetRepository,
-                                       CategoryRepository categoryRepository) {
-        return new BudgetService(budgetRepository, categoryRepository);
+                                       CategoryRepository categoryRepository,
+                                       TransactionRepository transactionRepository) {
+        return new BudgetService(budgetRepository, categoryRepository, transactionRepository);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public DashboardService dashboardService(TransactionRepository transactionRepository,
+                                             GoalRepository goalRepository,
+                                             BudgetService budgetService) {
+        return new DashboardService(transactionRepository, goalRepository, budgetService);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public AiFeedbackService aiFeedbackService(AiFeedbackRepository aiFeedbackRepository) {
+        return new AiFeedbackService(aiFeedbackRepository);
     }
 }

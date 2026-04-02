@@ -2,6 +2,7 @@ package com.orizon.coreapi.adapter.out.persistence;
 
 import com.orizon.coreapi.adapter.out.persistence.mapper.CategoryPersistenceMapper;
 import com.orizon.coreapi.adapter.out.persistence.repository.JpaCategoryRepository;
+import com.orizon.coreapi.adapter.out.persistence.repository.JpaTransactionRepository;
 import com.orizon.coreapi.domain.model.Category;
 import com.orizon.coreapi.domain.model.TransactionType;
 import com.orizon.coreapi.domain.port.out.CategoryRepository;
@@ -18,6 +19,9 @@ public class CategoryRepositoryAdapter implements CategoryRepository {
 
     @Inject
     JpaCategoryRepository jpaCategoryRepository;
+
+    @Inject
+    JpaTransactionRepository jpaTransactionRepository;
 
     @Override
     @Transactional
@@ -46,5 +50,16 @@ public class CategoryRepositoryAdapter implements CategoryRepository {
                 .stream()
                 .map(CategoryPersistenceMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public boolean hasTransactions(UUID categoryId) {
+        return jpaTransactionRepository.countByCategoryId(categoryId) > 0;
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(UUID categoryId) {
+        jpaCategoryRepository.deleteById(categoryId);
     }
 }

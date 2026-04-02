@@ -3,10 +3,14 @@ package com.orizon.coreapi.adapter.in.web;
 import com.orizon.coreapi.adapter.in.web.dto.AuthRequest;
 import com.orizon.coreapi.adapter.in.web.dto.AuthResponse;
 import com.orizon.coreapi.adapter.in.web.dto.CreateUserRequest;
+import com.orizon.coreapi.adapter.in.web.dto.RefreshTokenRequest;
 import com.orizon.coreapi.adapter.in.web.dto.UserResponse;
 import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
+import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.AuthenticateUserUseCase;
 import com.orizon.coreapi.domain.port.in.CreateUserUseCase;
+import com.orizon.coreapi.domain.port.in.LogoutUseCase;
+import com.orizon.coreapi.domain.port.in.RefreshTokenUseCase;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -27,6 +31,15 @@ public class AuthController {
     @Inject
     AuthenticateUserUseCase authenticateUserUseCase;
 
+    @Inject
+    RefreshTokenUseCase refreshTokenUseCase;
+
+    @Inject
+    LogoutUseCase logoutUseCase;
+
+    @Inject
+    AuthenticatedUser authenticatedUser;
+
     @POST
     @Path("/register")
     public Response register(@Valid CreateUserRequest request) {
@@ -37,7 +50,21 @@ public class AuthController {
     @POST
     @Path("/login")
     public AuthResponse login(@Valid AuthRequest request) {
-        var token = authenticateUserUseCase.execute(request.email(), request.password());
-        return new AuthResponse(token);
+        var tokens = authenticateUserUseCase.execute(request.email(), request.password());
+        return new AuthResponse(tokens.getAccessToken(), tokens.getRefreshToken());
+    }
+
+    @POST
+    @Path("/refresh")
+    public AuthResponse refresh(@Valid RefreshTokenRequest request) {
+        var newAccessToken = refreshTokenUseCase.execute(request.refreshToken());
+        return new AuthResponse(newAccessToken, request.refreshToken());
+    }
+
+    @POST
+    @Path("/logout")
+    public Response logout() {
+        logoutUseCase.execute(authenticatedUser.getUserId());
+        return Response.noContent().build();
     }
 }
