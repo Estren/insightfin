@@ -1,12 +1,20 @@
 package com.orizon.coreapi.adapter.out.persistence.repository;
 
 import com.orizon.coreapi.adapter.out.persistence.entity.CategoryEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface JpaCategoryRepository extends JpaRepository<CategoryEntity, UUID> {
-    List<CategoryEntity> findByUserIdAndType(UUID userId, String type);
-    List<CategoryEntity> findByUserId(UUID userId);
+@ApplicationScoped
+public class JpaCategoryRepository implements PanacheRepositoryBase<CategoryEntity, UUID> {
+
+    public List<CategoryEntity> findByUserIdAndType(UUID userId, String type) {
+        return list("userId = ?1 and type = ?2", userId, type);
+    }
+
+    public List<CategoryEntity> findByUserId(UUID userId) {
+        return list("userId", userId);
+    }
 }

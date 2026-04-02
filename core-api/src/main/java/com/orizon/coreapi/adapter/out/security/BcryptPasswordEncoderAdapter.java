@@ -1,21 +1,19 @@
 package com.orizon.coreapi.adapter.out.security;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.orizon.coreapi.domain.port.out.PasswordEncoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
+import jakarta.enterprise.context.ApplicationScoped;
 
-@Component
+@ApplicationScoped
 public class BcryptPasswordEncoderAdapter implements PasswordEncoder {
-
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @Override
     public String encode(String rawPassword) {
-        return encoder.encode(rawPassword);
+        return BCrypt.withDefaults().hashToString(12, rawPassword.toCharArray());
     }
 
     @Override
     public boolean matches(String rawPassword, String encodedPassword) {
-        return encoder.matches(rawPassword, encodedPassword);
+        return BCrypt.verifyer().verify(rawPassword.toCharArray(), encodedPassword).verified;
     }
 }

@@ -7,32 +7,36 @@ import com.orizon.coreapi.adapter.in.web.dto.UserResponse;
 import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
 import com.orizon.coreapi.domain.port.in.AuthenticateUserUseCase;
 import com.orizon.coreapi.domain.port.in.CreateUserUseCase;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-@RestController
-@RequestMapping("/api/auth")
+@Path("/api/auth")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class AuthController {
 
-    private final CreateUserUseCase createUserUseCase;
-    private final AuthenticateUserUseCase authenticateUserUseCase;
+    @Inject
+    CreateUserUseCase createUserUseCase;
 
-    public AuthController(CreateUserUseCase createUserUseCase,
-                          AuthenticateUserUseCase authenticateUserUseCase) {
-        this.createUserUseCase = createUserUseCase;
-        this.authenticateUserUseCase = authenticateUserUseCase;
-    }
+    @Inject
+    AuthenticateUserUseCase authenticateUserUseCase;
 
-    @PostMapping("/register")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse register(@Valid @RequestBody CreateUserRequest request) {
+    @POST
+    @Path("/register")
+    public Response register(@Valid CreateUserRequest request) {
         var user = createUserUseCase.execute(request.name(), request.email(), request.password());
-        return WebMapper.toResponse(user);
+        return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(user)).build();
     }
 
-    @PostMapping("/login")
-    public AuthResponse login(@Valid @RequestBody AuthRequest request) {
+    @POST
+    @Path("/login")
+    public AuthResponse login(@Valid AuthRequest request) {
         var token = authenticateUserUseCase.execute(request.email(), request.password());
         return new AuthResponse(token);
     }

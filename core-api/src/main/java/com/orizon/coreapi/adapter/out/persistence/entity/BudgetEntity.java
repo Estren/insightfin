@@ -25,7 +25,7 @@ public class BudgetEntity {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
-    @Column(nullable = false, length = 7)
+    @Column(name = "\"month\"", nullable = false, length = 7)
     private String month;
 
     @Column(name = "created_at", nullable = false)

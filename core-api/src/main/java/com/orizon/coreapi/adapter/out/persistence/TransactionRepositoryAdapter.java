@@ -4,32 +4,32 @@ import com.orizon.coreapi.adapter.out.persistence.mapper.TransactionPersistenceM
 import com.orizon.coreapi.adapter.out.persistence.repository.JpaTransactionRepository;
 import com.orizon.coreapi.domain.model.Transaction;
 import com.orizon.coreapi.domain.port.out.TransactionRepository;
-import org.springframework.stereotype.Repository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
+@ApplicationScoped
 public class TransactionRepositoryAdapter implements TransactionRepository {
 
-    private final JpaTransactionRepository jpaTransactionRepository;
-
-    public TransactionRepositoryAdapter(JpaTransactionRepository jpaTransactionRepository) {
-        this.jpaTransactionRepository = jpaTransactionRepository;
-    }
+    @Inject
+    JpaTransactionRepository jpaTransactionRepository;
 
     @Override
+    @Transactional
     public Transaction save(Transaction transaction) {
         var entity = TransactionPersistenceMapper.toEntity(transaction);
-        var saved = jpaTransactionRepository.save(entity);
-        return TransactionPersistenceMapper.toDomain(saved);
+        jpaTransactionRepository.persist(entity);
+        return TransactionPersistenceMapper.toDomain(entity);
     }
 
     @Override
     public Optional<Transaction> findById(UUID id) {
-        return jpaTransactionRepository.findById(id).map(TransactionPersistenceMapper::toDomain);
+        return jpaTransactionRepository.findByIdOptional(id).map(TransactionPersistenceMapper::toDomain);
     }
 
     @Override
@@ -41,6 +41,7 @@ public class TransactionRepositoryAdapter implements TransactionRepository {
     }
 
     @Override
+    @Transactional
     public void deleteById(UUID id) {
         jpaTransactionRepository.deleteById(id);
     }

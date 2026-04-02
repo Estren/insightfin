@@ -5,31 +5,31 @@ import com.orizon.coreapi.adapter.out.persistence.repository.JpaGoalRepository;
 import com.orizon.coreapi.domain.model.Goal;
 import com.orizon.coreapi.domain.model.GoalStatus;
 import com.orizon.coreapi.domain.port.out.GoalRepository;
-import org.springframework.stereotype.Repository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
+@ApplicationScoped
 public class GoalRepositoryAdapter implements GoalRepository {
 
-    private final JpaGoalRepository jpaGoalRepository;
-
-    public GoalRepositoryAdapter(JpaGoalRepository jpaGoalRepository) {
-        this.jpaGoalRepository = jpaGoalRepository;
-    }
+    @Inject
+    JpaGoalRepository jpaGoalRepository;
 
     @Override
+    @Transactional
     public Goal save(Goal goal) {
         var entity = GoalPersistenceMapper.toEntity(goal);
-        var saved = jpaGoalRepository.save(entity);
-        return GoalPersistenceMapper.toDomain(saved);
+        jpaGoalRepository.persist(entity);
+        return GoalPersistenceMapper.toDomain(entity);
     }
 
     @Override
     public Optional<Goal> findById(UUID id) {
-        return jpaGoalRepository.findById(id).map(GoalPersistenceMapper::toDomain);
+        return jpaGoalRepository.findByIdOptional(id).map(GoalPersistenceMapper::toDomain);
     }
 
     @Override

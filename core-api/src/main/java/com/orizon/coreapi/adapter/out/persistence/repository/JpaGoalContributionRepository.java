@@ -1,11 +1,16 @@
 package com.orizon.coreapi.adapter.out.persistence.repository;
 
 import com.orizon.coreapi.adapter.out.persistence.entity.GoalContributionEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
 import java.util.UUID;
 
-public interface JpaGoalContributionRepository extends JpaRepository<GoalContributionEntity, UUID> {
-    List<GoalContributionEntity> findByGoalId(UUID goalId);
+@ApplicationScoped
+public class JpaGoalContributionRepository implements PanacheRepositoryBase<GoalContributionEntity, UUID> {
+
+    public List<GoalContributionEntity> findByGoalId(UUID goalId) {
+        return list("goalId", goalId);
+    }
 }

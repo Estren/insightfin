@@ -3,47 +3,57 @@ package com.orizon.coreapi.config;
 import com.orizon.coreapi.domain.exception.DomainException;
 import com.orizon.coreapi.domain.exception.DuplicateResourceException;
 import com.orizon.coreapi.domain.exception.ResourceNotFoundException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
-@RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
-        return buildResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    @Provider
+    public static class ResourceNotFoundExceptionMapper implements ExceptionMapper<ResourceNotFoundException> {
+        @Override
+        public Response toResponse(ResourceNotFoundException ex) {
+            return buildResponse(Response.Status.NOT_FOUND, ex.getMessage());
+        }
     }
 
-    @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<Map<String, Object>> handleDuplicate(DuplicateResourceException ex) {
-        return buildResponse(HttpStatus.CONFLICT, ex.getMessage());
+    @Provider
+    public static class DuplicateResourceExceptionMapper implements ExceptionMapper<DuplicateResourceException> {
+        @Override
+        public Response toResponse(DuplicateResourceException ex) {
+            return buildResponse(Response.Status.CONFLICT, ex.getMessage());
+        }
     }
 
-    @ExceptionHandler(DomainException.class)
-    public ResponseEntity<Map<String, Object>> handleDomain(DomainException ex) {
-        return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    @Provider
+    public static class DomainExceptionMapper implements ExceptionMapper<DomainException> {
+        @Override
+        public Response toResponse(DomainException ex) {
+            return buildResponse(Response.Status.BAD_REQUEST, ex.getMessage());
+        }
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
-        var errors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .toList();
-        return buildResponse(HttpStatus.BAD_REQUEST, errors.toString());
+    @Provider
+    public static class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
+        @Override
+        public Response toResponse(ConstraintViolationException ex) {
+            var errors = ex.getConstraintViolations().stream()
+                    .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                    .toList();
+            return buildResponse(Response.Status.BAD_REQUEST, errors.toString());
+        }
     }
 
-    private ResponseEntity<Map<String, Object>> buildResponse(HttpStatus status, String message) {
-        return ResponseEntity.status(status).body(Map.of(
+    private static Response buildResponse(Response.Status status, String message) {
+        return Response.status(status).entity(Map.of(
                 "timestamp", LocalDateTime.now().toString(),
-                "status", status.value(),
+                "status", status.getStatusCode(),
                 "error", status.getReasonPhrase(),
                 "message", message
-        ));
+        )).build();
     }
 }

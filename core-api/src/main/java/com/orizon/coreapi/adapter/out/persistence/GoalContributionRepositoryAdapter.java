@@ -4,25 +4,25 @@ import com.orizon.coreapi.adapter.out.persistence.mapper.GoalContributionPersist
 import com.orizon.coreapi.adapter.out.persistence.repository.JpaGoalContributionRepository;
 import com.orizon.coreapi.domain.model.GoalContribution;
 import com.orizon.coreapi.domain.port.out.GoalContributionRepository;
-import org.springframework.stereotype.Repository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
-@Repository
+@ApplicationScoped
 public class GoalContributionRepositoryAdapter implements GoalContributionRepository {
 
-    private final JpaGoalContributionRepository jpaGoalContributionRepository;
-
-    public GoalContributionRepositoryAdapter(JpaGoalContributionRepository jpaGoalContributionRepository) {
-        this.jpaGoalContributionRepository = jpaGoalContributionRepository;
-    }
+    @Inject
+    JpaGoalContributionRepository jpaGoalContributionRepository;
 
     @Override
+    @Transactional
     public GoalContribution save(GoalContribution contribution) {
         var entity = GoalContributionPersistenceMapper.toEntity(contribution);
-        var saved = jpaGoalContributionRepository.save(entity);
-        return GoalContributionPersistenceMapper.toDomain(saved);
+        jpaGoalContributionRepository.persist(entity);
+        return GoalContributionPersistenceMapper.toDomain(entity);
     }
 
     @Override

@@ -2,41 +2,43 @@ package com.orizon.coreapi.adapter.in.web;
 
 import com.orizon.coreapi.adapter.in.web.dto.*;
 import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
+import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.ContributeToGoalUseCase;
 import com.orizon.coreapi.domain.port.in.CreateGoalUseCase;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.UUID;
 
-@RestController
-@RequestMapping("/api/goals")
+@Path("/api/goals")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class GoalController {
 
-    private final CreateGoalUseCase createGoalUseCase;
-    private final ContributeToGoalUseCase contributeToGoalUseCase;
+    @Inject
+    CreateGoalUseCase createGoalUseCase;
 
-    public GoalController(CreateGoalUseCase createGoalUseCase,
-                          ContributeToGoalUseCase contributeToGoalUseCase) {
-        this.createGoalUseCase = createGoalUseCase;
-        this.contributeToGoalUseCase = contributeToGoalUseCase;
-    }
+    @Inject
+    ContributeToGoalUseCase contributeToGoalUseCase;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public GoalResponse create(@RequestAttribute UUID userId,
-                               @Valid @RequestBody CreateGoalRequest request) {
+    @Inject
+    AuthenticatedUser authenticatedUser;
+
+    @POST
+    public Response create(@Valid CreateGoalRequest request) {
         var goal = createGoalUseCase.execute(
-                userId, request.title(), request.targetAmount(), request.deadline());
-        return WebMapper.toResponse(goal);
+                authenticatedUser.getUserId(), request.title(), request.targetAmount(), request.deadline());
+        return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(goal)).build();
     }
 
-    @PostMapping("/{goalId}/contributions")
-    @ResponseStatus(HttpStatus.CREATED)
-    public GoalContributionResponse contribute(@PathVariable UUID goalId,
-                                               @Valid @RequestBody CreateGoalContributionRequest request) {
+    @POST
+    @Path("/{goalId}/contributions")
+    public Response contribute(@PathParam("goalId") UUID goalId,
+                               @Valid CreateGoalContributionRequest request) {
         var contribution = contributeToGoalUseCase.execute(goalId, request.amount(), request.date());
-        return WebMapper.toResponse(contribution);
+        return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(contribution)).build();
     }
 }

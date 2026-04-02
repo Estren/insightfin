@@ -4,22 +4,24 @@ import com.orizon.coreapi.domain.port.out.TokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.UUID;
 
-@Component
+@ApplicationScoped
 public class JwtTokenProvider implements TokenProvider {
 
     private final SecretKey key;
     private final long expirationMs;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secret,
-                            @Value("${jwt.expiration-ms}") long expirationMs) {
+    @Inject
+    public JwtTokenProvider(@ConfigProperty(name = "jwt.secret") String secret,
+                            @ConfigProperty(name = "jwt.expiration-ms") long expirationMs) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMs = expirationMs;
     }

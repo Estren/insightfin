@@ -1,45 +1,80 @@
 package com.orizon.coreapi.config.security;
 
 import com.orizon.coreapi.domain.port.out.TokenProvider;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Priorities;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.ext.Provider;
 
-import java.io.IOException;
-import java.util.List;
+import java.security.Principal;
 import java.util.UUID;
 
-@Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+@Provider
+@Priority(Priorities.AUTHENTICATION)
+@ApplicationScoped
+public class JwtAuthenticationFilter implements ContainerRequestFilter {
 
-    private final TokenProvider tokenProvider;
+    @Inject
+    TokenProvider tokenProvider;
 
-    public JwtAuthenticationFilter(TokenProvider tokenProvider) {
-        this.tokenProvider = tokenProvider;
-    }
+    @Inject
+    AuthenticatedUser authenticatedUser;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        String header = request.getHeader("Authorization");
+    public void filter(ContainerRequestContext requestContext) {
+        String path = requestContext.getUriInfo().getPath();
+
+        if (isPublicPath(path)) {
+            return;
+        }
+
+        String header = requestContext.getHeaderString("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
 
             if (tokenProvider.isValid(token)) {
                 UUID userId = tokenProvider.extractUserId(token);
-                var authentication = new UsernamePasswordAuthenticationToken(userId, null, List.of());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                request.setAttribute("userId", userId);
+                authenticatedUser.setUserId(userId);
+
+                requestContext.setSecurityContext(new SecurityContext() {
+                    @Override
+                    public Principal getUserPrincipal() {
+                        return () -> userId.toString();
+                    }
+
+                    @Override
+                    public boolean isUserInRole(String role) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean isSecure() {
+                        return requestContext.getSecurityContext().isSecure();
+                    }
+
+                    @Override
+                    public String getAuthenticationScheme() {
+                        return "Bearer";
+                    }
+                });
+                return;
             }
         }
 
-        filterChain.doFilter(request, response);
+        requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+    }
+
+    private boolean isPublicPath(String path) {
+        return path.startsWith("api/auth/")
+                || path.startsWith("swagger-ui")
+                || path.startsWith("q/")
+                || path.startsWith("v3/api-docs")
+                || path.startsWith("openapi");
     }
 }

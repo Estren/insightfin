@@ -1,12 +1,20 @@
 package com.orizon.coreapi.adapter.out.persistence.repository;
 
 import com.orizon.coreapi.adapter.out.persistence.entity.UserEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public interface JpaUserRepository extends JpaRepository<UserEntity, UUID> {
-    Optional<UserEntity> findByEmail(String email);
-    boolean existsByEmail(String email);
+@ApplicationScoped
+public class JpaUserRepository implements PanacheRepositoryBase<UserEntity, UUID> {
+
+    public Optional<UserEntity> findByEmail(String email) {
+        return find("email", email).firstResultOptional();
+    }
+
+    public boolean existsByEmail(String email) {
+        return count("email", email) > 0;
+    }
 }

@@ -4,31 +4,31 @@ import com.orizon.coreapi.adapter.out.persistence.mapper.BudgetPersistenceMapper
 import com.orizon.coreapi.adapter.out.persistence.repository.JpaBudgetRepository;
 import com.orizon.coreapi.domain.model.Budget;
 import com.orizon.coreapi.domain.port.out.BudgetRepository;
-import org.springframework.stereotype.Repository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
+@ApplicationScoped
 public class BudgetRepositoryAdapter implements BudgetRepository {
 
-    private final JpaBudgetRepository jpaBudgetRepository;
-
-    public BudgetRepositoryAdapter(JpaBudgetRepository jpaBudgetRepository) {
-        this.jpaBudgetRepository = jpaBudgetRepository;
-    }
+    @Inject
+    JpaBudgetRepository jpaBudgetRepository;
 
     @Override
+    @Transactional
     public Budget save(Budget budget) {
         var entity = BudgetPersistenceMapper.toEntity(budget);
-        var saved = jpaBudgetRepository.save(entity);
-        return BudgetPersistenceMapper.toDomain(saved);
+        jpaBudgetRepository.persist(entity);
+        return BudgetPersistenceMapper.toDomain(entity);
     }
 
     @Override
     public Optional<Budget> findById(UUID id) {
-        return jpaBudgetRepository.findById(id).map(BudgetPersistenceMapper::toDomain);
+        return jpaBudgetRepository.findByIdOptional(id).map(BudgetPersistenceMapper::toDomain);
     }
 
     @Override

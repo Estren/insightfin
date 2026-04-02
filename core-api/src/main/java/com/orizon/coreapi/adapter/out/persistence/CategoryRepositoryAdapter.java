@@ -5,31 +5,31 @@ import com.orizon.coreapi.adapter.out.persistence.repository.JpaCategoryReposito
 import com.orizon.coreapi.domain.model.Category;
 import com.orizon.coreapi.domain.model.TransactionType;
 import com.orizon.coreapi.domain.port.out.CategoryRepository;
-import org.springframework.stereotype.Repository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository
+@ApplicationScoped
 public class CategoryRepositoryAdapter implements CategoryRepository {
 
-    private final JpaCategoryRepository jpaCategoryRepository;
-
-    public CategoryRepositoryAdapter(JpaCategoryRepository jpaCategoryRepository) {
-        this.jpaCategoryRepository = jpaCategoryRepository;
-    }
+    @Inject
+    JpaCategoryRepository jpaCategoryRepository;
 
     @Override
+    @Transactional
     public Category save(Category category) {
         var entity = CategoryPersistenceMapper.toEntity(category);
-        var saved = jpaCategoryRepository.save(entity);
-        return CategoryPersistenceMapper.toDomain(saved);
+        jpaCategoryRepository.persist(entity);
+        return CategoryPersistenceMapper.toDomain(entity);
     }
 
     @Override
     public Optional<Category> findById(UUID id) {
-        return jpaCategoryRepository.findById(id).map(CategoryPersistenceMapper::toDomain);
+        return jpaCategoryRepository.findByIdOptional(id).map(CategoryPersistenceMapper::toDomain);
     }
 
     @Override

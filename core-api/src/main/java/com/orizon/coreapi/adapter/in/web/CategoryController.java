@@ -3,42 +3,42 @@ package com.orizon.coreapi.adapter.in.web;
 import com.orizon.coreapi.adapter.in.web.dto.CategoryResponse;
 import com.orizon.coreapi.adapter.in.web.dto.CreateCategoryRequest;
 import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
+import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.model.TransactionType;
 import com.orizon.coreapi.domain.port.in.CreateCategoryUseCase;
 import com.orizon.coreapi.domain.port.in.ListCategoriesUseCase;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.UUID;
 
-@RestController
-@RequestMapping("/api/categories")
+@Path("/api/categories")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class CategoryController {
 
-    private final CreateCategoryUseCase createCategoryUseCase;
-    private final ListCategoriesUseCase listCategoriesUseCase;
+    @Inject
+    CreateCategoryUseCase createCategoryUseCase;
 
-    public CategoryController(CreateCategoryUseCase createCategoryUseCase,
-                              ListCategoriesUseCase listCategoriesUseCase) {
-        this.createCategoryUseCase = createCategoryUseCase;
-        this.listCategoriesUseCase = listCategoriesUseCase;
-    }
+    @Inject
+    ListCategoriesUseCase listCategoriesUseCase;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public CategoryResponse create(@RequestAttribute UUID userId,
-                                   @Valid @RequestBody CreateCategoryRequest request) {
+    @Inject
+    AuthenticatedUser authenticatedUser;
+
+    @POST
+    public Response create(@Valid CreateCategoryRequest request) {
         var category = createCategoryUseCase.execute(
-                userId, request.name(), request.type(), request.icon(), request.color());
-        return WebMapper.toResponse(category);
+                authenticatedUser.getUserId(), request.name(), request.type(), request.icon(), request.color());
+        return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(category)).build();
     }
 
-    @GetMapping
-    public List<CategoryResponse> list(@RequestAttribute UUID userId,
-                                       @RequestParam(required = false) TransactionType type) {
-        return listCategoriesUseCase.execute(userId, type)
+    @GET
+    public List<CategoryResponse> list(@QueryParam("type") TransactionType type) {
+        return listCategoriesUseCase.execute(authenticatedUser.getUserId(), type)
                 .stream()
                 .map(WebMapper::toResponse)
                 .toList();

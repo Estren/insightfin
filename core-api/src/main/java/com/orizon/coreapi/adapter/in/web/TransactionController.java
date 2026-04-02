@@ -3,44 +3,44 @@ package com.orizon.coreapi.adapter.in.web;
 import com.orizon.coreapi.adapter.in.web.dto.CreateTransactionRequest;
 import com.orizon.coreapi.adapter.in.web.dto.TransactionResponse;
 import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
+import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.CreateTransactionUseCase;
 import com.orizon.coreapi.domain.port.in.ListTransactionsUseCase;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
-@RestController
-@RequestMapping("/api/transactions")
+@Path("/api/transactions")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class TransactionController {
 
-    private final CreateTransactionUseCase createTransactionUseCase;
-    private final ListTransactionsUseCase listTransactionsUseCase;
+    @Inject
+    CreateTransactionUseCase createTransactionUseCase;
 
-    public TransactionController(CreateTransactionUseCase createTransactionUseCase,
-                                 ListTransactionsUseCase listTransactionsUseCase) {
-        this.createTransactionUseCase = createTransactionUseCase;
-        this.listTransactionsUseCase = listTransactionsUseCase;
-    }
+    @Inject
+    ListTransactionsUseCase listTransactionsUseCase;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public TransactionResponse create(@RequestAttribute UUID userId,
-                                      @Valid @RequestBody CreateTransactionRequest request) {
+    @Inject
+    AuthenticatedUser authenticatedUser;
+
+    @POST
+    public Response create(@Valid CreateTransactionRequest request) {
         var transaction = createTransactionUseCase.execute(
-                userId, request.categoryId(), request.type(),
+                authenticatedUser.getUserId(), request.categoryId(), request.type(),
                 request.amount(), request.description(), request.date());
-        return WebMapper.toResponse(transaction);
+        return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(transaction)).build();
     }
 
-    @GetMapping
-    public List<TransactionResponse> list(@RequestAttribute UUID userId,
-                                          @RequestParam LocalDate startDate,
-                                          @RequestParam LocalDate endDate) {
-        return listTransactionsUseCase.execute(userId, startDate, endDate)
+    @GET
+    public List<TransactionResponse> list(@QueryParam("startDate") LocalDate startDate,
+                                          @QueryParam("endDate") LocalDate endDate) {
+        return listTransactionsUseCase.execute(authenticatedUser.getUserId(), startDate, endDate)
                 .stream()
                 .map(WebMapper::toResponse)
                 .toList();
