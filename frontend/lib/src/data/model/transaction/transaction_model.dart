@@ -4,6 +4,7 @@ class TransactionModel extends TransactionEntity {
   const TransactionModel({
     required super.id,
     required super.categoryId,
+    required super.categoryName,
     required super.type,
     required super.amount,
     super.description,
@@ -15,6 +16,7 @@ class TransactionModel extends TransactionEntity {
     return TransactionModel(
       id: json['id'],
       categoryId: json['categoryId'],
+      categoryName: json['categoryName'] ?? '',
       type: json['type'] == 'EXPENSE'
           ? TransactionType.expense
           : TransactionType.income,

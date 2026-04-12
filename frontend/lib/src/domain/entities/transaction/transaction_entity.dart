@@ -5,6 +5,7 @@ enum TransactionType { expense, income }
 class TransactionEntity extends Equatable {
   final String id;
   final String categoryId;
+  final String categoryName;
   final TransactionType type;
   final double amount;
   final String? description;
@@ -14,6 +15,7 @@ class TransactionEntity extends Equatable {
   const TransactionEntity({
     required this.id,
     required this.categoryId,
+    required this.categoryName,
     required this.type,
     required this.amount,
     this.description,
@@ -23,5 +25,5 @@ class TransactionEntity extends Equatable {
 
   @override
   List<Object?> get props =>
-      [id, categoryId, type, amount, description, date, createdAt];
+      [id, categoryId, categoryName, type, amount, description, date, createdAt];
 }

@@ -3,6 +3,9 @@ package com.orizon.coreapi.adapter.in.web.mapper;
 import com.orizon.coreapi.adapter.in.web.dto.*;
 import com.orizon.coreapi.domain.model.*;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class WebMapper {
 
     private WebMapper() {}
@@ -11,10 +14,10 @@ public class WebMapper {
         return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getCreatedAt());
     }
 
-    public static TransactionResponse toResponse(Transaction transaction) {
+    public static TransactionResponse toResponse(Transaction transaction, String categoryName) {
         return new TransactionResponse(
-                transaction.getId(), transaction.getCategoryId(), transaction.getType(),
-                transaction.getAmount(), transaction.getDescription(),
+                transaction.getId(), transaction.getCategoryId(), categoryName,
+                transaction.getType(), transaction.getAmount(), transaction.getDescription(),
                 transaction.getDate(), transaction.getCreatedAt());
     }
 
@@ -37,9 +40,9 @@ public class WebMapper {
                 contribution.getAmount(), contribution.getDate(), contribution.getCreatedAt());
     }
 
-    public static BudgetResponse toResponse(Budget budget) {
+    public static BudgetResponse toResponse(Budget budget, String categoryName) {
         return new BudgetResponse(
-                budget.getId(), budget.getCategoryId(),
+                budget.getId(), budget.getCategoryId(), categoryName,
                 budget.getAmount(), budget.getMonth(), budget.getCreatedAt());
     }
 
@@ -56,12 +59,14 @@ public class WebMapper {
                 feedback.isRead(), feedback.getCreatedAt());
     }
 
-    public static DashboardResponse toResponse(DashboardSummary summary) {
+    public static DashboardResponse toResponse(DashboardSummary summary, Map<UUID, String> categoryNames) {
         return new DashboardResponse(
                 summary.getTotalIncome(),
                 summary.getTotalExpense(),
                 summary.getBalance(),
-                summary.getRecentTransactions().stream().map(WebMapper::toResponse).toList(),
+                summary.getRecentTransactions().stream()
+                        .map(t -> toResponse(t, categoryNames.getOrDefault(t.getCategoryId(), "Unknown")))
+                        .toList(),
                 summary.getActiveGoals().stream().map(WebMapper::toResponse).toList(),
                 summary.getBudgetStatuses().stream().map(WebMapper::toResponse).toList());
     }

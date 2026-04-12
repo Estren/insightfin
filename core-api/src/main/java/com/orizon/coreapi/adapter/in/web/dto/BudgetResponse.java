@@ -7,6 +7,7 @@ import java.util.UUID;
 public record BudgetResponse(
         UUID id,
         UUID categoryId,
+        String categoryName,
         BigDecimal amount,
         String month,
         LocalDateTime createdAt

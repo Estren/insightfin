@@ -92,7 +92,7 @@ class BudgetsPage extends StatelessWidget {
                             const EdgeInsets.only(bottom: AppSpacing.sm),
                         child: BudgetCard(
                           budget: budget,
-                          categoryName: budget.categoryId,
+                          categoryName: budget.categoryName,
                           spent: 0,
                         ),
                       )),

@@ -23,6 +23,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       final model = TransactionModel(
         id: '',
         categoryId: categoryId,
+        categoryName: '',
         type: type,
         amount: amount,
         description: description,

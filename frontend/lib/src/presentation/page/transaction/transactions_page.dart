@@ -102,7 +102,7 @@ class TransactionsPage extends StatelessWidget {
                               bottom: AppSpacing.xs),
                           child: TransactionCard(
                             transaction: t,
-                            categoryName: t.categoryId,
+                            categoryName: t.categoryName,
                           ),
                         ),
                       ),

@@ -4,6 +4,7 @@ class BudgetModel extends BudgetEntity {
   const BudgetModel({
     required super.id,
     required super.categoryId,
+    required super.categoryName,
     required super.amount,
     required super.month,
     required super.createdAt,
@@ -13,6 +14,7 @@ class BudgetModel extends BudgetEntity {
     return BudgetModel(
       id: json['id'],
       categoryId: json['categoryId'],
+      categoryName: json['categoryName'] ?? '',
       amount: (json['amount'] as num).toDouble(),
       month: json['month'],
       createdAt: DateTime.parse(json['createdAt']),

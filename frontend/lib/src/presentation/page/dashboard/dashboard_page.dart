@@ -285,7 +285,7 @@ class _RecentTransactions extends StatelessWidget {
                           const EdgeInsets.only(bottom: AppSpacing.xs),
                       child: TransactionCard(
                         transaction: t,
-                        categoryName: t.categoryId,
+                        categoryName: t.categoryName,
                       ),
                     ))
                 .toList(),
@@ -480,7 +480,7 @@ class _BudgetOverview extends StatelessWidget {
                             crossAxisAlignment:
                                 CrossAxisAlignment.start,
                             children: [
-                              Text(budget.categoryId,
+                              Text(budget.categoryName,
                                   style: AppTypography.label),
                               Text(
                                 'Limit: ${formatter.format(budget.amount)}',

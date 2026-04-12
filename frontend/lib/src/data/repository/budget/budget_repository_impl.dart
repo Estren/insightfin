@@ -21,6 +21,7 @@ class BudgetRepositoryImpl implements BudgetRepository {
       final model = BudgetModel(
         id: '',
         categoryId: categoryId,
+        categoryName: '',
         amount: amount,
         month: month,
         createdAt: DateTime.now(),
