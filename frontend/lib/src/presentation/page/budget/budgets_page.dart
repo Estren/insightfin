@@ -42,7 +42,7 @@ class BudgetsPage extends StatelessWidget {
           }
 
           if (state is BudgetLoaded) {
-            if (state.budgets.isEmpty) {
+            if (state.statuses.isEmpty) {
               return EmptyState(
                 icon: Icons.account_balance_wallet_outlined,
                 title: l10n.noBudgets,
@@ -87,14 +87,10 @@ class BudgetsPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  ...state.budgets.map((budget) => Padding(
+                  ...state.statuses.map((status) => Padding(
                         padding:
                             const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: BudgetCard(
-                          budget: budget,
-                          categoryName: budget.categoryName,
-                          spent: 0,
-                        ),
+                        child: BudgetCard(status: status),
                       )),
                 ],
               ),

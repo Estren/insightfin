@@ -1,10 +1,12 @@
 import 'package:orizon/core/error/exceptions.dart';
 import 'package:orizon/core/network/api_client.dart';
 import 'package:orizon/src/data/model/budget/budget_model.dart';
+import 'package:orizon/src/data/model/budget/budget_status_model.dart';
 
 abstract class BudgetRemoteDataSource {
   Future<BudgetModel> create(Map<String, dynamic> data);
   Future<List<BudgetModel>> getByMonth(String month);
+  Future<List<BudgetStatusModel>> getStatus(String month);
 }
 
 class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
@@ -32,6 +34,19 @@ class BudgetRemoteDataSourceImpl implements BudgetRemoteDataSource {
           .toList();
     } catch (e) {
       throw const ServerException('Failed to fetch budgets');
+    }
+  }
+
+  @override
+  Future<List<BudgetStatusModel>> getStatus(String month) async {
+    try {
+      final response = await apiClient.dio
+          .get('/budgets/status', queryParameters: {'month': month});
+      return (response.data as List)
+          .map((json) => BudgetStatusModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw const ServerException('Failed to fetch budget status');
     }
   }
 }

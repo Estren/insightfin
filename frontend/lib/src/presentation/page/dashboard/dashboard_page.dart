@@ -433,7 +433,7 @@ class _BudgetOverview extends StatelessWidget {
         }
 
         if (state is BudgetLoaded) {
-          if (state.budgets.isEmpty) {
+          if (state.statuses.isEmpty) {
             return Card(
               child: Padding(
                 padding: AppSpacing.paddingCard,
@@ -453,43 +453,74 @@ class _BudgetOverview extends StatelessWidget {
               NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
           return Column(
-            children: state.budgets.take(3).map((budget) {
+            children: state.statuses.take(3).map((status) {
+              final usage = status.budgetAmount > 0
+                  ? (status.spentAmount / status.budgetAmount).clamp(0.0, 1.0)
+                  : 0.0;
+              final percentage = (usage * 100).toStringAsFixed(0);
+              final barColor = usage >= 0.9
+                  ? AppColors.expense
+                  : usage >= 0.7
+                      ? AppColors.warning
+                      : AppColors.income;
+
               return Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                 child: Card(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.sm + 4),
-                    child: Row(
+                    child: Column(
                       children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary100,
-                            borderRadius: AppSpacing.radiusSm,
-                          ),
-                          child: const Icon(
-                            Icons.account_balance_wallet_outlined,
-                            color: AppColors.primary600,
-                            size: 20,
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.sm + 4),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
-                            children: [
-                              Text(budget.categoryName,
-                                  style: AppTypography.label),
-                              Text(
-                                'Limit: ${formatter.format(budget.amount)}',
-                                style:
-                                    AppTypography.bodySmall.copyWith(
-                                  color: AppColors.neutral500,
-                                ),
+                        Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: barColor.withOpacity(0.1),
+                                borderRadius: AppSpacing.radiusSm,
                               ),
-                            ],
+                              child: Icon(
+                                Icons.account_balance_wallet_outlined,
+                                color: barColor,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm + 4),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(status.categoryName,
+                                      style: AppTypography.label),
+                                  Text(
+                                    '${formatter.format(status.spentAmount)} / ${formatter.format(status.budgetAmount)}',
+                                    style:
+                                        AppTypography.bodySmall.copyWith(
+                                      color: AppColors.neutral500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              '$percentage%',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: barColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        ClipRRect(
+                          borderRadius: AppSpacing.radiusFull,
+                          child: LinearProgressIndicator(
+                            value: usage,
+                            backgroundColor: AppColors.neutral200,
+                            color: barColor,
+                            minHeight: 6,
                           ),
                         ),
                       ],

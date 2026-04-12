@@ -1,15 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:orizon/src/domain/usecase/budget/create_budget_usecase.dart';
-import 'package:orizon/src/domain/usecase/budget/get_budgets_usecase.dart';
+import 'package:orizon/src/domain/usecase/budget/get_budget_status_usecase.dart';
 import 'budget_event.dart';
 import 'budget_state.dart';
 
 class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
-  final GetBudgetsUseCase getBudgetsUseCase;
+  final GetBudgetStatusUseCase getBudgetStatusUseCase;
   final CreateBudgetUseCase createBudgetUseCase;
 
   BudgetBloc({
-    required this.getBudgetsUseCase,
+    required this.getBudgetStatusUseCase,
     required this.createBudgetUseCase,
   }) : super(BudgetInitial()) {
     on<BudgetsLoadRequested>(_onLoadRequested);
@@ -20,12 +20,12 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
   Future<void> _onLoadRequested(
       BudgetsLoadRequested event, Emitter<BudgetState> emit) async {
     emit(BudgetLoading());
-    final result =
-        await getBudgetsUseCase(GetBudgetsParams(month: event.month));
+    final result = await getBudgetStatusUseCase(
+        GetBudgetStatusParams(month: event.month));
     result.fold(
       (failure) => emit(BudgetError(failure.message)),
-      (budgets) => emit(BudgetLoaded(
-        budgets: budgets,
+      (statuses) => emit(BudgetLoaded(
+        statuses: statuses,
         selectedMonth: event.month,
       )),
     );
@@ -48,12 +48,12 @@ class BudgetBloc extends Bloc<BudgetEvent, BudgetState> {
   Future<void> _onMonthChanged(
       BudgetMonthChanged event, Emitter<BudgetState> emit) async {
     emit(BudgetLoading());
-    final result =
-        await getBudgetsUseCase(GetBudgetsParams(month: event.month));
+    final result = await getBudgetStatusUseCase(
+        GetBudgetStatusParams(month: event.month));
     result.fold(
       (failure) => emit(BudgetError(failure.message)),
-      (budgets) => emit(BudgetLoaded(
-        budgets: budgets,
+      (statuses) => emit(BudgetLoaded(
+        statuses: statuses,
         selectedMonth: event.month,
       )),
     );

@@ -3,25 +3,23 @@ import 'package:intl/intl.dart';
 import 'package:orizon/core/theme/app_colors.dart';
 import 'package:orizon/core/theme/app_spacing.dart';
 import 'package:orizon/core/theme/app_typography.dart';
-import 'package:orizon/src/domain/entities/budget/budget_entity.dart';
+import 'package:orizon/src/domain/entities/budget/budget_status_entity.dart';
 
 class BudgetCard extends StatelessWidget {
-  final BudgetEntity budget;
-  final String categoryName;
+  final BudgetStatusEntity status;
   final IconData categoryIcon;
-  final double spent;
   final VoidCallback? onTap;
 
   const BudgetCard({
     super.key,
-    required this.budget,
-    required this.categoryName,
+    required this.status,
     this.categoryIcon = Icons.account_balance_wallet_outlined,
-    required this.spent,
     this.onTap,
   });
 
-  double get _usage => budget.amount > 0 ? (spent / budget.amount).clamp(0.0, 1.0) : 0.0;
+  double get _usage => status.budgetAmount > 0
+      ? (status.spentAmount / status.budgetAmount).clamp(0.0, 1.0)
+      : 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +50,7 @@ class BudgetCard extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm + 4),
                   Expanded(
                     child: Text(
-                      categoryName,
+                      status.categoryName,
                       style: AppTypography.label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -82,13 +80,13 @@ class BudgetCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Spent ${formatter.format(spent)}',
+                    'Spent ${formatter.format(status.spentAmount)}',
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.neutral500,
                     ),
                   ),
                   Text(
-                    'of ${formatter.format(budget.amount)}',
+                    'of ${formatter.format(status.budgetAmount)}',
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.neutral500,
                     ),

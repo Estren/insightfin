@@ -30,6 +30,7 @@ import 'package:orizon/src/domain/usecase/goal/create_goal_usecase.dart';
 import 'package:orizon/src/domain/usecase/goal/contribute_to_goal_usecase.dart';
 import 'package:orizon/src/domain/usecase/budget/create_budget_usecase.dart';
 import 'package:orizon/src/domain/usecase/budget/get_budgets_usecase.dart';
+import 'package:orizon/src/domain/usecase/budget/get_budget_status_usecase.dart';
 import 'package:orizon/src/presentation/bloc/auth/auth_bloc.dart';
 import 'package:orizon/src/presentation/bloc/category/category_bloc.dart';
 import 'package:orizon/src/presentation/bloc/transaction/transaction_bloc.dart';
@@ -86,6 +87,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ContributeToGoalUseCase(sl()));
   sl.registerLazySingleton(() => CreateBudgetUseCase(sl()));
   sl.registerLazySingleton(() => GetBudgetsUseCase(sl()));
+  sl.registerLazySingleton(() => GetBudgetStatusUseCase(sl()));
 
   // BLoCs
   sl.registerFactory(() => AuthBloc(
@@ -99,5 +101,5 @@ Future<void> init() async {
       createGoalUseCase: sl(),
       contributeToGoalUseCase: sl()));
   sl.registerFactory(() => BudgetBloc(
-      getBudgetsUseCase: sl(), createBudgetUseCase: sl()));
+      getBudgetStatusUseCase: sl(), createBudgetUseCase: sl()));
 }

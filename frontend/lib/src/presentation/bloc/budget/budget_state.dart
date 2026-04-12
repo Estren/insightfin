@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:orizon/src/domain/entities/budget/budget_entity.dart';
+import 'package:orizon/src/domain/entities/budget/budget_status_entity.dart';
 
 abstract class BudgetState extends Equatable {
   const BudgetState();
@@ -13,19 +14,19 @@ class BudgetInitial extends BudgetState {}
 class BudgetLoading extends BudgetState {}
 
 class BudgetLoaded extends BudgetState {
-  final List<BudgetEntity> budgets;
+  final List<BudgetStatusEntity> statuses;
   final String selectedMonth;
 
   const BudgetLoaded({
-    required this.budgets,
+    required this.statuses,
     required this.selectedMonth,
   });
 
   double get totalBudgeted =>
-      budgets.fold(0.0, (sum, b) => sum + b.amount);
+      statuses.fold(0.0, (sum, s) => sum + s.budgetAmount);
 
   @override
-  List<Object> get props => [budgets, selectedMonth];
+  List<Object> get props => [statuses, selectedMonth];
 }
 
 class BudgetCreated extends BudgetState {
