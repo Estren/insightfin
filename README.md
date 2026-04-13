@@ -10,7 +10,7 @@ Orizon helps users track expenses, set financial goals, and receive personalized
 
 | Directory | Description | Stack |
 |---|---|---|
-| `core-api/` | 🔧 Main REST API — manages users, transactions, categories, goals, and budgets | Java 21, Spring Boot, PostgreSQL |
+| `core-api/` | 🔧 Main REST API — manages users, transactions, categories, goals, and budgets | Java 17, Quarkus 3, PostgreSQL |
 | `frontend/` | 📱 Mobile & web client | Flutter, BLoC, Dio |
 | `ai/` | 🧠 AI reasoning service — financial feedback and insights | Python (TBD) |
 
@@ -83,7 +83,7 @@ User ──┬── Transaction ── Category
 
 | Layer | Technology |
 |---|---|
-| Backend | Java 21, Spring Boot 3.4, Spring Security, JWT |
+| Backend | Java 17, Quarkus 3.17, JAX-RS, JWT (JJWT) |
 | Frontend | Flutter, BLoC, Dio, GoRouter, GetIt |
 | AI | Python (framework TBD) |
 | Database | PostgreSQL 16, Flyway migrations |
