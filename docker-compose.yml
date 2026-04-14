@@ -31,9 +31,8 @@ services:
     environment:
       DB_USERNAME: orizon
       DB_PASSWORD: orizon
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/orizon
+      QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/orizon
       JWT_SECRET: orizon-dev-secret-key-change-in-production-min-32-chars
-      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
 
   ai:
     build: ./ai

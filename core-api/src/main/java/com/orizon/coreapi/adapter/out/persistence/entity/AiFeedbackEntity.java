@@ -27,7 +27,7 @@ public class AiFeedbackEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "jsonb")
     private String metadata;
 
     @Column(name = "reference_month", length = 7)
