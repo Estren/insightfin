@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { Router, RouterLink } from '@angular/router';
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { AuthStore } from '../../../../core/stores/auth.store';
 
 @Component({
   selector: 'app-sign-in',
@@ -15,12 +16,14 @@ export class SignInComponent implements OnInit {
   form!: FormGroup;
   submitted = false;
   passwordTextType!: boolean;
+  loading = false;
+  errorMessage = '';
 
-  constructor(private readonly _formBuilder: FormBuilder, private readonly _router: Router) {}
-
-  onClick() {
-    console.log('Button clicked');
-  }
+  constructor(
+    private readonly _formBuilder: FormBuilder,
+    private readonly _router: Router,
+    private readonly _authStore: AuthStore,
+  ) {}
 
   ngOnInit(): void {
     this.form = this._formBuilder.group({
@@ -39,12 +42,24 @@ export class SignInComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    const { email, password } = this.form.value;
+    this.errorMessage = '';
 
     if (this.form.invalid) {
       return;
     }
 
-    this._router.navigate(['/']);
+    this.loading = true;
+    const { email, password } = this.form.value;
+
+    this._authStore.login({ email, password }).subscribe({
+      next: () => {
+        this.loading = false;
+        this._router.navigate(['/']);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMessage = err.status === 401 ? 'Invalid email or password.' : 'An error occurred. Please try again.';
+      },
+    });
   }
 }

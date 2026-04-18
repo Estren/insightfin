@@ -2,14 +2,15 @@ import { enableProdMode, importProvidersFrom } from '@angular/core';
 
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { AppRoutingModule } from './app/app-routing.module';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
 import { provideZonelessChangeDetection } from '@angular/core';
+import { authInterceptor } from './app/core/interceptor/auth.interceptor';
 
 if (environment.production) {
   enableProdMode();
-  //show this warning only on prod mode
   if (window) {
     selfXSSWarning();
   }
@@ -20,6 +21,7 @@ bootstrapApplication(AppComponent, {
     importProvidersFrom(BrowserModule, AppRoutingModule),
     provideAnimations(),
     provideZonelessChangeDetection(),
+    provideHttpClient(withInterceptors([authInterceptor])),
   ],
 }).catch((err) => console.error(err));
 

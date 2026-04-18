@@ -95,9 +95,16 @@
         </app-button>
       </div>
 
+      <!-- Error Message -->
+      @if (errorMessage) {
+        <div class="rounded-md bg-red-50 p-3 text-sm text-red-600">{{ errorMessage }}</div>
+      }
+
       <!-- Submit Button -->
       <div>
-        <app-button full impact="bold" tone="primary" shape="rounded" size="medium">Sign in</app-button>
+        <app-button full impact="bold" tone="primary" shape="rounded" size="medium" [disabled]="loading">
+          {{ loading ? 'Signing in...' : 'Sign in' }}
+        </app-button>
       </div>
 
       <!-- Sign-up -->
