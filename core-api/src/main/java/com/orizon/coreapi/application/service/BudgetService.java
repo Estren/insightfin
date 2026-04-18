@@ -1,16 +1,5 @@
 package com.orizon.coreapi.application.service;
 
-import com.orizon.coreapi.domain.exception.DuplicateResourceException;
-import com.orizon.coreapi.domain.exception.ResourceNotFoundException;
-import com.orizon.coreapi.domain.model.Budget;
-import com.orizon.coreapi.domain.model.BudgetStatus;
-import com.orizon.coreapi.domain.port.in.CreateBudgetUseCase;
-import com.orizon.coreapi.domain.port.in.GetBudgetStatusUseCase;
-import com.orizon.coreapi.domain.port.in.ListBudgetsUseCase;
-import com.orizon.coreapi.domain.port.out.BudgetRepository;
-import com.orizon.coreapi.domain.port.out.CategoryRepository;
-import com.orizon.coreapi.domain.port.out.TransactionRepository;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -18,7 +7,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class BudgetService implements CreateBudgetUseCase, ListBudgetsUseCase, GetBudgetStatusUseCase {
+import com.orizon.coreapi.domain.exception.DuplicateResourceException;
+import com.orizon.coreapi.domain.exception.ResourceNotFoundException;
+import com.orizon.coreapi.domain.model.Budget;
+import com.orizon.coreapi.domain.model.BudgetStatus;
+import com.orizon.coreapi.domain.port.in.CreateBudgetUseCase;
+import com.orizon.coreapi.domain.port.in.DeleteBudgetUseCase;
+import com.orizon.coreapi.domain.port.in.GetBudgetStatusUseCase;
+import com.orizon.coreapi.domain.port.in.ListBudgetsUseCase;
+import com.orizon.coreapi.domain.port.in.UpdateBudgetUseCase;
+import com.orizon.coreapi.domain.port.out.BudgetRepository;
+import com.orizon.coreapi.domain.port.out.CategoryRepository;
+import com.orizon.coreapi.domain.port.out.TransactionRepository;
+
+public class BudgetService implements CreateBudgetUseCase, ListBudgetsUseCase, GetBudgetStatusUseCase,
+        UpdateBudgetUseCase, DeleteBudgetUseCase {
 
     private final BudgetRepository budgetRepository;
     private final CategoryRepository categoryRepository;
@@ -73,7 +76,8 @@ public class BudgetService implements CreateBudgetUseCase, ListBudgetsUseCase, G
                     userId, budget.getCategoryId(), month);
 
             BigDecimal percentage = budget.getAmount().compareTo(BigDecimal.ZERO) > 0
-                    ? spent.multiply(BigDecimal.valueOf(100)).divide(budget.getAmount(), 2, RoundingMode.HALF_UP)
+                    ? spent.multiply(BigDecimal.valueOf(100)).divide(budget.getAmount(), 2,
+                            RoundingMode.HALF_UP)
                     : BigDecimal.ZERO;
 
             statuses.add(new BudgetStatus(
@@ -82,5 +86,30 @@ public class BudgetService implements CreateBudgetUseCase, ListBudgetsUseCase, G
         }
 
         return statuses;
+    }
+
+    @Override
+    public Budget execute(UUID userId, UUID budgetId, BigDecimal amount) {
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget", budgetId));
+
+        if (!budget.getUserId().equals(userId)) {
+            throw new ResourceNotFoundException("Budget", budgetId);
+        }
+
+        budget.setAmount(amount);
+        return budgetRepository.save(budget);
+    }
+
+    @Override
+    public void execute(UUID userId, UUID budgetId) {
+        Budget budget = budgetRepository.findById(budgetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Budget", budgetId));
+
+        if (!budget.getUserId().equals(userId)) {
+            throw new ResourceNotFoundException("Budget", budgetId);
+        }
+
+        budgetRepository.deleteById(budgetId);
     }
 }

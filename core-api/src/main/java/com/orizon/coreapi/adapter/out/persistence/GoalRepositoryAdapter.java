@@ -47,4 +47,10 @@ public class GoalRepositoryAdapter implements GoalRepository {
                 .map(GoalPersistenceMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    @Transactional
+    public void deleteById(UUID id) {
+        jpaGoalRepository.deleteById(id);
+    }
 }

@@ -12,4 +12,5 @@ public interface GoalRepository {
     Optional<Goal> findById(UUID id);
     List<Goal> findByUserIdAndStatus(UUID userId, GoalStatus status);
     List<Goal> findByUserId(UUID userId);
+    void deleteById(UUID id);
 }

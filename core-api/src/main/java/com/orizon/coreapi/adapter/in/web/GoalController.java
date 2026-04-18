@@ -5,6 +5,8 @@ import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
 import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.ContributeToGoalUseCase;
 import com.orizon.coreapi.domain.port.in.CreateGoalUseCase;
+import com.orizon.coreapi.domain.port.in.DeleteGoalUseCase;
+import com.orizon.coreapi.domain.port.in.UpdateGoalUseCase;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -25,6 +27,12 @@ public class GoalController {
     ContributeToGoalUseCase contributeToGoalUseCase;
 
     @Inject
+    UpdateGoalUseCase updateGoalUseCase;
+
+    @Inject
+    DeleteGoalUseCase deleteGoalUseCase;
+
+    @Inject
     AuthenticatedUser authenticatedUser;
 
     @POST
@@ -40,5 +48,20 @@ public class GoalController {
                                @Valid CreateGoalContributionRequest request) {
         var contribution = contributeToGoalUseCase.execute(goalId, request.amount(), request.date());
         return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(contribution)).build();
+    }
+
+    @PUT
+    @Path("/{id}")
+    public GoalResponse update(@PathParam("id") UUID id, @Valid UpdateGoalRequest request) {
+        var goal = updateGoalUseCase.execute(
+                authenticatedUser.getUserId(), id, request.title(), request.targetAmount(), request.deadline());
+        return WebMapper.toResponse(goal);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response delete(@PathParam("id") UUID id) {
+        deleteGoalUseCase.execute(authenticatedUser.getUserId(), id);
+        return Response.noContent().build();
     }
 }

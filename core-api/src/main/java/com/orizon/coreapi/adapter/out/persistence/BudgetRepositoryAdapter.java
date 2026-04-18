@@ -44,4 +44,10 @@ public class BudgetRepositoryAdapter implements BudgetRepository {
         return jpaBudgetRepository.findByUserIdAndCategoryIdAndMonth(userId, categoryId, month)
                 .map(BudgetPersistenceMapper::toDomain);
     }
+
+    @Override
+    @Transactional
+    public void deleteById(UUID id) {
+        jpaBudgetRepository.deleteById(id);
+    }
 }

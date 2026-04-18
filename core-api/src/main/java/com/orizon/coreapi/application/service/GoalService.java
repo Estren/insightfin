@@ -6,6 +6,8 @@ import com.orizon.coreapi.domain.model.GoalContribution;
 import com.orizon.coreapi.domain.model.GoalStatus;
 import com.orizon.coreapi.domain.port.in.ContributeToGoalUseCase;
 import com.orizon.coreapi.domain.port.in.CreateGoalUseCase;
+import com.orizon.coreapi.domain.port.in.DeleteGoalUseCase;
+import com.orizon.coreapi.domain.port.in.UpdateGoalUseCase;
 import com.orizon.coreapi.domain.port.out.GoalContributionRepository;
 import com.orizon.coreapi.domain.port.out.GoalRepository;
 
@@ -14,7 +16,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class GoalService implements CreateGoalUseCase, ContributeToGoalUseCase {
+public class GoalService implements CreateGoalUseCase, ContributeToGoalUseCase,
+        UpdateGoalUseCase, DeleteGoalUseCase {
 
     private final GoalRepository goalRepository;
     private final GoalContributionRepository goalContributionRepository;
@@ -63,5 +66,34 @@ public class GoalService implements CreateGoalUseCase, ContributeToGoalUseCase {
         goalRepository.save(goal);
 
         return saved;
+    }
+
+    @Override
+    public Goal execute(UUID userId, UUID goalId, String title, BigDecimal targetAmount, LocalDate deadline) {
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Goal", goalId));
+
+        if (!goal.getUserId().equals(userId)) {
+            throw new ResourceNotFoundException("Goal", goalId);
+        }
+
+        goal.setTitle(title);
+        goal.setTargetAmount(targetAmount);
+        goal.setDeadline(deadline);
+        goal.setUpdatedAt(LocalDateTime.now());
+
+        return goalRepository.save(goal);
+    }
+
+    @Override
+    public void execute(UUID userId, UUID goalId) {
+        Goal goal = goalRepository.findById(goalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Goal", goalId));
+
+        if (!goal.getUserId().equals(userId)) {
+            throw new ResourceNotFoundException("Goal", goalId);
+        }
+
+        goalRepository.deleteById(goalId);
     }
 }
