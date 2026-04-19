@@ -22,6 +22,11 @@ export class Menu {
           route: '/categories',
         },
         {
+          icon: 'assets/icons/heroicons/outline/shield-check.svg',
+          label: 'Budgets',
+          route: '/budgets',
+        },
+        {
           icon: 'assets/icons/heroicons/outline/lock-closed.svg',
           label: 'Auth',
           route: '/auth',

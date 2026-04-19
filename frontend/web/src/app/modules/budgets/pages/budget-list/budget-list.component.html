@@ -1,0 +1,83 @@
+<div class="mx-auto max-w-4xl p-6">
+  <div class="mb-6 flex items-center justify-between">
+    <h2 class="text-foreground text-2xl font-bold">Budgets</h2>
+    <a
+      routerLink="/budgets/new"
+      class="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors">
+      + New Budget
+    </a>
+  </div>
+
+  <!-- Month navigation -->
+  <div class="mb-6 flex items-center justify-center gap-4">
+    <button
+      (click)="changeMonth(-1)"
+      class="bg-muted text-muted-foreground hover:bg-muted/80 rounded-md px-3 py-1.5 text-sm font-medium transition-colors">
+      ‹ Prev
+    </button>
+    <span class="text-foreground text-base font-semibold">
+      {{ budgetStore.selectedMonth$ | async }}
+    </span>
+    <button
+      (click)="changeMonth(1)"
+      class="bg-muted text-muted-foreground hover:bg-muted/80 rounded-md px-3 py-1.5 text-sm font-medium transition-colors">
+      Next ›
+    </button>
+  </div>
+
+  @if (budgetStore.loading$ | async) {
+    <div class="flex items-center justify-center py-20">
+      <div class="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+    </div>
+  } @else if (budgetStore.error$ | async; as error) {
+    <div class="rounded-lg bg-red-50 p-6 text-center text-red-600 dark:bg-red-900/20 dark:text-red-400">
+      {{ error }}
+    </div>
+  } @else if (budgetStore.statuses$ | async; as statuses) {
+    @if (statuses.length === 0) {
+      <div class="rounded-lg border border-dashed p-10 text-center">
+        <p class="text-muted-foreground text-sm">No budgets for this month.</p>
+      </div>
+    } @else {
+      <div class="space-y-4">
+        @for (s of statuses; track s.budgetId) {
+          <div class="bg-card rounded-lg border p-4 shadow-sm">
+            <div class="mb-2 flex items-center justify-between">
+              <div>
+                <p class="text-foreground text-sm font-semibold">{{ s.categoryName }}</p>
+                <p class="text-muted-foreground text-xs">
+                  {{ s.spentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
+                  {{ s.budgetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                  ({{ s.percentageUsed | number: '1.0-0' }}%)
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  (click)="onEdit(s)"
+                  class="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                  Edit
+                </button>
+                <button
+                  (click)="onDelete(s)"
+                  class="text-sm text-red-500 transition-colors hover:text-red-700">
+                  Delete
+                </button>
+              </div>
+            </div>
+            <div class="bg-muted h-2 w-full overflow-hidden rounded-full">
+              <div
+                class="h-full rounded-full transition-all"
+                [ngClass]="{
+                  'bg-green-500': s.percentageUsed < 70,
+                  'bg-amber-500': s.percentageUsed >= 70 && s.percentageUsed < 90,
+                  'bg-red-500': s.percentageUsed >= 90,
+                }"
+                [style.width.%]="progressWidth(s.percentageUsed)">
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

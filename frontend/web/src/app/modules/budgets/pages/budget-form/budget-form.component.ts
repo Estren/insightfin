@@ -1,0 +1,108 @@
+import { AsyncPipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { map, Observable } from 'rxjs';
+import { BudgetResponse } from '../../../../core/models/budget.model';
+import { CategoryResponse } from '../../../../core/models/category.model';
+import { BudgetStore } from '../../../../core/stores/budget.store';
+import { CategoryStore } from '../../../../core/stores/category.store';
+
+@Component({
+  selector: 'app-budget-form',
+  templateUrl: './budget-form.component.html',
+  imports: [AsyncPipe, ReactiveFormsModule],
+})
+export class BudgetFormComponent implements OnInit {
+  form!: FormGroup;
+  editing: BudgetResponse | null = null;
+  submitting = false;
+  errorMessage = '';
+  expenseCategories$!: Observable<CategoryResponse[]>;
+
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly budgetStore: BudgetStore,
+    private readonly categoryStore: CategoryStore,
+  ) {}
+
+  ngOnInit(): void {
+    this.categoryStore.load('EXPENSE');
+    this.expenseCategories$ = this.categoryStore.categories$.pipe(
+      map((list) => list.filter((c) => c.type === 'EXPENSE')),
+    );
+    this.initForm();
+
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      const budget = this.budgetStore.findById(id);
+      if (!budget) {
+        this.router.navigate(['/budgets']);
+        return;
+      }
+      this.editing = budget;
+      this.form.patchValue({
+        categoryId: budget.categoryId,
+        amount: budget.amount,
+        month: budget.month,
+      });
+      // Category and month are immutable on edit — the backend only accepts amount.
+      this.form.controls['categoryId'].disable();
+      this.form.controls['month'].disable();
+    }
+  }
+
+  private initForm(): void {
+    this.form = this.fb.group({
+      categoryId: ['', Validators.required],
+      amount: [null, [Validators.required, Validators.min(0.01)]],
+      month: [this.budgetStore.selectedMonth, [Validators.required, Validators.pattern(/^\d{4}-\d{2}$/)]],
+    });
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) return;
+    this.submitting = true;
+    this.errorMessage = '';
+
+    const amount = Number(this.form.controls['amount'].value);
+
+    if (this.editing) {
+      this.budgetStore.update(this.editing.id, { amount }).subscribe({
+        next: () => {
+          this.submitting = false;
+          this.router.navigate(['/budgets']);
+        },
+        error: () => this.handleError(),
+      });
+      return;
+    }
+
+    const categoryId = this.form.controls['categoryId'].value as string;
+    const month = this.form.controls['month'].value as string;
+    this.budgetStore.create({ categoryId, amount, month }).subscribe({
+      next: () => {
+        this.submitting = false;
+        this.router.navigate(['/budgets']);
+      },
+      error: (err) => {
+        this.submitting = false;
+        this.errorMessage =
+          err?.status === 409
+            ? 'A budget already exists for this category and month.'
+            : 'Failed to save budget. Please try again.';
+      },
+    });
+  }
+
+  onCancel(): void {
+    this.router.navigate(['/budgets']);
+  }
+
+  private handleError(): void {
+    this.submitting = false;
+    this.errorMessage = 'Failed to save budget. Please try again.';
+  }
+}
