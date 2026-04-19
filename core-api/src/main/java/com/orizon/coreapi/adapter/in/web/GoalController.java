@@ -6,6 +6,7 @@ import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.ContributeToGoalUseCase;
 import com.orizon.coreapi.domain.port.in.CreateGoalUseCase;
 import com.orizon.coreapi.domain.port.in.DeleteGoalUseCase;
+import com.orizon.coreapi.domain.port.in.ListGoalsUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateGoalUseCase;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.List;
 import java.util.UUID;
 
 @Path("/api/goals")
@@ -22,6 +24,9 @@ public class GoalController {
 
     @Inject
     CreateGoalUseCase createGoalUseCase;
+
+    @Inject
+    ListGoalsUseCase listGoalsUseCase;
 
     @Inject
     ContributeToGoalUseCase contributeToGoalUseCase;
@@ -40,6 +45,14 @@ public class GoalController {
         var goal = createGoalUseCase.execute(
                 authenticatedUser.getUserId(), request.title(), request.targetAmount(), request.deadline());
         return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(goal)).build();
+    }
+
+    @GET
+    public List<GoalResponse> list() {
+        return listGoalsUseCase.execute(authenticatedUser.getUserId())
+                .stream()
+                .map(WebMapper::toResponse)
+                .toList();
     }
 
     @POST

@@ -27,6 +27,11 @@ export class Menu {
           route: '/budgets',
         },
         {
+          icon: 'assets/icons/heroicons/outline/shield-exclamation.svg',
+          label: 'Goals',
+          route: '/goals',
+        },
+        {
           icon: 'assets/icons/heroicons/outline/lock-closed.svg',
           label: 'Auth',
           route: '/auth',

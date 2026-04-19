@@ -24,6 +24,11 @@ const routes: Routes = [
     loadChildren: () => import('../budgets/budgets.module').then((m) => m.BudgetsModule),
   },
   {
+    path: 'goals',
+    component: LayoutComponent,
+    loadChildren: () => import('../goals/goals.module').then((m) => m.GoalsModule),
+  },
+  {
     path: 'components',
     component: LayoutComponent,
     loadChildren: () => import('../uikit/uikit.module').then((m) => m.UikitModule),

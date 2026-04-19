@@ -7,6 +7,7 @@ import com.orizon.coreapi.domain.model.GoalStatus;
 import com.orizon.coreapi.domain.port.in.ContributeToGoalUseCase;
 import com.orizon.coreapi.domain.port.in.CreateGoalUseCase;
 import com.orizon.coreapi.domain.port.in.DeleteGoalUseCase;
+import com.orizon.coreapi.domain.port.in.ListGoalsUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateGoalUseCase;
 import com.orizon.coreapi.domain.port.out.GoalContributionRepository;
 import com.orizon.coreapi.domain.port.out.GoalRepository;
@@ -14,10 +15,11 @@ import com.orizon.coreapi.domain.port.out.GoalRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class GoalService implements CreateGoalUseCase, ContributeToGoalUseCase,
-        UpdateGoalUseCase, DeleteGoalUseCase {
+        UpdateGoalUseCase, DeleteGoalUseCase, ListGoalsUseCase {
 
     private final GoalRepository goalRepository;
     private final GoalContributionRepository goalContributionRepository;
@@ -95,5 +97,10 @@ public class GoalService implements CreateGoalUseCase, ContributeToGoalUseCase,
         }
 
         goalRepository.deleteById(goalId);
+    }
+
+    @Override
+    public List<Goal> execute(UUID userId) {
+        return goalRepository.findByUserId(userId);
     }
 }
