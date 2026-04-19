@@ -1,0 +1,82 @@
+<div class="mx-auto max-w-4xl p-6">
+  <div class="mb-6 flex items-center justify-between">
+    <h2 class="text-foreground text-2xl font-bold">Transactions</h2>
+    <a
+      routerLink="/transactions/new"
+      class="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors">
+      + New Transaction
+    </a>
+  </div>
+
+  <!-- Month navigation -->
+  <div class="mb-6 flex items-center justify-center gap-4">
+    <button
+      (click)="changeMonth(-1)"
+      class="bg-muted text-muted-foreground hover:bg-muted/80 rounded-md px-3 py-1.5 text-sm font-medium transition-colors">
+      ‹ Prev
+    </button>
+    <span class="text-foreground text-base font-semibold">
+      {{ transactionStore.selectedMonth$ | async }}
+    </span>
+    <button
+      (click)="changeMonth(1)"
+      class="bg-muted text-muted-foreground hover:bg-muted/80 rounded-md px-3 py-1.5 text-sm font-medium transition-colors">
+      Next ›
+    </button>
+  </div>
+
+  @if (transactionStore.loading$ | async) {
+    <div class="flex items-center justify-center py-20">
+      <div class="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+    </div>
+  } @else if (transactionStore.error$ | async; as error) {
+    <div class="rounded-lg bg-red-50 p-6 text-center text-red-600 dark:bg-red-900/20 dark:text-red-400">
+      {{ error }}
+    </div>
+  } @else if ((groupedTransactions$ | async); as groups) {
+    @if (groups.length === 0) {
+      <div class="rounded-lg border border-dashed p-10 text-center">
+        <p class="text-muted-foreground text-sm">No transactions this month.</p>
+      </div>
+    } @else {
+      <div class="space-y-6">
+        @for (group of groups; track group.date) {
+          <div>
+            <h3 class="text-muted-foreground mb-2 text-xs font-semibold uppercase">
+              {{ group.date | date: 'EEEE, dd MMMM yyyy' }}
+            </h3>
+            <div class="space-y-2">
+              @for (t of group.transactions; track t.id) {
+                <div class="bg-card flex items-center justify-between rounded-lg border p-4 shadow-sm">
+                  <div class="flex-1">
+                    <p class="text-foreground text-sm font-medium">{{ t.description || t.categoryName }}</p>
+                    <p class="text-muted-foreground text-xs">{{ t.categoryName }}</p>
+                  </div>
+                  <div class="flex items-center gap-4">
+                    <span
+                      class="text-sm font-semibold"
+                      [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+                      {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                    </span>
+                    <div class="flex gap-2">
+                      <button
+                        (click)="onEdit(t)"
+                        class="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                        Edit
+                      </button>
+                      <button
+                        (click)="onDelete(t)"
+                        class="text-sm text-red-500 transition-colors hover:text-red-700">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

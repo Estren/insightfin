@@ -10,7 +10,16 @@ export class Menu {
           icon: 'assets/icons/heroicons/outline/chart-pie.svg',
           label: 'Dashboard',
           route: '/dashboard',
-          children: [{ label: 'Nfts', route: '/dashboard/nfts' }],
+        },
+        {
+          icon: 'assets/icons/heroicons/outline/view-grid.svg',
+          label: 'Transactions',
+          route: '/transactions',
+        },
+        {
+          icon: 'assets/icons/heroicons/outline/bookmark.svg',
+          label: 'Categories',
+          route: '/categories',
         },
         {
           icon: 'assets/icons/heroicons/outline/lock-closed.svg',

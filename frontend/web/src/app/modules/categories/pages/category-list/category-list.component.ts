@@ -76,6 +76,8 @@ export class CategoryListComponent implements OnInit {
   }
 
   onDelete(category: CategoryResponse): void {
+    const confirmed = window.confirm(`Delete category "${category.name}"? This cannot be undone.`);
+    if (!confirmed) return;
     this.categoryStore.delete(category.id).subscribe();
   }
 

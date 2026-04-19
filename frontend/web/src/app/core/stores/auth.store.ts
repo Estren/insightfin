@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { LoginRequest, RegisterRequest, UserResponse } from '../models/auth.model';
 
@@ -32,8 +32,8 @@ export class AuthStore {
         localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
         this._isAuthenticated$.next(true);
       }),
-      tap(() => {}), // map to void
-    ) as unknown as Observable<void>;
+      map(() => void 0),
+    );
   }
 
   register(request: RegisterRequest): Observable<UserResponse> {
