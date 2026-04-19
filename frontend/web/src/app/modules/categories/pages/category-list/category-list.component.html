@@ -1,0 +1,137 @@
+<div class="mx-auto max-w-4xl p-6">
+  <div class="mb-6 flex items-center justify-between">
+    <h2 class="text-foreground text-2xl font-bold">Categories</h2>
+    <button
+      (click)="openCreateForm()"
+      class="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors">
+      + New Category
+    </button>
+  </div>
+
+  <!-- Filter -->
+  <div class="mb-4 flex gap-2">
+    <button
+      (click)="onFilterChange(undefined)"
+      class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+      [ngClass]="!filterType ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'">
+      All
+    </button>
+    <button
+      (click)="onFilterChange('INCOME')"
+      class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+      [ngClass]="filterType === 'INCOME' ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'">
+      Income
+    </button>
+    <button
+      (click)="onFilterChange('EXPENSE')"
+      class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+      [ngClass]="filterType === 'EXPENSE' ? 'bg-red-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'">
+      Expense
+    </button>
+  </div>
+
+  <!-- Create/Edit Form -->
+  @if (showForm) {
+    <div class="bg-card mb-6 rounded-lg border p-6 shadow-sm">
+      <h3 class="text-foreground mb-4 text-lg font-semibold">
+        {{ editingCategory ? 'Edit Category' : 'New Category' }}
+      </h3>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label class="text-foreground mb-1 block text-sm font-medium">Name</label>
+            <input
+              formControlName="name"
+              type="text"
+              class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="text-foreground mb-1 block text-sm font-medium">Type</label>
+            <select
+              formControlName="type"
+              class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm">
+              <option value="EXPENSE">Expense</option>
+              <option value="INCOME">Income</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-foreground mb-1 block text-sm font-medium">Icon</label>
+            <input
+              formControlName="icon"
+              type="text"
+              placeholder="e.g. shopping_cart"
+              class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="text-foreground mb-1 block text-sm font-medium">Color</label>
+            <input
+              formControlName="color"
+              type="color"
+              class="border-input h-10 w-full cursor-pointer rounded-md border p-1" />
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button
+            type="submit"
+            class="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors">
+            {{ editingCategory ? 'Save' : 'Create' }}
+          </button>
+          <button
+            type="button"
+            (click)="cancelForm()"
+            class="bg-muted text-muted-foreground hover:bg-muted/80 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (categoryStore.loading$ | async) {
+    <div class="flex items-center justify-center py-10">
+      <div class="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+    </div>
+  } @else {
+    <!-- Categories List -->
+    @if ((categoryStore.categories$ | async); as categories) {
+      @if (categories.length === 0) {
+        <div class="rounded-lg border border-dashed p-10 text-center">
+          <p class="text-muted-foreground text-sm">No categories yet. Create your first one!</p>
+        </div>
+      } @else {
+        <div class="space-y-2">
+          @for (cat of categories; track cat.id) {
+            <div class="bg-card flex items-center justify-between rounded-lg border p-4 shadow-sm">
+              <div class="flex items-center gap-3">
+                @if (cat.color) {
+                  <div class="h-4 w-4 rounded-full" [style.backgroundColor]="cat.color"></div>
+                }
+                <div>
+                  <p class="text-foreground text-sm font-medium">{{ cat.name }}</p>
+                  <span
+                    class="text-xs font-medium"
+                    [ngClass]="cat.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+                    {{ cat.type }}
+                  </span>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  (click)="openEditForm(cat)"
+                  class="text-muted-foreground hover:text-foreground text-sm transition-colors">
+                  Edit
+                </button>
+                <button
+                  (click)="onDelete(cat)"
+                  class="text-sm text-red-500 transition-colors hover:text-red-700">
+                  Delete
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    }
+  }
+</div>

@@ -3,10 +3,10 @@
   "displayName": "Angular Tailwind",
   "version": "0.11.0",
   "description": "Angular & Tailwind CSS Admin Dashboard Starter Kit, Free and Open Source",
-  "homepage": "https://github.com/lannodev/angular-tailwind#readme",
+  "homepage": "https://github.com/Estren/orizon#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lannodev/angular-tailwind.git"
+    "url": "git+https://github.com/Estren/orizon.git"
   },
   "keywords": [
     "angular",
@@ -16,7 +16,7 @@
     "dark mode",
     "open source"
   ],
-  "author": "Luciano Oliveira <me@lanno.dev>",
+  "author": "Thiago dos Santos Dias",
   "license": "MIT",
   "scripts": {
     "ng": "ng",

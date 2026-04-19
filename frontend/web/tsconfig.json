@@ -19,7 +19,8 @@
     "target": "ES2022",
     "module": "es2022",
     "resolveJsonModule": true,
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "ignoreDeprecations": "6.0", // Suppress deprecation warnings for features that will be removed in TypeScript 6.0
   },
 	"angularCompilerOptions": {
 		"enableI18nLegacyMessageIdFormat": false,
