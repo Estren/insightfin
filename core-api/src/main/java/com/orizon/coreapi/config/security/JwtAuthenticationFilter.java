@@ -71,12 +71,13 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
     }
 
     private boolean isPublicPath(String path) {
-        return path.startsWith("api/auth/login")
-                || path.startsWith("api/auth/register")
-                || path.startsWith("api/auth/refresh")
-                || path.startsWith("swagger-ui")
-                || path.startsWith("q/")
-                || path.startsWith("v3/api-docs")
-                || path.startsWith("openapi");
+        String normalized = path.startsWith("/") ? path.substring(1) : path;
+        return normalized.startsWith("api/auth/login")
+                || normalized.startsWith("api/auth/register")
+                || normalized.startsWith("api/auth/refresh")
+                || normalized.startsWith("swagger-ui")
+                || normalized.startsWith("q/")
+                || normalized.startsWith("v3/api-docs")
+                || normalized.startsWith("openapi");
     }
 }
