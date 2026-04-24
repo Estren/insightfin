@@ -1,61 +1,56 @@
 @if (dashboardStore.loading$ | async) {
-  <div class="flex items-center justify-center py-20">
-    <div class="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
-  </div>
+  <app-loading />
 } @else if (dashboardStore.error$ | async; as error) {
-  <div class="rounded-lg bg-red-50 p-6 text-center text-red-600 dark:bg-red-900/20 dark:text-red-400">
-    {{ error }}
-  </div>
+  <app-card>
+    <p class="text-center text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+  </app-card>
 } @else if (dashboardStore.summary$ | async; as summary) {
-  <!-- Summary Cards -->
-  <div class="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
-    <!-- Income -->
-    <div class="bg-card rounded-lg border p-6 shadow-sm">
-      <p class="text-muted-foreground text-sm font-medium">Income</p>
-      <p class="text-foreground mt-2 text-2xl font-bold">{{ summary.totalIncome | currency: 'BRL' : 'symbol' : '1.2-2' }}</p>
-    </div>
-    <!-- Expenses -->
-    <div class="bg-card rounded-lg border p-6 shadow-sm">
-      <p class="text-muted-foreground text-sm font-medium">Expenses</p>
-      <p class="mt-2 text-2xl font-bold text-red-500">{{ summary.totalExpense | currency: 'BRL' : 'symbol' : '1.2-2' }}</p>
-    </div>
-    <!-- Balance -->
-    <div class="bg-card rounded-lg border p-6 shadow-sm">
-      <p class="text-muted-foreground text-sm font-medium">Balance</p>
-      <p class="mt-2 text-2xl font-bold" [ngClass]="summary.balance >= 0 ? 'text-green-500' : 'text-red-500'">
-        {{ summary.balance | currency: 'BRL' : 'symbol' : '1.2-2' }}
-      </p>
-    </div>
+  <app-page-header title="Dashboard" subtitle="Your financial overview for this month" />
+
+  <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+    <app-stat-card label="Income" [value]="summary.totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
+    <app-stat-card
+      label="Expenses"
+      tone="negative"
+      [value]="summary.totalExpense | currency: 'BRL' : 'symbol' : '1.2-2'" />
+    <app-stat-card
+      label="Balance"
+      [tone]="summary.balance >= 0 ? 'positive' : 'negative'"
+      [value]="summary.balance | currency: 'BRL' : 'symbol' : '1.2-2'" />
   </div>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-    <!-- Recent Transactions -->
-    <div class="bg-card rounded-lg border p-6 shadow-sm">
-      <h3 class="text-foreground mb-4 text-lg font-semibold">Recent Transactions</h3>
+    <app-card title="Recent Transactions">
       @if (summary.recentTransactions.length === 0) {
-        <p class="text-muted-foreground text-sm">No transactions this month.</p>
+        <app-empty-state
+          title="No transactions this month"
+          description="Your latest activity will appear here." />
       } @else {
         <div class="space-y-3">
           @for (t of summary.recentTransactions; track t.id) {
             <div class="flex items-center justify-between rounded-md border p-3">
               <div>
                 <p class="text-foreground text-sm font-medium">{{ t.description || t.categoryName }}</p>
-                <p class="text-muted-foreground text-xs">{{ t.categoryName }} &middot; {{ t.date | date: 'dd/MM/yyyy' }}</p>
+                <p class="text-muted-foreground text-xs">
+                  {{ t.categoryName }} &middot; {{ t.date | date: 'dd/MM/yyyy' }}
+                </p>
               </div>
-              <span class="text-sm font-semibold" [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+              <span
+                class="text-sm font-semibold"
+                [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
                 {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
               </span>
             </div>
           }
         </div>
       }
-    </div>
+    </app-card>
 
-    <!-- Budget Status -->
-    <div class="bg-card rounded-lg border p-6 shadow-sm">
-      <h3 class="text-foreground mb-4 text-lg font-semibold">Budgets</h3>
+    <app-card title="Budgets">
       @if (summary.budgetStatuses.length === 0) {
-        <p class="text-muted-foreground text-sm">No budgets set for this month.</p>
+        <app-empty-state
+          title="No budgets set for this month"
+          description="Set monthly limits per category." />
       } @else {
         <div class="space-y-4">
           @for (b of summary.budgetStatuses; track b.budgetId) {
@@ -63,7 +58,8 @@
               <div class="mb-1 flex items-center justify-between">
                 <span class="text-foreground text-sm font-medium">{{ b.categoryName }}</span>
                 <span class="text-muted-foreground text-xs">
-                  {{ b.spentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} / {{ b.budgetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                  {{ b.spentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
+                  {{ b.budgetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
                 </span>
               </div>
               <div class="bg-muted h-2 w-full overflow-hidden rounded-full">
@@ -72,7 +68,7 @@
                   [ngClass]="{
                     'bg-green-500': b.percentageUsed < 70,
                     'bg-amber-500': b.percentageUsed >= 70 && b.percentageUsed < 90,
-                    'bg-red-500': b.percentageUsed >= 90
+                    'bg-red-500': b.percentageUsed >= 90,
                   }"
                   [style.width.%]="b.percentageUsed > 100 ? 100 : b.percentageUsed">
                 </div>
@@ -81,34 +77,37 @@
           }
         </div>
       }
-    </div>
+    </app-card>
   </div>
 
-  <!-- Active Goals -->
-  <div class="bg-card mt-6 rounded-lg border p-6 shadow-sm">
-    <h3 class="text-foreground mb-4 text-lg font-semibold">Active Goals</h3>
-    @if (summary.activeGoals.length === 0) {
-      <p class="text-muted-foreground text-sm">No active goals.</p>
-    } @else {
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        @for (g of summary.activeGoals; track g.id) {
-          <div class="rounded-md border p-4">
-            <p class="text-foreground text-sm font-semibold">{{ g.title }}</p>
-            <p class="text-muted-foreground mt-1 text-xs">
-              {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} / {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-            </p>
-            <div class="bg-muted mt-2 h-2 w-full overflow-hidden rounded-full">
-              <div
-                class="bg-primary h-full rounded-full transition-all"
-                [style.width.%]="g.targetAmount > 0 ? (g.currentAmount / g.targetAmount) * 100 : 0">
+  <div class="mt-6">
+    <app-card title="Active Goals">
+      @if (summary.activeGoals.length === 0) {
+        <app-empty-state title="No active goals" description="Create a goal to start saving." />
+      } @else {
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          @for (g of summary.activeGoals; track g.id) {
+            <div class="rounded-md border p-4">
+              <p class="text-foreground text-sm font-semibold">{{ g.title }}</p>
+              <p class="text-muted-foreground mt-1 text-xs">
+                {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
+                {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+              </p>
+              <div class="bg-muted mt-2 h-2 w-full overflow-hidden rounded-full">
+                <div
+                  class="bg-primary h-full rounded-full transition-all"
+                  [style.width.%]="g.targetAmount > 0 ? (g.currentAmount / g.targetAmount) * 100 : 0">
+                </div>
               </div>
+              @if (g.deadline) {
+                <p class="text-muted-foreground mt-1 text-xs">
+                  Deadline: {{ g.deadline | date: 'dd/MM/yyyy' }}
+                </p>
+              }
             </div>
-            @if (g.deadline) {
-              <p class="text-muted-foreground mt-1 text-xs">Deadline: {{ g.deadline | date: 'dd/MM/yyyy' }}</p>
-            }
-          </div>
-        }
-      </div>
-    }
+          }
+        </div>
+      }
+    </app-card>
   </div>
 }

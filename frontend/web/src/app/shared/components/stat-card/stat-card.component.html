@@ -1,0 +1,31 @@
+<div class="bg-card rounded-lg border p-6 shadow-sm">
+  @if (iconSrc()) {
+    <div class="bg-muted text-muted-foreground mb-4 flex h-10 w-10 items-center justify-center rounded-md">
+      <svg-icon [src]="iconSrc()" [svgClass]="'h-5 w-5'"></svg-icon>
+    </div>
+  }
+  <p class="text-muted-foreground text-sm font-medium">{{ label() }}</p>
+  <p
+    class="mt-2 text-2xl font-bold"
+    [class.text-foreground]="tone() === 'neutral'"
+    [class.text-green-500]="tone() === 'positive'"
+    [class.text-red-500]="tone() === 'negative'">
+    {{ value() }}
+  </p>
+  @if (delta() !== null) {
+    <p class="mt-1 flex items-center gap-1 text-xs">
+      <span
+        [class.text-green-500]="deltaDirection() === 'up'"
+        [class.text-red-500]="deltaDirection() === 'down'"
+        [class.text-muted-foreground]="deltaDirection() === 'flat'">
+        @if (deltaDirection() === 'up') {
+          ↑
+        } @else if (deltaDirection() === 'down') {
+          ↓
+        }
+        {{ delta() }}%
+      </span>
+      <span class="text-muted-foreground">{{ deltaLabel() }}</span>
+    </p>
+  }
+</div>
