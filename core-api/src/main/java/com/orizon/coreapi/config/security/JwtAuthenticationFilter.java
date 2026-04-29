@@ -1,5 +1,6 @@
 package com.orizon.coreapi.config.security;
 
+import com.orizon.coreapi.domain.model.Role;
 import com.orizon.coreapi.domain.port.out.TokenProvider;
 import jakarta.annotation.Priority;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -40,7 +41,9 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
 
             if (tokenProvider.isValid(token)) {
                 UUID userId = tokenProvider.extractUserId(token);
+                Role role = tokenProvider.extractRole(token);
                 authenticatedUser.setUserId(userId);
+                authenticatedUser.setRole(role);
 
                 requestContext.setSecurityContext(new SecurityContext() {
                     @Override
@@ -49,8 +52,8 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
                     }
 
                     @Override
-                    public boolean isUserInRole(String role) {
-                        return true;
+                    public boolean isUserInRole(String roleName) {
+                        return role != null && role.name().equals(roleName);
                     }
 
                     @Override

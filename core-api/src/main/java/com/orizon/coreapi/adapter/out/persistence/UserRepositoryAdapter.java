@@ -1,5 +1,6 @@
 package com.orizon.coreapi.adapter.out.persistence;
 
+import com.orizon.coreapi.adapter.out.persistence.entity.UserEntity;
 import com.orizon.coreapi.adapter.out.persistence.mapper.UserPersistenceMapper;
 import com.orizon.coreapi.adapter.out.persistence.repository.JpaUserRepository;
 import com.orizon.coreapi.domain.model.User;
@@ -20,6 +21,16 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     @Transactional
     public User save(User user) {
+        Optional<UserEntity> existing = jpaUserRepository.findByIdOptional(user.getId());
+        if (existing.isPresent()) {
+            UserEntity managed = existing.get();
+            managed.setName(user.getName());
+            managed.setEmail(user.getEmail());
+            managed.setPasswordHash(user.getPasswordHash());
+            managed.setRole(user.getRole());
+            managed.setUpdatedAt(user.getUpdatedAt());
+            return UserPersistenceMapper.toDomain(managed);
+        }
         var entity = UserPersistenceMapper.toEntity(user);
         jpaUserRepository.persist(entity);
         return UserPersistenceMapper.toDomain(entity);
@@ -38,5 +49,11 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public boolean existsByEmail(String email) {
         return jpaUserRepository.existsByEmail(email);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(UUID id) {
+        jpaUserRepository.deleteById(id);
     }
 }

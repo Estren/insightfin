@@ -1,5 +1,6 @@
 package com.orizon.coreapi.adapter.out.security;
 
+import com.orizon.coreapi.domain.model.Role;
 import com.orizon.coreapi.domain.port.out.TokenProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -27,13 +28,14 @@ public class JwtTokenProvider implements TokenProvider {
     }
 
     @Override
-    public String generateToken(UUID userId, String email) {
+    public String generateToken(UUID userId, String email, Role role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("email", email)
+                .claim("role", role.name())
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)
@@ -44,6 +46,13 @@ public class JwtTokenProvider implements TokenProvider {
     public UUID extractUserId(String token) {
         Claims claims = parseClaims(token);
         return UUID.fromString(claims.getSubject());
+    }
+
+    @Override
+    public Role extractRole(String token) {
+        Claims claims = parseClaims(token);
+        String role = claims.get("role", String.class);
+        return role != null ? Role.valueOf(role) : Role.USER;
     }
 
     @Override

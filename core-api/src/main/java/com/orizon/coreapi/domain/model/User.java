@@ -9,17 +9,19 @@ public class User {
     private String name;
     private String email;
     private String passwordHash;
+    private Role role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public User() {}
 
-    public User(UUID id, String name, String email, String passwordHash,
+    public User(UUID id, String name, String email, String passwordHash, Role role,
                 LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.role = role;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -35,6 +37,9 @@ public class User {
 
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

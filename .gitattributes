@@ -1,0 +1,21 @@
+# Force LF line endings for shell scripts and Unix-only tooling.
+# Without this, Windows clients can commit CRLF, which breaks the file
+# inside Linux containers (e.g. /bin/sh\r: not found).
+*.sh        text eol=lf
+mvnw        text eol=lf
+gradlew     text eol=lf
+*.bash      text eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+
+# Binary files — never normalize.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.pdf       binary
+*.jar       binary
