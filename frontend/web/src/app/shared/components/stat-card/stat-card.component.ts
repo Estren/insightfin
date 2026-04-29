@@ -11,7 +11,7 @@ type Tone = 'neutral' | 'positive' | 'negative';
 })
 export class StatCardComponent {
   label = input.required<string>();
-  value = input.required<string>();
+  value = input.required<string | null>();
   iconSrc = input<string>('');
   tone = input<Tone>('neutral');
   delta = input<number | null>(null);
