@@ -14,9 +14,4 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
-export interface UserResponse {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: string;
-}
+export type { UserProfile as UserResponse } from './user.model';
