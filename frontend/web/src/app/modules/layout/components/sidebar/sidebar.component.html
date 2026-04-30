@@ -10,10 +10,10 @@
         <div class="flex items-center">
           <a
             (click)="toggleSidebar()"
-            class="bg-primary flex cursor-pointer items-center justify-center rounded-sm p-2 focus:outline-hidden focus:ring-1">
-            <svg-icon src="assets/icons/logo.svg"> </svg-icon>
+            class="flex cursor-pointer items-center justify-center rounded-sm p-1 focus:outline-hidden focus:ring-1">
+            <svg-icon src="assets/icons/logo.svg" [svgClass]="'h-6 w-6 text-primary'"> </svg-icon>
           </a>
-          <b class="text-foreground ps-2 ml-1 grow text-sm font-bold">
+          <b class="text-foreground ps-2 grow text-sm font-bold">
             {{ appJson.displayName }}
           </b>
         </div>
