@@ -1,0 +1,121 @@
+<div class="mx-auto max-w-2xl space-y-6 p-6">
+
+  <div>
+    <h2 class="text-foreground text-2xl font-bold">Profile</h2>
+    <p class="text-muted-foreground mt-1 text-sm">Manage your personal information and account security.</p>
+  </div>
+
+  <!-- Personal Info -->
+  <div class="bg-card rounded-lg border p-6">
+    <h3 class="text-foreground mb-4 text-base font-semibold">Personal Information</h3>
+
+    @if (userStore.loading$ | async) {
+      <div class="flex items-center justify-center py-8">
+        <div class="border-primary h-6 w-6 animate-spin rounded-full border-4 border-t-transparent"></div>
+      </div>
+    } @else {
+      <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()" class="space-y-4">
+        <div>
+          <label class="text-foreground mb-1 block text-sm font-medium">Name</label>
+          <input
+            formControlName="name"
+            type="text"
+            class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
+        </div>
+        <div>
+          <label class="text-foreground mb-1 block text-sm font-medium">Email</label>
+          <input
+            formControlName="email"
+            type="email"
+            class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
+        </div>
+
+        @if (profileError) {
+          <p class="text-sm text-red-500">{{ profileError }}</p>
+        }
+        @if (profileSuccess) {
+          <p class="text-sm text-green-500">Profile updated successfully.</p>
+        }
+
+        <div class="flex justify-end">
+          <button
+            type="submit"
+            [disabled]="profileForm.invalid || profileSubmitting"
+            class="bg-primary hover:bg-primary/90 disabled:opacity-50 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
+            {{ profileSubmitting ? 'Saving...' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+
+  <!-- Change Password -->
+  <div class="bg-card rounded-lg border p-6">
+    <h3 class="text-foreground mb-4 text-base font-semibold">Change Password</h3>
+
+    <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="space-y-4">
+      <div>
+        <label class="text-foreground mb-1 block text-sm font-medium">Current Password</label>
+        <input
+          formControlName="currentPassword"
+          type="password"
+          class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
+      </div>
+      <div>
+        <label class="text-foreground mb-1 block text-sm font-medium">New Password</label>
+        <input
+          formControlName="newPassword"
+          type="password"
+          placeholder="Minimum 8 characters"
+          class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
+      </div>
+
+      @if (passwordError) {
+        <p class="text-sm text-red-500">{{ passwordError }}</p>
+      }
+      @if (passwordSuccess) {
+        <p class="text-sm text-green-500">Password changed successfully.</p>
+      }
+
+      <div class="flex justify-end">
+        <button
+          type="submit"
+          [disabled]="passwordForm.invalid || passwordSubmitting"
+          class="bg-primary hover:bg-primary/90 disabled:opacity-50 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
+          {{ passwordSubmitting ? 'Saving...' : 'Change Password' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="rounded-lg border border-red-200 p-6 dark:border-red-900">
+    <h3 class="mb-1 text-base font-semibold text-red-600 dark:text-red-400">Danger Zone</h3>
+    <p class="text-muted-foreground mb-4 text-sm">
+      Deleting your account is permanent and cannot be undone. All your data will be removed.
+    </p>
+
+    <div class="space-y-3">
+      <div>
+        <label class="text-foreground mb-1 block text-sm font-medium">
+          Type <span class="font-mono font-bold">DELETE</span> to confirm
+        </label>
+        <input
+          [value]="deleteConfirmText"
+          (input)="deleteConfirmText = $any($event.target).value"
+          type="text"
+          placeholder="DELETE"
+          class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-red-500 w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
+      </div>
+      <div class="flex justify-end">
+        <button
+          (click)="onDeleteAccount()"
+          [disabled]="deleteConfirmText !== 'DELETE'"
+          class="disabled:opacity-50 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700">
+          Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
