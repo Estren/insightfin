@@ -33,7 +33,7 @@
     <div class="rounded-lg bg-red-50 p-6 text-center text-red-600 dark:bg-red-900/20 dark:text-red-400">
       {{ error }}
     </div>
-  } @else if ((groupedTransactions$ | async); as groups) {
+  } @else if (groupedTransactions$ | async; as groups) {
     @if (groups.length === 0) {
       <div class="rounded-lg border border-dashed p-10 text-center">
         <p class="text-muted-foreground text-sm">No transactions this month.</p>
@@ -47,7 +47,7 @@
             </h3>
             <div class="space-y-2">
               @for (t of group.transactions; track t.id) {
-                <div class="bg-card flex items-center justify-between rounded-lg border p-4 shadow-sm">
+                <div class="bg-background flex items-center justify-between rounded-lg border p-4 shadow-sm">
                   <div class="flex-1">
                     <p class="text-foreground text-sm font-medium">{{ t.description || t.categoryName }}</p>
                     <p class="text-muted-foreground text-xs">{{ t.categoryName }}</p>
@@ -64,9 +64,7 @@
                         class="text-muted-foreground hover:text-foreground text-sm transition-colors">
                         Edit
                       </button>
-                      <button
-                        (click)="onDelete(t)"
-                        class="text-sm text-red-500 transition-colors hover:text-red-700">
+                      <button (click)="onDelete(t)" class="text-sm text-red-500 transition-colors hover:text-red-700">
                         Delete
                       </button>
                     </div>

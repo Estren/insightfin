@@ -41,7 +41,7 @@
     } @else {
       <div class="space-y-4">
         @for (s of statuses; track s.budgetId) {
-          <div class="bg-card rounded-lg border p-4 shadow-sm">
+          <div class="bg-background rounded-lg border p-4 shadow-sm">
             <div class="mb-2 flex items-center justify-between">
               <div>
                 <p class="text-foreground text-sm font-semibold">{{ s.categoryName }}</p>
@@ -57,9 +57,7 @@
                   class="text-muted-foreground hover:text-foreground text-sm transition-colors">
                   Edit
                 </button>
-                <button
-                  (click)="onDelete(s)"
-                  class="text-sm text-red-500 transition-colors hover:text-red-700">
+                <button (click)="onDelete(s)" class="text-sm text-red-500 transition-colors hover:text-red-700">
                   Delete
                 </button>
               </div>
@@ -72,8 +70,7 @@
                   'bg-amber-500': s.percentageUsed >= 70 && s.percentageUsed < 90,
                   'bg-red-500': s.percentageUsed >= 90,
                 }"
-                [style.width.%]="progressWidth(s.percentageUsed)">
-              </div>
+                [style.width.%]="progressWidth(s.percentageUsed)"></div>
             </div>
           </div>
         }

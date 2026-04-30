@@ -3,7 +3,7 @@
     {{ editing ? 'Edit Goal' : 'New Goal' }}
   </h2>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-card space-y-4 rounded-lg border p-6 shadow-sm">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-background space-y-4 rounded-lg border p-6 shadow-sm">
     <!-- Title -->
     <div>
       <label class="text-foreground mb-1 block text-sm font-medium">Title</label>
@@ -29,7 +29,9 @@
 
     <!-- Deadline -->
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Deadline <span class="text-muted-foreground">(optional)</span></label>
+      <label class="text-foreground mb-1 block text-sm font-medium"
+        >Deadline <span class="text-muted-foreground">(optional)</span></label
+      >
       <input
         formControlName="deadline"
         type="date"

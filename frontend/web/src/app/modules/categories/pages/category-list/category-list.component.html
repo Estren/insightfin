@@ -19,20 +19,24 @@
     <button
       (click)="onFilterChange('INCOME')"
       class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
-      [ngClass]="filterType === 'INCOME' ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'">
+      [ngClass]="
+        filterType === 'INCOME' ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+      ">
       Income
     </button>
     <button
       (click)="onFilterChange('EXPENSE')"
       class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
-      [ngClass]="filterType === 'EXPENSE' ? 'bg-red-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'">
+      [ngClass]="
+        filterType === 'EXPENSE' ? 'bg-red-500 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+      ">
       Expense
     </button>
   </div>
 
   <!-- Create/Edit Form -->
   @if (showForm) {
-    <div class="bg-card mb-6 rounded-lg border p-6 shadow-sm">
+    <div class="bg-background mb-6 rounded-lg border p-6 shadow-sm">
       <h3 class="text-foreground mb-4 text-lg font-semibold">
         {{ editingCategory ? 'Edit Category' : 'New Category' }}
       </h3>
@@ -94,7 +98,7 @@
     </div>
   } @else {
     <!-- Categories List -->
-    @if ((categoryStore.categories$ | async); as categories) {
+    @if (categoryStore.categories$ | async; as categories) {
       @if (categories.length === 0) {
         <div class="rounded-lg border border-dashed p-10 text-center">
           <p class="text-muted-foreground text-sm">No categories yet. Create your first one!</p>
@@ -102,7 +106,7 @@
       } @else {
         <div class="space-y-2">
           @for (cat of categories; track cat.id) {
-            <div class="bg-card flex items-center justify-between rounded-lg border p-4 shadow-sm">
+            <div class="bg-background flex items-center justify-between rounded-lg border p-4 shadow-sm">
               <div class="flex items-center gap-3">
                 @if (cat.color) {
                   <div class="h-4 w-4 rounded-full" [style.backgroundColor]="cat.color"></div>
@@ -122,9 +126,7 @@
                   class="text-muted-foreground hover:text-foreground text-sm transition-colors">
                   Edit
                 </button>
-                <button
-                  (click)="onDelete(cat)"
-                  class="text-sm text-red-500 transition-colors hover:text-red-700">
+                <button (click)="onDelete(cat)" class="text-sm text-red-500 transition-colors hover:text-red-700">
                   Delete
                 </button>
               </div>

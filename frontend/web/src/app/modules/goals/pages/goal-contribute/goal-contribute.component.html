@@ -2,13 +2,12 @@
   <h2 class="text-foreground mb-2 text-2xl font-bold">Contribute to Goal</h2>
   @if (goal) {
     <p class="text-muted-foreground mb-6 text-sm">
-      {{ goal.title }} ·
-      {{ goal.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
+      {{ goal.title }} · {{ goal.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
       {{ goal.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
     </p>
   }
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-card space-y-4 rounded-lg border p-6 shadow-sm">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-background space-y-4 rounded-lg border p-6 shadow-sm">
     <div>
       <label class="text-foreground mb-1 block text-sm font-medium">Amount</label>
       <input
