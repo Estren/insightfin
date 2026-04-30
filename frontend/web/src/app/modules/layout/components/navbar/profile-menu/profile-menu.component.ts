@@ -1,16 +1,17 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { NgClass } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { ThemeService } from '../../../../../core/services/theme.service';
+import { UserStore } from '../../../../../core/stores/user.store';
 import { ClickOutsideDirective } from '../../../../../shared/directives/click-outside.directive';
 
 @Component({
   selector: 'app-profile-menu',
   templateUrl: './profile-menu.component.html',
   styleUrls: ['./profile-menu.component.css'],
-  imports: [ClickOutsideDirective, NgClass, RouterLink, AngularSvgIconModule],
+  imports: [ClickOutsideDirective, NgClass, RouterLink, AngularSvgIconModule, AsyncPipe],
   animations: [
     trigger('openClose', [
       state(
@@ -88,9 +89,16 @@ export class ProfileMenuComponent implements OnInit {
   public themeMode = ['light', 'dark'];
   public themeDirection = ['ltr', 'rtl'];
 
-  constructor(public themeService: ThemeService) {}
+  constructor(
+    public themeService: ThemeService,
+    public userStore: UserStore,
+  ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (!this.userStore.profile) {
+      this.userStore.load();
+    }
+  }
 
   public toggleMenu(): void {
     this.isOpen = !this.isOpen;
