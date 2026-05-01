@@ -12,6 +12,7 @@ import com.orizon.coreapi.domain.port.in.ChangePasswordUseCase;
 import com.orizon.coreapi.domain.port.in.CreateUserUseCase;
 import com.orizon.coreapi.domain.port.in.DeleteUserUseCase;
 import com.orizon.coreapi.domain.port.in.GetCurrentUserUseCase;
+import com.orizon.coreapi.domain.port.in.ListUsersUseCase;
 import com.orizon.coreapi.domain.port.in.LogoutUseCase;
 import com.orizon.coreapi.domain.port.in.RefreshTokenUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateUserUseCase;
@@ -21,11 +22,13 @@ import com.orizon.coreapi.domain.port.out.TokenProvider;
 import com.orizon.coreapi.domain.port.out.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         RefreshTokenUseCase, LogoutUseCase,
-        GetCurrentUserUseCase, UpdateUserUseCase, DeleteUserUseCase, ChangePasswordUseCase {
+        GetCurrentUserUseCase, UpdateUserUseCase, DeleteUserUseCase, ChangePasswordUseCase,
+        ListUsersUseCase {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -140,6 +143,11 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
         refreshTokenRepository.revokeAllByUserId(userId);
+    }
+
+    @Override
+    public List<User> execute() {
+        return userRepository.findAll();
     }
 
     private String createRefreshToken(UUID userId) {

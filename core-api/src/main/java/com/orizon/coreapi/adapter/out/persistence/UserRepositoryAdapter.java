@@ -9,6 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,5 +56,12 @@ public class UserRepositoryAdapter implements UserRepository {
     @Transactional
     public void deleteById(UUID id) {
         jpaUserRepository.deleteById(id);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return jpaUserRepository.listAll().stream()
+                .map(UserPersistenceMapper::toDomain)
+                .toList();
     }
 }

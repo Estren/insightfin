@@ -78,6 +78,7 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
         return normalized.startsWith("api/auth/login")
                 || normalized.startsWith("api/auth/register")
                 || normalized.startsWith("api/auth/refresh")
+                || normalized.startsWith("internal")
                 || normalized.startsWith("swagger-ui")
                 || normalized.startsWith("q/")
                 || normalized.startsWith("v3/api-docs")
