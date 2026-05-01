@@ -2,6 +2,7 @@ package com.orizon.coreapi.config;
 
 import com.orizon.coreapi.application.service.*;
 import com.orizon.coreapi.domain.port.out.*;
+import com.orizon.coreapi.domain.port.out.EventPublisher;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 
@@ -20,8 +21,9 @@ public class BeanConfig {
     @Produces
     @ApplicationScoped
     public TransactionService transactionService(TransactionRepository transactionRepository,
-                                                 CategoryRepository categoryRepository) {
-        return new TransactionService(transactionRepository, categoryRepository);
+                                                 CategoryRepository categoryRepository,
+                                                 EventPublisher eventPublisher) {
+        return new TransactionService(transactionRepository, categoryRepository, eventPublisher);
     }
 
     @Produces
@@ -33,8 +35,9 @@ public class BeanConfig {
     @Produces
     @ApplicationScoped
     public GoalService goalService(GoalRepository goalRepository,
-                                   GoalContributionRepository goalContributionRepository) {
-        return new GoalService(goalRepository, goalContributionRepository);
+                                   GoalContributionRepository goalContributionRepository,
+                                   EventPublisher eventPublisher) {
+        return new GoalService(goalRepository, goalContributionRepository, eventPublisher);
     }
 
     @Produces

@@ -1,5 +1,6 @@
 package com.orizon.coreapi.application.service;
 
+import com.orizon.coreapi.domain.event.GoalContributedEvent;
 import com.orizon.coreapi.domain.exception.ResourceNotFoundException;
 import com.orizon.coreapi.domain.model.Goal;
 import com.orizon.coreapi.domain.model.GoalContribution;
@@ -9,6 +10,7 @@ import com.orizon.coreapi.domain.port.in.CreateGoalUseCase;
 import com.orizon.coreapi.domain.port.in.DeleteGoalUseCase;
 import com.orizon.coreapi.domain.port.in.ListGoalsUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateGoalUseCase;
+import com.orizon.coreapi.domain.port.out.EventPublisher;
 import com.orizon.coreapi.domain.port.out.GoalContributionRepository;
 import com.orizon.coreapi.domain.port.out.GoalRepository;
 
@@ -23,11 +25,14 @@ public class GoalService implements CreateGoalUseCase, ContributeToGoalUseCase,
 
     private final GoalRepository goalRepository;
     private final GoalContributionRepository goalContributionRepository;
+    private final EventPublisher eventPublisher;
 
     public GoalService(GoalRepository goalRepository,
-                       GoalContributionRepository goalContributionRepository) {
+                       GoalContributionRepository goalContributionRepository,
+                       EventPublisher eventPublisher) {
         this.goalRepository = goalRepository;
         this.goalContributionRepository = goalContributionRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -66,6 +71,10 @@ public class GoalService implements CreateGoalUseCase, ContributeToGoalUseCase,
         }
         goal.setUpdatedAt(LocalDateTime.now());
         goalRepository.save(goal);
+
+        eventPublisher.publishGoalContributed(new GoalContributedEvent(
+                goal.getUserId(), goalId, amount,
+                goal.getCurrentAmount(), goal.getTargetAmount()));
 
         return saved;
     }

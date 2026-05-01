@@ -94,6 +94,12 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Kafka -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-messaging-kafka</artifactId>
+        </dependency>
+
         <!-- BCrypt -->
         <dependency>
             <groupId>at.favre.lib</groupId>

@@ -1,5 +1,6 @@
 package com.orizon.coreapi.application.service;
 
+import com.orizon.coreapi.domain.event.TransactionCreatedEvent;
 import com.orizon.coreapi.domain.exception.ResourceNotFoundException;
 import com.orizon.coreapi.domain.model.Transaction;
 import com.orizon.coreapi.domain.model.TransactionType;
@@ -8,6 +9,7 @@ import com.orizon.coreapi.domain.port.in.DeleteTransactionUseCase;
 import com.orizon.coreapi.domain.port.in.ListTransactionsUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateTransactionUseCase;
 import com.orizon.coreapi.domain.port.out.CategoryRepository;
+import com.orizon.coreapi.domain.port.out.EventPublisher;
 import com.orizon.coreapi.domain.port.out.TransactionRepository;
 
 import java.math.BigDecimal;
@@ -21,11 +23,14 @@ public class TransactionService implements CreateTransactionUseCase, ListTransac
 
     private final TransactionRepository transactionRepository;
     private final CategoryRepository categoryRepository;
+    private final EventPublisher eventPublisher;
 
     public TransactionService(TransactionRepository transactionRepository,
-                              CategoryRepository categoryRepository) {
+                              CategoryRepository categoryRepository,
+                              EventPublisher eventPublisher) {
         this.transactionRepository = transactionRepository;
         this.categoryRepository = categoryRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -44,7 +49,13 @@ public class TransactionService implements CreateTransactionUseCase, ListTransac
         transaction.setDate(date);
         transaction.setCreatedAt(LocalDateTime.now());
 
-        return transactionRepository.save(transaction);
+        Transaction saved = transactionRepository.save(transaction);
+
+        eventPublisher.publishTransactionCreated(new TransactionCreatedEvent(
+                saved.getUserId(), saved.getId(), saved.getCategoryId(),
+                saved.getAmount(), saved.getType().name(), saved.getDate()));
+
+        return saved;
     }
 
     @Override
