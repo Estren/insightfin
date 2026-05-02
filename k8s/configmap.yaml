@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orizon-config
+  namespace: orizon
+  labels:
+    app.kubernetes.io/part-of: orizon
+data:
+  # Database
+  DB_USERNAME: orizon
+  QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/orizon
+
+  # Kafka
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  KAFKA_CONSUMER_GROUP: ai-service
+
+  # Service discovery
+  CORE_API_URL: http://core-api:8080
+
+  # Azure OpenAI (non-sensitive)
+  AZURE_OPENAI_MODEL: gpt-4o-mini
+  AZURE_OPENAI_API_VERSION: "2024-08-01-preview"
+
+  # Operational
+  MONTHLY_CRON: "0 8 1 * *"
+  MAX_LLM_CALLS_PER_DAY: "500"
+  ANALYSIS_BATCH_SIZE: "10"
+  LLM_TIMEOUT_SECONDS: "30"
