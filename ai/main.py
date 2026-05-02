@@ -1,5 +1,4 @@
-# Orizon AI Service - Entry point
-# TODO: Implement AI reasoning service
+import uvicorn
 
 if __name__ == "__main__":
-    print("Orizon AI Service starting...")
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8081, reload=True)
