@@ -1,11 +1,14 @@
 package com.orizon.coreapi.adapter.in.web;
 
+import com.orizon.coreapi.adapter.in.web.dto.AiFeedbackResponse;
 import com.orizon.coreapi.adapter.in.web.dto.BudgetStatusResponse;
 import com.orizon.coreapi.adapter.in.web.dto.CategoryResponse;
+import com.orizon.coreapi.adapter.in.web.dto.CreateAiFeedbackRequest;
 import com.orizon.coreapi.adapter.in.web.dto.GoalResponse;
 import com.orizon.coreapi.adapter.in.web.dto.TransactionResponse;
 import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
 import com.orizon.coreapi.domain.model.Category;
+import com.orizon.coreapi.domain.port.in.CreateAiFeedbackUseCase;
 import com.orizon.coreapi.domain.port.in.GetBudgetStatusUseCase;
 import com.orizon.coreapi.domain.port.in.ListCategoriesUseCase;
 import com.orizon.coreapi.domain.port.in.ListGoalsUseCase;
@@ -13,12 +16,10 @@ import com.orizon.coreapi.domain.port.in.ListTransactionsUseCase;
 import com.orizon.coreapi.domain.port.in.ListUsersUseCase;
 import com.orizon.coreapi.domain.port.out.CategoryRepository;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -30,6 +31,9 @@ import java.util.stream.Collectors;
 @Path("/internal")
 @Produces(MediaType.APPLICATION_JSON)
 public class InternalController {
+
+    @Inject
+    CreateAiFeedbackUseCase createAiFeedbackUseCase;
 
     @Inject
     ListUsersUseCase listUsersUseCase;
@@ -48,6 +52,16 @@ public class InternalController {
 
     @Inject
     CategoryRepository categoryRepository;
+
+    @POST
+    @Path("/feedbacks")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response createFeedback(@Valid CreateAiFeedbackRequest request) {
+        var feedback = createAiFeedbackUseCase.execute(
+                request.userId(), request.type(), request.title(),
+                request.content(), request.metadata(), request.referenceMonth());
+        return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(feedback)).build();
+    }
 
     @GET
     @Path("/users")

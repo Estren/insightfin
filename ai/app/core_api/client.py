@@ -73,7 +73,7 @@ class CoreApiClient:
         }
 
     async def post_feedback(self, payload: dict) -> None:
-        url = f"{settings.core_api_url}/api/feedbacks"
+        url = f"{settings.core_api_url}/internal/feedbacks"
         response = await self._client.post(url, json=payload)
         response.raise_for_status()
 

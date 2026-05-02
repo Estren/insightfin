@@ -1,15 +1,12 @@
 package com.orizon.coreapi.adapter.in.web;
 
 import com.orizon.coreapi.adapter.in.web.dto.AiFeedbackResponse;
-import com.orizon.coreapi.adapter.in.web.dto.CreateAiFeedbackRequest;
 import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
 import com.orizon.coreapi.config.security.AuthenticatedUser;
-import com.orizon.coreapi.domain.port.in.CreateAiFeedbackUseCase;
 import com.orizon.coreapi.domain.port.in.GetAiFeedbackUseCase;
 import com.orizon.coreapi.domain.port.in.ListAiFeedbacksUseCase;
 import com.orizon.coreapi.domain.port.in.MarkFeedbackAsReadUseCase;
 import jakarta.inject.Inject;
-import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -23,9 +20,6 @@ import java.util.UUID;
 public class AiFeedbackController {
 
     @Inject
-    CreateAiFeedbackUseCase createAiFeedbackUseCase;
-
-    @Inject
     ListAiFeedbacksUseCase listAiFeedbacksUseCase;
 
     @Inject
@@ -36,14 +30,6 @@ public class AiFeedbackController {
 
     @Inject
     AuthenticatedUser authenticatedUser;
-
-    @POST
-    public Response create(@Valid CreateAiFeedbackRequest request) {
-        var feedback = createAiFeedbackUseCase.execute(
-                request.userId(), request.type(), request.title(),
-                request.content(), request.metadata(), request.referenceMonth());
-        return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(feedback)).build();
-    }
 
     @GET
     public List<AiFeedbackResponse> list(@QueryParam("month") String referenceMonth) {

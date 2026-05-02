@@ -110,4 +110,48 @@
       }
     </app-card>
   </div>
+
+  <div class="mt-6">
+    <app-card title="AI Insights">
+      @if (feedbackStore.loading$ | async) {
+        <app-loading />
+      } @else if (feedbackStore.feedbacks$ | async; as feedbacks) {
+        @if (feedbacks.length === 0) {
+          <app-empty-state
+            title="No insights yet"
+            description="AI analysis will appear here after the first monthly report." />
+        } @else {
+          <div class="space-y-2">
+            @for (f of feedbacks; track f.id) {
+              <div
+                class="cursor-pointer rounded-md border p-3 transition-colors hover:bg-muted/50"
+                (click)="toggleFeedback(f)">
+                <div class="flex items-start gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="mb-1 flex items-center gap-2">
+                      <span
+                        class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                        [ngClass]="feedbackTypeClass(f.type)">
+                        {{ feedbackTypeLabel(f.type) }}
+                      </span>
+                      @if (!f.read) {
+                        <span class="h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></span>
+                      }
+                    </div>
+                    <p class="text-foreground truncate text-sm font-medium">{{ f.title }}</p>
+                    @if (f.referenceMonth) {
+                      <p class="text-muted-foreground mt-0.5 text-xs">{{ f.referenceMonth }}</p>
+                    }
+                  </div>
+                </div>
+                @if (expandedId === f.id) {
+                  <p class="text-muted-foreground mt-3 border-t pt-3 text-sm">{{ f.content }}</p>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    </app-card>
+  </div>
 }
