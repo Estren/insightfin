@@ -6,6 +6,7 @@ import structlog
 from fastapi import FastAPI
 
 from app.api.routes import router
+from app.agent.llm_client import LLMClient
 from app.agent.orchestrator import Orchestrator
 from app.core_api.client import CoreApiClient, make_http_client
 from app.kafka.consumer import KafkaConsumer
@@ -30,7 +31,8 @@ log = structlog.get_logger(__name__)
 async def lifespan(app: FastAPI):
     http_client = make_http_client()
     core_api = CoreApiClient(http_client)
-    orchestrator = Orchestrator(core_api)
+    llm = LLMClient()
+    orchestrator = Orchestrator(core_api, llm)
     kafka_consumer = KafkaConsumer(orchestrator)
     scheduler = Scheduler(orchestrator)
 
