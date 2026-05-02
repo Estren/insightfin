@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 import structlog
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.api.routes import router
 from app.agent.llm_client import LLMClient
@@ -53,6 +54,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(title="Orizon AI Service", version="1.0.0", lifespan=lifespan)
     app.include_router(router)
+    Instrumentator().instrument(app).expose(app, endpoint="/metrics")
     return app
 
 

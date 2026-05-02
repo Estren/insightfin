@@ -100,6 +100,12 @@
             <artifactId>quarkus-messaging-kafka</artifactId>
         </dependency>
 
+        <!-- Observability -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-metrics</artifactId>
+        </dependency>
+
         <!-- BCrypt -->
         <dependency>
             <groupId>at.favre.lib</groupId>

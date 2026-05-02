@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: core-api
+    static_configs:
+      - targets: ["core-api:8080"]
+    metrics_path: /q/metrics
+
+  - job_name: ai-service
+    static_configs:
+      - targets: ["ai:8081"]
+    metrics_path: /metrics
