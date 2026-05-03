@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import random
 from datetime import date
 from uuid import UUID
 
@@ -8,6 +10,7 @@ from prometheus_client import Counter
 
 from app.agent import context_builder
 from app.agent.llm_client import LLMClient, LLMDailyLimitError
+from app.config import settings
 from app.core_api.client import CoreApiClient
 from app.prompts import loader as prompt_loader
 
@@ -32,7 +35,7 @@ class Orchestrator:
         user_id: UUID,
         analysis_type: str,
         month: str | None = None,
-        force: bool = False,
+        force: bool = False,  # TODO: when core-api exposes GET /internal/feedbacks, use force to skip idempotency check
     ) -> None:
         if analysis_type not in ANALYSIS_TYPES:
             raise ValueError(f"Unknown analysis type: {analysis_type}")
@@ -101,16 +104,13 @@ class Orchestrator:
         log.info("analysis_completed", user_id=str(user_id), type=analysis_type, month=ref_month)
 
     async def run_monthly_batch(self) -> None:
-        import asyncio
-        import random
-
         month = date.today().strftime("%Y-%m")
         log.info("monthly_batch_started", month=month)
 
         users = await self._core_api.list_users()
         log.info("monthly_batch_users", count=len(users))
 
-        batch_size = 10
+        batch_size = settings.analysis_batch_size
         batches = [users[i : i + batch_size] for i in range(0, len(users), batch_size)]
 
         for batch in batches:

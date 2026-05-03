@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { AiFeedbackResponse } from '../models/ai-feedback.model';
 import { AiFeedbackService } from '../services/ai-feedback.service';
 
@@ -32,16 +32,12 @@ export class AiFeedbackStore {
   }
 
   markAsRead(id: string): void {
-    this.feedbackService
-      .markAsRead(id)
-      .pipe(
-        tap(() => {
-          const updated = this._feedbacks$.value.map((f) =>
-            f.id === id ? { ...f, read: true } : f,
-          );
-          this._feedbacks$.next(updated);
-        }),
-      )
-      .subscribe();
+    // Optimistic update — revert if the request fails
+    const previous = this._feedbacks$.value;
+    this._feedbacks$.next(previous.map((f) => (f.id === id ? { ...f, read: true } : f)));
+
+    this.feedbackService.markAsRead(id).subscribe({
+      error: () => this._feedbacks$.next(previous),
+    });
   }
 }

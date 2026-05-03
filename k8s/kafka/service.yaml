@@ -1,3 +1,26 @@
+# Headless service — required for StatefulSet pod DNS (kafka-0.kafka-headless)
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-headless
+  namespace: orizon
+  labels:
+    app.kubernetes.io/name: kafka
+    app.kubernetes.io/part-of: orizon
+    app.kubernetes.io/component: messaging
+spec:
+  selector:
+    app.kubernetes.io/name: kafka
+  clusterIP: None
+  ports:
+    - name: client
+      port: 9092
+      targetPort: 9092
+    - name: controller
+      port: 9093
+      targetPort: 9093
+---
+# ClusterIP service — used by producers/consumers inside the cluster
 apiVersion: v1
 kind: Service
 metadata:
