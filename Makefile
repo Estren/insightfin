@@ -1,4 +1,4 @@
-.PHONY: up down up-db up-api up-ai build logs clean frontend-install frontend-run frontend-build test-api help
+.PHONY: up down up-db up-api up-ai build logs clean frontend-install frontend-run frontend-build test-api setup-ai test-ai help
 
 # === Full Stack ===
 
@@ -45,6 +45,13 @@ docs: ## Open Swagger UI in the browser, for Linux/Mac use xdg-open, for Windows
 
 test-api: ## Run core-api tests (Maven)
 	cd core-api && mvnw.cmd test
+
+setup-ai: ## Create AI virtual environment and install dependencies (run once)
+	python -m venv ai/.venv
+	ai/.venv/Scripts/pip install -r ai/requirements.txt -r ai/requirements-dev.txt -q
+
+test-ai: ## Run AI service tests (requires: make setup-ai)
+	ai/.venv/Scripts/python -m pytest ai/tests -v
 
 # === Cleanup ===
 
