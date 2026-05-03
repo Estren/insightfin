@@ -115,6 +115,15 @@ The `core-api` has a suite of **25 unit tests** covering the core business logic
 
 Tests are pure unit tests — no database, no Kafka, no Quarkus context. They run in seconds using JUnit 5 + Mockito + AssertJ.
 
+### CI (GitHub Actions)
+
+Every push and PR to `main` triggers two parallel jobs:
+
+| Job | What it does |
+|---|---|
+| `Core API — Unit Tests` | Runs all 44 unit tests via Maven |
+| `Frontend — Lint & Build` | `npm ci` → `ng lint` → `ng build` (production) |
+
 **Run via Make (from monorepo root):**
 
 ```bash
