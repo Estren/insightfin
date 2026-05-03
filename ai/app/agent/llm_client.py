@@ -6,7 +6,7 @@ from datetime import date
 from typing import Any
 
 import structlog
-from openai import AsyncAzureOpenAI, APIConnectionError, APITimeoutError, RateLimitError
+from openai import AsyncOpenAI, APIConnectionError, APITimeoutError, RateLimitError
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 from app.config import settings
@@ -37,10 +37,9 @@ def _check_and_increment() -> None:
 
 class LLMClient:
     def __init__(self) -> None:
-        self._client = AsyncAzureOpenAI(
-            azure_endpoint=settings.azure_openai_endpoint,
+        self._client = AsyncOpenAI(
+            base_url=settings.azure_openai_endpoint,
             api_key=settings.azure_openai_key,
-            api_version=settings.azure_openai_api_version,
         )
 
     @retry(

@@ -6,7 +6,6 @@ class Settings(BaseSettings):
     azure_openai_endpoint: str = ""
     azure_openai_key: str = ""
     azure_openai_model: str = "gpt-4o-mini"
-    azure_openai_api_version: str = "2024-08-01-preview"
 
     # Core-API
     core_api_url: str = "http://core-api:8080"
