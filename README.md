@@ -13,7 +13,7 @@ Orizon helps users track expenses, set financial goals, and receive personalized
 | `core-api/` | 🔧 Main REST API — manages users, transactions, categories, goals, budgets, and AI feedback | Java 17, Quarkus 3.17, PostgreSQL |
 | `frontend/web/` | 💻 Web client (admin dashboard) | Angular 21, Tailwind CSS 4, RxJS, ApexCharts |
 | `frontend/mobile/` | 📱 Mobile client — reserved for future development | TBD |
-| `ai/` | 🧠 AI reasoning service — financial feedback and insights | Python (framework TBD) |
+| `ai/` | 🧠 AI reasoning service — financial feedback and insights | Python, FastAPI, Azure OpenAI, aiokafka, APScheduler |
 
 ## 🚀 Getting Started
 
@@ -92,11 +92,46 @@ User ──┬── Transaction ── Category
 | Backend | Java 17, Quarkus 3.17, Hibernate ORM with Panache, RESTEasy Reactive, JWT (JJWT) |
 | Web Frontend | Angular 21, Tailwind CSS 4, RxJS, ApexCharts, Playwright (e2e) |
 | Mobile Frontend | Reserved for future development |
-| AI | Python (framework TBD) |
+| AI | Python 3.12, FastAPI 0.115, Azure OpenAI (GPT-4o-mini), aiokafka, APScheduler, Prometheus |
 | Database | PostgreSQL 16, Flyway migrations |
 | Build | Maven (core-api), npm / Angular CLI (frontend) |
 | Infra | Docker, Docker Compose, Make |
 | Docs | Swagger / OpenAPI 3 |
+
+## 🧪 Testing
+
+### core-api
+
+The `core-api` has a suite of **25 unit tests** covering the core business logic.
+
+| Class | Tests | Coverage |
+|---|---|---|
+| `TransactionServiceTest` | 8 | create, list, update, delete — ownership checks + event publishing |
+| `BudgetServiceTest` | 8 | create, list, status (% calculation + division-by-zero guard), update, delete |
+| `GoalServiceTest` | 8 | create, contribute (target completion + event), update, delete |
+| `CoreApiApplicationTests` | 1 | Application context smoke test |
+
+Tests are pure unit tests — no database, no Kafka, no Quarkus context. They run in seconds using JUnit 5 + Mockito + AssertJ.
+
+**Run via Make (from monorepo root):**
+
+```bash
+make test-api
+```
+
+**Run directly (from `core-api/`):**
+
+```bash
+# Windows
+mvnw.cmd test
+mvnw.cmd test -Dtest=TransactionServiceTest
+
+# Linux / macOS
+./mvnw test
+./mvnw test -Dtest=TransactionServiceTest
+```
+
+---
 
 ## 📄 License
 
