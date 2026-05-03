@@ -1,5 +1,7 @@
 # 🌅 Orizon
 
+[![CI](https://github.com/Estren/orizon/actions/workflows/ci.yml/badge.svg)](https://github.com/Estren/orizon/actions/workflows/ci.yml)
+
 Personal financial management platform — simple, visual, and powered by AI.
 
 Orizon helps users track expenses, set financial goals, and receive personalized insights to improve their financial health.
