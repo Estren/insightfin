@@ -23,10 +23,7 @@ jobs:
           cache: maven
 
       - name: Run tests
-        working-directory: core-api
-        run: |
-          chmod +x mvnw
-          ./mvnw test
+        run: mvn -f core-api/pom.xml test
 
       - name: Publish test report
         if: always()
