@@ -21,7 +21,6 @@ class CategoryResponse(BaseModel):
 
 class TransactionResponse(BaseModel):
     id: UUID
-    userId: UUID
     categoryId: UUID
     amount: Decimal
     type: str
@@ -30,7 +29,7 @@ class TransactionResponse(BaseModel):
 
 
 class BudgetStatusResponse(BaseModel):
-    id: UUID
+    budgetId: UUID
     categoryId: UUID
     categoryName: str
     budgetAmount: Decimal

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import random
 from datetime import date
 from uuid import UUID
@@ -85,7 +86,7 @@ class Orchestrator:
             "type": analysis_type,
             "title": result.get("title", analysis_type),
             "content": result.get("content", ""),
-            "metadata": metadata,
+            "metadata": json.dumps(metadata),
             "referenceMonth": ref_month,
         }
 
