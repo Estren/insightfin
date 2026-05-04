@@ -23,8 +23,8 @@ public class GoalRepositoryAdapter implements GoalRepository {
     @Transactional
     public Goal save(Goal goal) {
         var entity = GoalPersistenceMapper.toEntity(goal);
-        jpaGoalRepository.persist(entity);
-        return GoalPersistenceMapper.toDomain(entity);
+        var managed = jpaGoalRepository.getEntityManager().merge(entity);
+        return GoalPersistenceMapper.toDomain(managed);
     }
 
     @Override

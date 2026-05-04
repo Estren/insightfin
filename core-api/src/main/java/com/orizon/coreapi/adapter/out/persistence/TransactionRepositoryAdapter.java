@@ -25,8 +25,8 @@ public class TransactionRepositoryAdapter implements TransactionRepository {
     @Transactional
     public Transaction save(Transaction transaction) {
         var entity = TransactionPersistenceMapper.toEntity(transaction);
-        jpaTransactionRepository.persist(entity);
-        return TransactionPersistenceMapper.toDomain(entity);
+        var managed = jpaTransactionRepository.getEntityManager().merge(entity);
+        return TransactionPersistenceMapper.toDomain(managed);
     }
 
     @Override

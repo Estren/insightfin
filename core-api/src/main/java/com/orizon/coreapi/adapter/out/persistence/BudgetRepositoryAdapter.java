@@ -22,8 +22,8 @@ public class BudgetRepositoryAdapter implements BudgetRepository {
     @Transactional
     public Budget save(Budget budget) {
         var entity = BudgetPersistenceMapper.toEntity(budget);
-        jpaBudgetRepository.persist(entity);
-        return BudgetPersistenceMapper.toDomain(entity);
+        var managed = jpaBudgetRepository.getEntityManager().merge(entity);
+        return BudgetPersistenceMapper.toDomain(managed);
     }
 
     @Override

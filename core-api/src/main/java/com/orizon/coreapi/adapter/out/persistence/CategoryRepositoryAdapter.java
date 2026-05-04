@@ -27,8 +27,8 @@ public class CategoryRepositoryAdapter implements CategoryRepository {
     @Transactional
     public Category save(Category category) {
         var entity = CategoryPersistenceMapper.toEntity(category);
-        jpaCategoryRepository.persist(entity);
-        return CategoryPersistenceMapper.toDomain(entity);
+        var managed = jpaCategoryRepository.getEntityManager().merge(entity);
+        return CategoryPersistenceMapper.toDomain(managed);
     }
 
     @Override

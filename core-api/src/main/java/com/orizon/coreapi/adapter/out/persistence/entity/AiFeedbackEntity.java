@@ -31,7 +31,7 @@ public class AiFeedbackEntity {
     private String content;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
+    @Column
     private String metadata;
 
     @Column(name = "reference_month", length = 7)
