@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: ai-service
-          image: orizon/ai-service:latest
+          image: orizon-ai:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081

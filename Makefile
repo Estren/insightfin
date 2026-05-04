@@ -1,4 +1,4 @@
-.PHONY: up down up-db up-api up-ai build logs clean frontend-install frontend-run frontend-build test-api test-ai setup-ai docs prometheus grafana help
+.PHONY: up down up-db up-api up-ai build logs clean frontend-install frontend-run frontend-build test-api test-ai setup-ai docs prometheus grafana k8s-deploy-api k8s-deploy-ai k8s-status k8s-logs help
 
 # === Full Stack ===
 
@@ -57,6 +57,22 @@ setup-ai: ## Install AI service dependencies via pip (run once)
 
 test-ai: ## Run AI service tests (requires: make setup-ai)
 	cd ai && pytest -v
+
+# === Kubernetes ===
+
+k8s-deploy-api: ## [k8s] Rebuild core-api image and redeploy to local cluster
+	docker build -t orizon-core-api:latest ./core-api
+	kubectl rollout restart deployment/core-api -n orizon
+
+k8s-deploy-ai: ## [k8s] Rebuild ai-service image and redeploy to local cluster
+	docker build -t orizon-ai:latest ./ai
+	kubectl rollout restart deployment/ai-service -n orizon
+
+k8s-status: ## [k8s] Show pod status in orizon namespace
+	kubectl get pods -n orizon
+
+k8s-logs: ## [k8s] Stream logs from core-api pods
+	kubectl logs -f -l app.kubernetes.io/name=core-api -n orizon --max-log-requests=5
 
 # === Cleanup ===
 

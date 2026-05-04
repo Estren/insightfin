@@ -24,6 +24,7 @@ Orizon helps users track expenses, set financial goals, and receive personalized
 - [Docker](https://docs.docker.com/get-docker/) & Docker Compose
 - [Node.js](https://nodejs.org/) 20+ and npm (for web frontend development)
 - [Make](https://www.gnu.org/software/make/) (optional, for convenience commands)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/) (optional, for Kubernetes commands)
 
 ### Quick Start
 
@@ -53,6 +54,10 @@ make frontend-run
 | `make test-api` | 🧪 Run core-api tests (Maven) |
 | `make clean` | 🧹 Stop services and remove volumes |
 | `make help` | ❓ Show all available commands |
+| `make k8s-deploy-api` | ☸️ Rebuild core-api image and redeploy to local cluster |
+| `make k8s-deploy-ai` | ☸️ Rebuild ai-service image and redeploy to local cluster |
+| `make k8s-status` | ☸️ Show pod status in orizon namespace |
+| `make k8s-logs` | ☸️ Stream logs from core-api pods |
 
 ## 🔗 Service URLs
 
@@ -63,6 +68,51 @@ make frontend-run
 | Web Frontend | `http://localhost:4200` |
 | AI Service | `http://localhost:8081` |
 | PostgreSQL | `localhost:5432` |
+
+## ☸️ Kubernetes (Local Cluster)
+
+The k8s manifests in `k8s/` describe the full production-like setup (core-api, ai-service, PostgreSQL, Kafka, Ingress). Use this to validate behaviour that Docker Compose dev mode cannot replicate: rolling deploys, health probes, HPA, and Ingress routing.
+
+**Prerequisites:** Docker Desktop with Kubernetes enabled (or kind/kubeadm).
+
+### First-time setup
+
+```bash
+# Apply all manifests once
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secrets.yaml
+kubectl apply -f k8s/postgres/
+kubectl apply -f k8s/kafka/
+kubectl apply -f k8s/core-api/
+kubectl apply -f k8s/ai-service/
+kubectl apply -f k8s/ingress.yaml
+```
+
+### Deploy workflow (after code changes)
+
+```bash
+# 1. Rebuild image and redeploy
+make k8s-deploy-api     # core-api
+make k8s-deploy-ai      # ai-service
+
+# 2. Watch pods come up
+make k8s-status
+
+# 3. Validate
+curl http://localhost/q/health/live   # → {"status":"UP"}
+curl -X POST http://localhost/api/auth/register ...
+```
+
+### Service URLs (via Ingress)
+
+| Path | Service |
+|---|---|
+| `http://localhost/api/...` | core-api REST endpoints |
+| `http://localhost/q/health/live` | core-api liveness probe |
+| `http://localhost/q/health/ready` | core-api readiness probe |
+
+---
 
 ## 🏛️ Architecture
 
@@ -104,16 +154,25 @@ User ──┬── Transaction ── Category
 
 ### core-api
 
-The `core-api` has a suite of **25 unit tests** covering the core business logic.
+The `core-api` has a suite of unit and integration tests covering business logic and HTTP contracts.
+
+**Unit tests (48)** — pure JUnit 5 + Mockito + AssertJ, no database, no Kafka, no Quarkus context:
 
 | Class | Tests | Coverage |
 |---|---|---|
 | `TransactionServiceTest` | 8 | create, list, update, delete — ownership checks + event publishing |
 | `BudgetServiceTest` | 8 | create, list, status (% calculation + division-by-zero guard), update, delete |
 | `GoalServiceTest` | 8 | create, contribute (target completion + event), update, delete |
+| `DashboardServiceTest` | 4 | empty month, totals calculation, recent-5 limit, completed goals excluded |
 | `CoreApiApplicationTests` | 1 | Application context smoke test |
 
-Tests are pure unit tests — no database, no Kafka, no Quarkus context. They run in seconds using JUnit 5 + Mockito + AssertJ.
+**Integration tests (28)** — `@QuarkusTest` + REST-Assured + H2 in-memory database:
+
+| Class | Tests | Coverage |
+|---|---|---|
+| `AuthControllerIT` | 11 | register, login, refresh, logout — happy path + 400/401/409 |
+| `TransactionControllerIT` | 9 | CRUD + 401 without token + cross-tenant 404 |
+| `CategoryControllerIT` | 8 | CRUD + 401 without token + cross-tenant 404 |
 
 ### CI (GitHub Actions)
 
@@ -121,7 +180,7 @@ Every push and PR to `main` triggers two parallel jobs:
 
 | Job | What it does |
 |---|---|
-| `Core API — Unit Tests` | Runs all 44 unit tests via Maven |
+| `Core API — Unit Tests` | Runs all 76 tests (unit + integration) via Maven |
 | `Frontend — Lint & Build` | `npm ci` → `ng lint` → `ng build` (production) |
 
 **Run via Make (from monorepo root):**
