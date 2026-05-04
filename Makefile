@@ -1,4 +1,4 @@
-.PHONY: up down up-db up-api up-ai build logs clean frontend-install frontend-run frontend-build test-api test-ai setup-ai help
+.PHONY: up down up-db up-api up-ai build logs clean frontend-install frontend-run frontend-build test-api test-ai setup-ai docs prometheus grafana help
 
 # === Full Stack ===
 
@@ -36,10 +36,16 @@ frontend-run: ## Run Angular frontend locally (ng serve)
 frontend-build: ## Build Angular frontend for production
 	cd frontend/web && npm run build
 
-# === Docs ===
+# === Docs / Monitoring ===
 
-docs: ## Open Swagger UI in the browser, for Linux/Mac use xdg-open, for Windows use start
+docs: ## Open Swagger UI (core-api)
 	cmd /c start http://localhost:8080/swagger-ui.html/
+
+prometheus: ## Open Prometheus UI
+	cmd /c start http://localhost:9090
+
+grafana: ## Open Grafana (admin / orizon)
+	cmd /c start http://localhost:3000
 
 # === Testing ===
 
