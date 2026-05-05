@@ -3,11 +3,25 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { BudgetStatusResponse } from '../../../../core/models/budget.model';
 import { BudgetStore } from '../../../../core/stores/budget.store';
+import { CardComponent } from '../../../../shared/components/card/card.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-budget-list',
   templateUrl: './budget-list.component.html',
-  imports: [AsyncPipe, CurrencyPipe, DecimalPipe, NgClass, RouterLink],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    DecimalPipe,
+    NgClass,
+    RouterLink,
+    CardComponent,
+    PageHeaderComponent,
+    EmptyStateComponent,
+    LoadingComponent,
+  ],
 })
 export class BudgetListComponent implements OnInit {
   constructor(

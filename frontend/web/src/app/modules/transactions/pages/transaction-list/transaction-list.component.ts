@@ -1,9 +1,17 @@
 import { AsyncPipe, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { map, Observable } from 'rxjs';
+import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
 import { TransactionStore } from '../../../../core/stores/transaction.store';
+import { CardComponent } from '../../../../shared/components/card/card.component';
+import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { Tab, TabsComponent } from '../../../../shared/components/tabs/tabs.component';
+
+type TabValue = 'ALL' | 'INCOME' | 'EXPENSE';
 
 interface TransactionGroup {
   date: string;
@@ -13,20 +21,49 @@ interface TransactionGroup {
 @Component({
   selector: 'app-transaction-list',
   templateUrl: './transaction-list.component.html',
-  imports: [AsyncPipe, CurrencyPipe, DatePipe, NgClass, RouterLink],
+  imports: [
+    AsyncPipe,
+    CurrencyPipe,
+    DatePipe,
+    NgClass,
+    RouterLink,
+    CardComponent,
+    PageHeaderComponent,
+    EmptyStateComponent,
+    LoadingComponent,
+    TabsComponent,
+    DataTableComponent,
+  ],
 })
 export class TransactionListComponent implements OnInit {
+  readonly tabs: Tab[] = [
+    { label: 'All', value: 'ALL' },
+    { label: 'Revenue', value: 'INCOME' },
+    { label: 'Expenses', value: 'EXPENSE' },
+  ];
+
+  private readonly _activeTab$ = new BehaviorSubject<TabValue>('ALL');
+  readonly activeTab$ = this._activeTab$.asObservable();
   readonly groupedTransactions$: Observable<TransactionGroup[]>;
 
   constructor(
     public readonly transactionStore: TransactionStore,
     private readonly router: Router,
   ) {
-    this.groupedTransactions$ = this.transactionStore.transactions$.pipe(map((list) => this.groupByDate(list)));
+    this.groupedTransactions$ = combineLatest([this.transactionStore.transactions$, this._activeTab$]).pipe(
+      map(([transactions, tab]) => {
+        const filtered = tab === 'ALL' ? transactions : transactions.filter((t) => t.type === tab);
+        return this.groupByDate(filtered);
+      }),
+    );
   }
 
   ngOnInit(): void {
     this.transactionStore.load(this.transactionStore.selectedMonth);
+  }
+
+  setTab(value: string): void {
+    this._activeTab$.next(value as TabValue);
   }
 
   changeMonth(delta: number): void {

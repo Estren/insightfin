@@ -3,11 +3,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { GoalResponse } from '../../../../core/models/goal.model';
 import { GoalStore } from '../../../../core/stores/goal.store';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-goal-form',
   templateUrl: './goal-form.component.html',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ModalComponent],
 })
 export class GoalFormComponent implements OnInit {
   form!: FormGroup;

@@ -1,0 +1,15 @@
+<div class="flex">
+  @for (tab of tabs(); track tab.value) {
+    <button
+      type="button"
+      (click)="tabChange.emit(tab.value)"
+      class="-mb-px cursor-pointer border-b-2 px-4 py-2.5 text-sm font-medium transition-colors"
+      [class.border-primary]="active() === tab.value"
+      [class.text-foreground]="active() === tab.value"
+      [class.border-transparent]="active() !== tab.value"
+      [class.text-muted-foreground]="active() !== tab.value"
+      [class.hover:text-foreground]="active() !== tab.value">
+      {{ tab.label }}
+    </button>
+  }
+</div>

@@ -3,11 +3,15 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { GoalResponse } from '../../../../core/models/goal.model';
 import { GoalStore } from '../../../../core/stores/goal.store';
+import { CardComponent } from '../../../../shared/components/card/card.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-goal-list',
   templateUrl: './goal-list.component.html',
-  imports: [AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, RouterLink],
+  imports: [AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, RouterLink, CardComponent, PageHeaderComponent, EmptyStateComponent, LoadingComponent],
 })
 export class GoalListComponent implements OnInit {
   constructor(

@@ -1,20 +1,43 @@
-import { Component, OnInit } from '@angular/core';
 import { AsyncPipe, NgClass } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CategoryStore } from '../../../../core/stores/category.store';
 import { CategoryResponse } from '../../../../core/models/category.model';
 import { TransactionType } from '../../../../core/models/transaction.model';
+import { CategoryStore } from '../../../../core/stores/category.store';
+import { CardComponent } from '../../../../shared/components/card/card.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { Tab, TabsComponent } from '../../../../shared/components/tabs/tabs.component';
 
 @Component({
   selector: 'app-category-list',
   templateUrl: './category-list.component.html',
-  imports: [AsyncPipe, NgClass, ReactiveFormsModule],
+  imports: [
+    AsyncPipe,
+    NgClass,
+    ReactiveFormsModule,
+    CardComponent,
+    PageHeaderComponent,
+    EmptyStateComponent,
+    LoadingComponent,
+    ModalComponent,
+    TabsComponent,
+  ],
 })
 export class CategoryListComponent implements OnInit {
+  readonly filterTabs: Tab[] = [
+    { label: 'All', value: 'ALL' },
+    { label: 'Income', value: 'INCOME' },
+    { label: 'Expense', value: 'EXPENSE' },
+  ];
+
   form!: FormGroup;
   showForm = false;
   editingCategory: CategoryResponse | null = null;
   filterType: TransactionType | undefined;
+  activeFilterTab = 'ALL';
 
   constructor(
     public readonly categoryStore: CategoryStore,
@@ -81,7 +104,9 @@ export class CategoryListComponent implements OnInit {
     this.categoryStore.delete(category.id).subscribe();
   }
 
-  onFilterChange(type: TransactionType | undefined): void {
+  onFilterChange(tabValue: string): void {
+    this.activeFilterTab = tabValue;
+    const type = tabValue === 'ALL' ? undefined : (tabValue as TransactionType);
     this.filterType = type;
     this.categoryStore.load(type);
   }

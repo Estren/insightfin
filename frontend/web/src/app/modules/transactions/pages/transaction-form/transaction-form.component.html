@@ -1,9 +1,5 @@
-<div class="mx-auto max-w-2xl p-6">
-  <h2 class="text-foreground mb-6 text-2xl font-bold">
-    {{ editing ? 'Edit Transaction' : 'New Transaction' }}
-  </h2>
-
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-background space-y-4 rounded-lg border p-6 shadow-sm">
+<app-modal [title]="editing ? 'Edit Transaction' : 'New Transaction'" (close)="onCancel()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
     <!-- Type toggle -->
     <div>
       <label class="text-foreground mb-2 block text-sm font-medium">Type</label>
@@ -11,7 +7,7 @@
         <button
           type="button"
           (click)="form.controls['type'].setValue('EXPENSE')"
-          class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+          class="flex-1 cursor-pointer rounded-md px-3 py-2 text-sm font-medium transition-colors"
           [ngClass]="
             form.controls['type'].value === 'EXPENSE'
               ? 'bg-red-500 text-white'
@@ -22,7 +18,7 @@
         <button
           type="button"
           (click)="form.controls['type'].setValue('INCOME')"
-          class="flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors"
+          class="flex-1 cursor-pointer rounded-md px-3 py-2 text-sm font-medium transition-colors"
           [ngClass]="
             form.controls['type'].value === 'INCOME'
               ? 'bg-green-500 text-white'
@@ -38,7 +34,7 @@
       <label class="text-foreground mb-1 block text-sm font-medium">Category</label>
       <select
         formControlName="categoryId"
-        class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm">
+        class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm">
         <option value="" disabled>Select a category</option>
         @for (cat of filteredCategories$ | async; track cat.id) {
           <option [value]="cat.id">{{ cat.name }}</option>
@@ -60,7 +56,9 @@
 
     <!-- Description -->
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Description (optional)</label>
+      <label class="text-foreground mb-1 block text-sm font-medium">
+        Description <span class="text-muted-foreground">(optional)</span>
+      </label>
       <input
         formControlName="description"
         type="text"
@@ -82,19 +80,11 @@
       </div>
     }
 
-    <div class="flex gap-2 pt-2">
-      <button
-        type="submit"
-        [disabled]="form.invalid || submitting"
-        class="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
-        {{ editing ? 'Save' : 'Create' }}
-      </button>
-      <button
-        type="button"
-        (click)="onCancel()"
-        class="bg-muted text-muted-foreground hover:bg-muted/80 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
-        Cancel
-      </button>
-    </div>
+    <button
+      type="submit"
+      [disabled]="form.invalid || submitting"
+      class="bg-primary hover:bg-primary/90 mt-2 w-full cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
+      {{ editing ? 'Save Changes' : 'Create Transaction' }}
+    </button>
   </form>
-</div>
+</app-modal>

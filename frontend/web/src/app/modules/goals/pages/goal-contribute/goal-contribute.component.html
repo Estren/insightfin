@@ -1,13 +1,13 @@
-<div class="mx-auto max-w-2xl p-6">
-  <h2 class="text-foreground mb-2 text-2xl font-bold">Contribute to Goal</h2>
+<app-modal title="Contribute to Goal" (close)="onCancel()">
   @if (goal) {
-    <p class="text-muted-foreground mb-6 text-sm">
-      {{ goal.title }} · {{ goal.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
+    <p class="text-muted-foreground mb-4 text-sm">
+      {{ goal.title }} &middot;
+      {{ goal.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
       {{ goal.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
     </p>
   }
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-background space-y-4 rounded-lg border p-6 shadow-sm">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
     <div>
       <label class="text-foreground mb-1 block text-sm font-medium">Amount</label>
       <input
@@ -24,7 +24,7 @@
       <input
         formControlName="date"
         type="date"
-        class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
+        class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm" />
     </div>
 
     @if (errorMessage) {
@@ -33,19 +33,11 @@
       </div>
     }
 
-    <div class="flex gap-2 pt-2">
-      <button
-        type="submit"
-        [disabled]="form.invalid || submitting"
-        class="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
-        Contribute
-      </button>
-      <button
-        type="button"
-        (click)="onCancel()"
-        class="bg-muted text-muted-foreground hover:bg-muted/80 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
-        Cancel
-      </button>
-    </div>
+    <button
+      type="submit"
+      [disabled]="form.invalid || submitting"
+      class="bg-primary hover:bg-primary/90 mt-2 w-full cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
+      Confirm Contribution
+    </button>
   </form>
-</div>
+</app-modal>

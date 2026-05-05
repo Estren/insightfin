@@ -7,11 +7,12 @@ import { BudgetResponse } from '../../../../core/models/budget.model';
 import { CategoryResponse } from '../../../../core/models/category.model';
 import { BudgetStore } from '../../../../core/stores/budget.store';
 import { CategoryStore } from '../../../../core/stores/category.store';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-budget-form',
   templateUrl: './budget-form.component.html',
-  imports: [AsyncPipe, ReactiveFormsModule],
+  imports: [AsyncPipe, ReactiveFormsModule, ModalComponent],
 })
 export class BudgetFormComponent implements OnInit {
   form!: FormGroup;

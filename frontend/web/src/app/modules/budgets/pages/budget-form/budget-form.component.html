@@ -1,9 +1,5 @@
-<div class="mx-auto max-w-2xl p-6">
-  <h2 class="text-foreground mb-6 text-2xl font-bold">
-    {{ editing ? 'Edit Budget' : 'New Budget' }}
-  </h2>
-
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="bg-background space-y-4 rounded-lg border p-6 shadow-sm">
+<app-modal [title]="editing ? 'Edit Budget' : 'New Budget'" (close)="onCancel()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
     <!-- Category -->
     <div>
       <label class="text-foreground mb-1 block text-sm font-medium">Category</label>
@@ -14,7 +10,7 @@
       } @else {
         <select
           formControlName="categoryId"
-          class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm">
+          class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm">
           <option value="" disabled>Select a category</option>
           @for (cat of expenseCategories$ | async; track cat.id) {
             <option [value]="cat.id">{{ cat.name }}</option>
@@ -37,14 +33,14 @@
 
     <!-- Month -->
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Month (YYYY-MM)</label>
+      <label class="text-foreground mb-1 block text-sm font-medium">Month</label>
       @if (editing) {
         <p class="text-muted-foreground bg-muted rounded-md px-3 py-2 text-sm">{{ editing.month }}</p>
       } @else {
         <input
           formControlName="month"
           type="month"
-          class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
+          class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm" />
       }
     </div>
 
@@ -54,19 +50,11 @@
       </div>
     }
 
-    <div class="flex gap-2 pt-2">
-      <button
-        type="submit"
-        [disabled]="form.invalid || submitting"
-        class="bg-primary hover:bg-primary/90 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
-        {{ editing ? 'Save' : 'Create' }}
-      </button>
-      <button
-        type="button"
-        (click)="onCancel()"
-        class="bg-muted text-muted-foreground hover:bg-muted/80 rounded-lg px-4 py-2 text-sm font-medium transition-colors">
-        Cancel
-      </button>
-    </div>
+    <button
+      type="submit"
+      [disabled]="form.invalid || submitting"
+      class="bg-primary hover:bg-primary/90 mt-2 w-full cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
+      {{ editing ? 'Save Changes' : 'Create Budget' }}
+    </button>
   </form>
-</div>
+</app-modal>

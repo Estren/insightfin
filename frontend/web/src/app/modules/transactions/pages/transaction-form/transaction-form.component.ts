@@ -7,11 +7,12 @@ import { CategoryResponse } from '../../../../core/models/category.model';
 import { TransactionResponse, TransactionType } from '../../../../core/models/transaction.model';
 import { CategoryStore } from '../../../../core/stores/category.store';
 import { TransactionStore } from '../../../../core/stores/transaction.store';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-transaction-form',
   templateUrl: './transaction-form.component.html',
-  imports: [AsyncPipe, NgClass, ReactiveFormsModule],
+  imports: [AsyncPipe, NgClass, ReactiveFormsModule, ModalComponent],
 })
 export class TransactionFormComponent implements OnInit {
   form!: FormGroup;
