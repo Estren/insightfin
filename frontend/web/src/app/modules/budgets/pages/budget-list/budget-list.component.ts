@@ -1,12 +1,13 @@
-import { AsyncPipe, CurrencyPipe, DecimalPipe, NgClass } from '@angular/common';
+import { AsyncPipe, CurrencyPipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { BudgetStatusResponse } from '../../../../core/models/budget.model';
 import { BudgetStore } from '../../../../core/stores/budget.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { ProgressRingComponent } from '../../../../shared/components/progress-ring/progress-ring.component';
 
 @Component({
   selector: 'app-budget-list',
@@ -14,13 +15,14 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
   imports: [
     AsyncPipe,
     CurrencyPipe,
-    DecimalPipe,
     NgClass,
     RouterLink,
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
     LoadingComponent,
+    ProgressRingComponent,
+    RouterOutlet,
   ],
 })
 export class BudgetListComponent implements OnInit {
@@ -50,7 +52,15 @@ export class BudgetListComponent implements OnInit {
     this.budgetStore.delete(status.budgetId).subscribe();
   }
 
-  progressWidth(percentage: number): number {
-    return percentage > 100 ? 100 : percentage;
+  statusLabel(pct: number): string {
+    if (pct >= 90) return 'Over';
+    if (pct >= 70) return 'Warning';
+    return 'On track';
+  }
+
+  statusClass(pct: number): string {
+    if (pct >= 90) return 'bg-red-500/15 text-red-600 dark:text-red-400';
+    if (pct >= 70) return 'bg-amber-500/15 text-amber-600 dark:text-amber-400';
+    return 'bg-green-500/15 text-green-600 dark:text-green-400';
   }
 }

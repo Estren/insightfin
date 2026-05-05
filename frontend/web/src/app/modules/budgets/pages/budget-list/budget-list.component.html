@@ -32,40 +32,39 @@
     @if (statuses.length === 0) {
       <app-empty-state title="No budgets for this month" description="Set monthly spending limits per category." />
     } @else {
-      <div class="space-y-4">
+      <div class="space-y-3">
         @for (s of statuses; track s.budgetId) {
-          <div class="bg-background rounded-lg border p-4 shadow-sm">
-            <div class="mb-2 flex items-center justify-between">
-              <div>
-                <p class="text-foreground text-sm font-semibold">{{ s.categoryName }}</p>
-                <p class="text-muted-foreground text-xs">
-                  {{ s.spentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
-                  {{ s.budgetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                  ({{ s.percentageUsed | number: '1.0-0' }}%)
-                </p>
+          <div class="bg-background border-border flex items-center gap-4 rounded-lg border p-4 shadow-sm">
+            <!-- Ring -->
+            <app-progress-ring [percentage]="s.percentageUsed" />
+
+            <!-- Info -->
+            <div class="min-w-0 flex-1">
+              <div class="mb-0.5 flex items-center gap-2">
+                <p class="text-foreground truncate text-sm font-semibold">{{ s.categoryName }}</p>
+                <span class="rounded-full px-2 py-0.5 text-xs font-semibold" [ngClass]="statusClass(s.percentageUsed)">
+                  {{ statusLabel(s.percentageUsed) }}
+                </span>
               </div>
-              <div class="flex gap-2">
-                <button
-                  (click)="onEdit(s)"
-                  class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
-                  Edit
-                </button>
-                <button
-                  (click)="onDelete(s)"
-                  class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
-                  Delete
-                </button>
-              </div>
+              <p class="text-muted-foreground text-xs">
+                {{ s.spentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                of
+                {{ s.budgetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+              </p>
             </div>
-            <div class="bg-muted h-2 w-full overflow-hidden rounded-full">
-              <div
-                class="h-full rounded-full transition-all"
-                [ngClass]="{
-                  'bg-green-500': s.percentageUsed < 70,
-                  'bg-amber-500': s.percentageUsed >= 70 && s.percentageUsed < 90,
-                  'bg-red-500': s.percentageUsed >= 90,
-                }"
-                [style.width.%]="progressWidth(s.percentageUsed)"></div>
+
+            <!-- Actions -->
+            <div class="flex shrink-0 gap-3">
+              <button
+                (click)="onEdit(s)"
+                class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
+                Edit
+              </button>
+              <button
+                (click)="onDelete(s)"
+                class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
+                Delete
+              </button>
             </div>
           </div>
         }
@@ -73,3 +72,5 @@
     }
   </app-card>
 }
+
+<router-outlet />

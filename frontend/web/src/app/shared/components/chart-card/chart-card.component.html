@@ -1,0 +1,14 @@
+<div class="bg-card border-border rounded-lg border shadow-sm">
+  <div class="border-border flex items-center justify-between border-b px-6 py-4">
+    <div>
+      <h3 class="text-foreground text-sm font-semibold">{{ title() }}</h3>
+      @if (subtitle()) {
+        <p class="text-muted-foreground mt-0.5 text-xs">{{ subtitle() }}</p>
+      }
+    </div>
+    <ng-content select="[chart-action]" />
+  </div>
+  <div class="p-6">
+    <ng-content />
+  </div>
+</div>

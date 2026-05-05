@@ -5,10 +5,15 @@ import { GoalFormComponent } from './pages/goal-form/goal-form.component';
 import { GoalListComponent } from './pages/goal-list/goal-list.component';
 
 const routes: Routes = [
-  { path: '', component: GoalListComponent },
-  { path: 'new', component: GoalFormComponent },
-  { path: ':id/edit', component: GoalFormComponent },
-  { path: ':id/contribute', component: GoalContributeComponent },
+  {
+    path: '',
+    component: GoalListComponent,
+    children: [
+      { path: 'new', component: GoalFormComponent },
+      { path: ':id/edit', component: GoalFormComponent },
+      { path: ':id/contribute', component: GoalContributeComponent },
+    ],
+  },
 ];
 
 @NgModule({

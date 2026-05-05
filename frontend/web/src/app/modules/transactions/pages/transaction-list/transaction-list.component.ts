@@ -1,6 +1,5 @@
 import { AsyncPipe, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
 import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
 import { TransactionStore } from '../../../../core/stores/transaction.store';
@@ -8,8 +7,11 @@ import { CardComponent } from '../../../../shared/components/card/card.component
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
+import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { Tab, TabsComponent } from '../../../../shared/components/tabs/tabs.component';
+import { TransactionCreateComponent } from '../transaction-create/transaction-create.component';
+import { TransactionEditComponent } from '../transaction-edit/transaction-edit.component';
 
 type TabValue = 'ALL' | 'INCOME' | 'EXPENSE';
 
@@ -26,13 +28,15 @@ interface TransactionGroup {
     CurrencyPipe,
     DatePipe,
     NgClass,
-    RouterLink,
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
     LoadingComponent,
     TabsComponent,
     DataTableComponent,
+    ModalComponent,
+    TransactionCreateComponent,
+    TransactionEditComponent,
   ],
 })
 export class TransactionListComponent implements OnInit {
@@ -46,10 +50,10 @@ export class TransactionListComponent implements OnInit {
   readonly activeTab$ = this._activeTab$.asObservable();
   readonly groupedTransactions$: Observable<TransactionGroup[]>;
 
-  constructor(
-    public readonly transactionStore: TransactionStore,
-    private readonly router: Router,
-  ) {
+  showCreate = false;
+  editingId: string | null = null;
+
+  constructor(public readonly transactionStore: TransactionStore) {
     this.groupedTransactions$ = combineLatest([this.transactionStore.transactions$, this._activeTab$]).pipe(
       map(([transactions, tab]) => {
         const filtered = tab === 'ALL' ? transactions : transactions.filter((t) => t.type === tab);
@@ -73,8 +77,17 @@ export class TransactionListComponent implements OnInit {
     this.transactionStore.load(nextMonth);
   }
 
+  openCreate(): void {
+    this.showCreate = true;
+  }
+
   onEdit(transaction: TransactionResponse): void {
-    this.router.navigate(['/transactions', transaction.id, 'edit']);
+    this.editingId = transaction.id;
+  }
+
+  closeModals(): void {
+    this.showCreate = false;
+    this.editingId = null;
   }
 
   onDelete(transaction: TransactionResponse): void {

@@ -1,9 +1,9 @@
 <app-page-header title="Transactions">
-  <a
-    routerLink="/transactions/new"
+  <button
+    (click)="openCreate()"
     class="bg-primary hover:bg-primary/90 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors">
     + New Transaction
-  </a>
+  </button>
 </app-page-header>
 
 @if (transactionStore.loading$ | async) {
@@ -16,10 +16,7 @@
   <app-card>
     <!-- Tabs + month nav -->
     <div class="border-border -mx-6 -mt-6 mb-6 flex items-center justify-between border-b px-6 pb-0">
-      <app-tabs
-        [tabs]="tabs"
-        [active]="(activeTab$ | async)!"
-        (tabChange)="setTab($event)" />
+      <app-tabs [tabs]="tabs" [active]="(activeTab$ | async)!" (tabChange)="setTab($event)" />
       <div class="flex items-center gap-1 pb-2">
         <button
           (click)="changeMonth(-1)"
@@ -94,4 +91,16 @@
       </app-data-table>
     }
   </app-card>
+}
+
+@if (showCreate) {
+  <app-modal title="New Transaction" (close)="closeModals()">
+    <app-transaction-create (saved)="closeModals()" />
+  </app-modal>
+}
+
+@if (editingId) {
+  <app-modal title="Edit Transaction" (close)="closeModals()">
+    <app-transaction-edit [transactionId]="editingId!" (saved)="closeModals()" />
+  </app-modal>
 }

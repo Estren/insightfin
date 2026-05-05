@@ -17,64 +17,37 @@
     @if ((goalStore.activeGoals$ | async)?.length === 0) {
       <app-empty-state title="No active goals yet" description="Create a goal to start saving." />
     } @else {
-      <div class="space-y-4">
+      <div class="space-y-3">
         @for (g of goalStore.activeGoals$ | async; track g.id) {
-          <div class="bg-background rounded-lg border p-4 shadow-sm">
-            <div class="mb-2 flex items-start justify-between gap-4">
-              <div class="min-w-0 flex-1">
-                <p class="text-foreground text-sm font-semibold">{{ g.title }}</p>
-                <p class="text-muted-foreground text-xs">
-                  {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
-                  {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                  ({{ progressPercent(g) | number: '1.0-0' }}%)
-                  @if (g.deadline) {
-                    <span class="ml-2">· due {{ g.deadline | date: 'mediumDate' }}</span>
-                  }
-                </p>
-              </div>
-              <div class="flex shrink-0 gap-2">
-                <button
-                  (click)="onContribute(g)"
-                  class="bg-primary hover:bg-primary/90 cursor-pointer rounded-md px-3 py-1 text-xs font-medium text-white transition-colors">
-                  Contribute
-                </button>
-                <button
-                  (click)="onEdit(g)"
-                  class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
-                  Edit
-                </button>
-                <button
-                  (click)="onDelete(g)"
-                  class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
-                  Delete
-                </button>
-              </div>
-            </div>
-            <div class="bg-muted h-2 w-full overflow-hidden rounded-full">
-              <div
-                class="bg-primary h-full rounded-full transition-all"
-                [style.width.%]="progressPercent(g)">
-              </div>
-            </div>
-          </div>
-        }
-      </div>
-    }
-  </app-card>
+          <div class="bg-background border-border flex items-center gap-4 rounded-lg border p-4 shadow-sm">
+            <!-- Ring -->
+            <app-progress-ring [percentage]="progressPercent(g)" [size]="64" />
 
-  @if ((goalStore.completedGoals$ | async)?.length) {
-    <app-card title="Completed" class="mt-6">
-      <div class="space-y-4">
-        @for (g of goalStore.completedGoals$ | async; track g.id) {
-          <div class="bg-background rounded-lg border p-4 opacity-75 shadow-sm">
-            <div class="flex items-start justify-between gap-4">
-              <div class="min-w-0 flex-1">
-                <p class="text-foreground text-sm font-semibold">{{ g.title }}</p>
-                <p class="text-muted-foreground text-xs">
-                  {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
-                  {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                </p>
-              </div>
+            <!-- Info -->
+            <div class="min-w-0 flex-1">
+              <p class="text-foreground truncate text-sm font-semibold">{{ g.title }}</p>
+              <p class="text-muted-foreground text-xs">
+                {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                of
+                {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                @if (g.deadline) {
+                  <span class="ml-2">· due {{ g.deadline | date: 'mediumDate' }}</span>
+                }
+              </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex shrink-0 gap-2">
+              <button
+                (click)="onContribute(g)"
+                class="bg-primary hover:bg-primary/90 cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors">
+                Contribute
+              </button>
+              <button
+                (click)="onEdit(g)"
+                class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
+                Edit
+              </button>
               <button
                 (click)="onDelete(g)"
                 class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
@@ -84,6 +57,33 @@
           </div>
         }
       </div>
+    }
+  </app-card>
+
+  @if ((goalStore.completedGoals$ | async)?.length) {
+    <app-card title="Completed" class="mt-6">
+      <div class="space-y-3">
+        @for (g of goalStore.completedGoals$ | async; track g.id) {
+          <div class="bg-background border-border flex items-center gap-4 rounded-lg border p-4 opacity-70 shadow-sm">
+            <app-progress-ring [percentage]="100" [size]="48" />
+            <div class="min-w-0 flex-1">
+              <p class="text-foreground truncate text-sm font-semibold">{{ g.title }}</p>
+              <p class="text-muted-foreground text-xs">
+                {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                of
+                {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+              </p>
+            </div>
+            <button
+              (click)="onDelete(g)"
+              class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
+              Delete
+            </button>
+          </div>
+        }
+      </div>
     </app-card>
   }
 }
+
+<router-outlet />
