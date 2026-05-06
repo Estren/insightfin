@@ -25,17 +25,22 @@
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         @for (cat of categories; track cat.id) {
           <div class="bg-background rounded-lg border p-4 shadow-sm">
-            <div class="mb-3 flex items-start justify-between">
-              <div class="flex items-center gap-2">
-                @if (cat.color) {
-                  <div class="h-8 w-8 flex-shrink-0 rounded-md" [style.backgroundColor]="cat.color"></div>
-                }
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <!-- Icon / color square -->
+                <div
+                  class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md text-xl"
+                  [style.backgroundColor]="cat.color || '#E11D48'">
+                  @if (cat.icon) {
+                    {{ cat.icon }}
+                  }
+                </div>
                 <div>
                   <p class="text-foreground text-sm font-semibold">{{ cat.name }}</p>
                   <span
                     class="text-xs font-medium"
                     [ngClass]="cat.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
-                    {{ cat.type }}
+                    {{ cat.type === 'INCOME' ? 'Income' : 'Expense' }}
                   </span>
                 </div>
               </div>
@@ -70,6 +75,7 @@
           type="text"
           class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
       </div>
+
       <div>
         <label class="text-foreground mb-1 block text-sm font-medium">Type</label>
         <select
@@ -79,13 +85,69 @@
           <option value="INCOME">Income</option>
         </select>
       </div>
+
+      <!-- Color + Icon (identidade visual da categoria) -->
       <div>
-        <label class="text-foreground mb-1 block text-sm font-medium">Color</label>
-        <input
-          formControlName="color"
-          type="color"
-          class="border-input h-10 w-full cursor-pointer rounded-md border p-1" />
+        <label class="text-foreground mb-2 block text-sm font-medium">Appearance</label>
+
+        <!-- Preview sempre visível -->
+        <div class="mb-3 flex items-center gap-3">
+          <div
+            class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md text-2xl shadow-sm"
+            [style.backgroundColor]="form.controls['color'].value">
+            {{ form.controls['icon'].value || '' }}
+          </div>
+          <div class="flex flex-1 flex-col gap-2">
+            <div class="flex gap-2">
+              @for (color of categoryColors; track color) {
+                <button
+                  type="button"
+                  (click)="selectColor(color)"
+                  class="h-7 w-7 cursor-pointer rounded-full transition-transform"
+                  [style.backgroundColor]="color"
+                  [ngClass]="
+                    form.controls['color'].value === color
+                      ? 'scale-110 ring-2 ring-offset-2 ring-foreground/50'
+                      : 'hover:scale-105'
+                  ">
+                </button>
+              }
+            </div>
+            <span class="text-muted-foreground text-xs">Background color</span>
+          </div>
+        </div>
+
+        <!-- Emoji grid -->
+        <div class="mb-1 flex items-center justify-between">
+          <span class="text-muted-foreground text-xs font-medium">Select an icon</span>
+          @if (form.controls['icon'].value) {
+            <button
+              type="button"
+              (click)="form.controls['icon'].setValue('')"
+              class="text-muted-foreground hover:text-foreground cursor-pointer text-xs transition-colors">
+              Remove
+            </button>
+          }
+        </div>
+        <div class="border-border max-h-44 overflow-y-auto rounded-md border p-2">
+          <div class="grid grid-cols-10 gap-1">
+            @for (emoji of emojis; track emoji) {
+              <button
+                type="button"
+                (click)="selectEmoji(emoji)"
+                class="flex cursor-pointer items-center justify-center rounded-md p-1.5 text-lg transition-colors"
+                [ngClass]="
+                  form.controls['icon'].value === emoji
+                    ? 'bg-primary/15 ring-1 ring-inset ring-primary'
+                    : 'hover:bg-muted'
+                ">
+                {{ emoji }}
+              </button>
+            }
+          </div>
+        </div>
       </div>
+
       <button
         type="submit"
         [disabled]="form.invalid"

@@ -33,6 +33,90 @@ export class CategoryListComponent implements OnInit {
     { label: 'Expense', value: 'EXPENSE' },
   ];
 
+  readonly categoryColors: string[] = [
+    '#E11D48',
+    '#6E56CF',
+    '#CC0033',
+    '#2490FF',
+    '#EA580C',
+    '#FACC15',
+    '#22C55E',
+  ];
+
+  readonly emojis: string[] = [
+    // Alimentação
+    '🍔',
+    '🍕',
+    '🍜',
+    '🍣',
+    '🥗',
+    '☕',
+    '🍺',
+    '🛒',
+    '🥐',
+    '🍱',
+    // Transporte
+    '🚗',
+    '🚌',
+    '🚇',
+    '✈️',
+    '🚲',
+    '⛽',
+    '🛵',
+    '🚕',
+    // Moradia
+    '🏠',
+    '💡',
+    '🔧',
+    '📦',
+    '🧹',
+    '🔑',
+    '🛋️',
+    // Saúde
+    '💊',
+    '🏥',
+    '💪',
+    '🧘',
+    '🦷',
+    '👓',
+    // Lazer
+    '🎬',
+    '🎮',
+    '🎵',
+    '📚',
+    '⚽',
+    '🎭',
+    '🎲',
+    '🌴',
+    // Finanças
+    '💰',
+    '💳',
+    '📈',
+    '🏦',
+    '💵',
+    '💎',
+    // Compras
+    '👗',
+    '👟',
+    '🛍️',
+    '💄',
+    '👜',
+    // Educação
+    '🎓',
+    '✏️',
+    '💻',
+    '📖',
+    // Outros
+    '🐾',
+    '🎁',
+    '📱',
+    '🐶',
+    '✂️',
+    '🧴',
+    '🌿',
+    '🍼',
+  ];
+
   form!: FormGroup;
   showForm = false;
   editingCategory: CategoryResponse | null = null;
@@ -54,13 +138,13 @@ export class CategoryListComponent implements OnInit {
       name: ['', Validators.required],
       type: ['EXPENSE', Validators.required],
       icon: [''],
-      color: ['#6366f1'],
+      color: ['#E11D48'],
     });
   }
 
   openCreateForm(): void {
     this.editingCategory = null;
-    this.form.reset({ name: '', type: 'EXPENSE', icon: '', color: '#6366f1' });
+    this.form.reset({ name: '', type: 'EXPENSE', icon: '', color: '#E11D48' });
     this.showForm = true;
   }
 
@@ -70,7 +154,7 @@ export class CategoryListComponent implements OnInit {
       name: category.name,
       type: category.type,
       icon: category.icon || '',
-      color: category.color || '#6366f1',
+      color: category.color || '#E11D48',
     });
     this.showForm = true;
   }
@@ -78,6 +162,15 @@ export class CategoryListComponent implements OnInit {
   cancelForm(): void {
     this.showForm = false;
     this.editingCategory = null;
+  }
+
+  selectColor(color: string): void {
+    this.form.controls['color'].setValue(color);
+  }
+
+  selectEmoji(emoji: string): void {
+    const current = this.form.controls['icon'].value;
+    this.form.controls['icon'].setValue(current === emoji ? '' : emoji);
   }
 
   onSubmit(): void {
