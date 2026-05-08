@@ -23,6 +23,9 @@ export class ProfileComponent implements OnInit {
 
   deleteConfirmText = '';
 
+  avatarUploading = false;
+  avatarError = '';
+
   constructor(
     private readonly fb: FormBuilder,
     private readonly router: Router,
@@ -88,6 +91,32 @@ export class ProfileComponent implements OnInit {
         this.passwordSubmitting = false;
         this.passwordError =
           err?.status === 400 ? 'Current password is incorrect.' : 'Failed to change password. Please try again.';
+      },
+    });
+  }
+
+  getInitials(): string {
+    const name = this.userStore.profile?.name ?? '';
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+  }
+
+  onAvatarSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.avatarUploading = true;
+    this.avatarError = '';
+    this.userStore.uploadAvatar(file).subscribe({
+      next: () => {
+        this.avatarUploading = false;
+      },
+      error: () => {
+        this.avatarUploading = false;
+        this.avatarError = 'Failed to upload photo. Max 5 MB, jpeg/png/webp/gif only.';
       },
     });
   }

@@ -1,4 +1,11 @@
 services:
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.33.0
+    container_name: insightfin-azurite
+    ports:
+      - '10000:10000'
+    command: azurite-blob --blobHost 0.0.0.0
+
   postgres:
     image: postgres:16
     container_name: insightfin-postgres
@@ -57,12 +64,17 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      azurite:
+        condition: service_started
     environment:
       DB_USERNAME: insightfin
       DB_PASSWORD: insightfin
       QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres:5432/insightfin
       JWT_SECRET: insightfin-dev-secret-key-change-in-production-min-32-chars
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      AZURE_STORAGE_CONNECTION_STRING: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;"
+      AZURE_STORAGE_CONTAINER_NAME: avatars
+      AZURE_STORAGE_PUBLIC_BASE_URL: http://localhost:10000/devstoreaccount1
 
   ai:
     build: ./ai

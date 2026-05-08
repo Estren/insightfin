@@ -16,6 +16,8 @@ import com.orizon.coreapi.domain.port.in.ListUsersUseCase;
 import com.orizon.coreapi.domain.port.in.LogoutUseCase;
 import com.orizon.coreapi.domain.port.in.RefreshTokenUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateUserUseCase;
+import com.orizon.coreapi.domain.port.in.UploadAvatarUseCase;
+import com.orizon.coreapi.domain.port.out.AvatarStoragePort;
 import com.orizon.coreapi.domain.port.out.PasswordEncoder;
 import com.orizon.coreapi.domain.port.out.RefreshTokenRepository;
 import com.orizon.coreapi.domain.port.out.TokenProvider;
@@ -28,19 +30,22 @@ import java.util.UUID;
 public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         RefreshTokenUseCase, LogoutUseCase,
         GetCurrentUserUseCase, UpdateUserUseCase, DeleteUserUseCase, ChangePasswordUseCase,
-        ListUsersUseCase {
+        ListUsersUseCase, UploadAvatarUseCase {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final AvatarStoragePort avatarStoragePort;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                       TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository) {
+                       TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
+                       AvatarStoragePort avatarStoragePort) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.avatarStoragePort = avatarStoragePort;
     }
 
     @Override
@@ -148,6 +153,21 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
     @Override
     public List<User> execute() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public User uploadAvatar(UUID userId, String fileName, byte[] data, String contentType) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        if (user.getAvatarUrl() != null) {
+            avatarStoragePort.delete(user.getAvatarUrl());
+        }
+
+        String avatarUrl = avatarStoragePort.upload(userId.toString(), fileName, data, contentType);
+        user.setAvatarUrl(avatarUrl);
+        user.setUpdatedAt(LocalDateTime.now());
+        return userRepository.save(user);
     }
 
     private String createRefreshToken(UUID userId) {

@@ -14,13 +14,14 @@ public class UserPersistenceMapper {
         entity.setEmail(user.getEmail());
         entity.setPasswordHash(user.getPasswordHash());
         entity.setRole(user.getRole());
+        entity.setAvatarUrl(user.getAvatarUrl());
         entity.setCreatedAt(user.getCreatedAt());
         entity.setUpdatedAt(user.getUpdatedAt());
         return entity;
     }
 
     public static User toDomain(UserEntity entity) {
-        return new User(
+        User user = new User(
                 entity.getId(),
                 entity.getName(),
                 entity.getEmail(),
@@ -29,5 +30,7 @@ public class UserPersistenceMapper {
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
+        user.setAvatarUrl(entity.getAvatarUrl());
+        return user;
     }
 }

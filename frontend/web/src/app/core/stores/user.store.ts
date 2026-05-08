@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 import { ChangePasswordRequest, UpdateUserRequest, UserProfile } from '../models/user.model';
 import { UserService } from '../services/user.service';
 import { AuthStore } from './auth.store';
@@ -42,6 +42,13 @@ export class UserStore {
   update(request: UpdateUserRequest): Observable<UserProfile> {
     return this.userService.updateMe(request).pipe(
       tap((profile) => this._profile$.next(profile)),
+    );
+  }
+
+  uploadAvatar(file: File): Observable<void> {
+    return this.userService.uploadAvatar(file).pipe(
+      tap((profile) => this._profile$.next(profile)),
+      map(() => void 0),
     );
   }
 

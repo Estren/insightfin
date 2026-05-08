@@ -1,13 +1,50 @@
 <div class="mx-auto max-w-2xl space-y-6 p-6">
-
   <div>
     <h2 class="text-foreground text-2xl font-bold">Profile</h2>
     <p class="text-muted-foreground mt-1 text-sm">Manage your personal information and account security.</p>
   </div>
 
   <!-- Personal Info -->
-  <div class="bg-card rounded-lg border p-6">
+  <div class="bg-background rounded-lg border p-6">
     <h3 class="text-foreground mb-4 text-base font-semibold">Personal Information</h3>
+
+    <!-- Avatar -->
+    <div class="mb-6 flex items-center gap-4">
+      <div class="relative">
+        <div
+          class="bg-primary/10 flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-full"
+          (click)="fileInput.click()">
+          @if ((userStore.profile$ | async)?.avatarUrl) {
+            <img [src]="(userStore.profile$ | async)?.avatarUrl" alt="Avatar" class="h-full w-full object-cover" />
+          } @else {
+            <span class="text-primary text-xl font-semibold">{{ getInitials() }}</span>
+          }
+        </div>
+        @if (avatarUploading) {
+          <div class="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
+            <div class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+          </div>
+        }
+      </div>
+      <div>
+        <button
+          type="button"
+          (click)="fileInput.click()"
+          [disabled]="avatarUploading"
+          class="text-primary text-sm font-medium hover:underline disabled:opacity-50">
+          Change photo
+        </button>
+        @if (avatarError) {
+          <p class="mt-1 text-xs text-red-500">{{ avatarError }}</p>
+        }
+      </div>
+      <input
+        #fileInput
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        class="hidden"
+        (change)="onAvatarSelected($event)" />
+    </div>
 
     @if (userStore.loading$ | async) {
       <div class="flex items-center justify-center py-8">
@@ -50,7 +87,7 @@
   </div>
 
   <!-- Change Password -->
-  <div class="bg-card rounded-lg border p-6">
+  <div class="bg-background rounded-lg border p-6">
     <h3 class="text-foreground mb-4 text-base font-semibold">Change Password</h3>
 
     <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="space-y-4">
@@ -89,7 +126,7 @@
   </div>
 
   <!-- Danger Zone -->
-  <div class="rounded-lg border border-red-200 p-6 dark:border-red-900">
+  <div class="bg-background rounded-lg border border-red-200 p-6 dark:border-red-900">
     <h3 class="mb-1 text-base font-semibold text-red-600 dark:text-red-400">Danger Zone</h3>
     <p class="text-muted-foreground mb-4 text-sm">
       Deleting your account is permanent and cannot be undone. All your data will be removed.
@@ -117,5 +154,4 @@
       </div>
     </div>
   </div>
-
 </div>

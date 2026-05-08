@@ -7,6 +7,7 @@ import com.orizon.coreapi.domain.model.AuthTokens;
 import com.orizon.coreapi.domain.model.RefreshToken;
 import com.orizon.coreapi.domain.model.Role;
 import com.orizon.coreapi.domain.model.User;
+import com.orizon.coreapi.domain.port.out.AvatarStoragePort;
 import com.orizon.coreapi.domain.port.out.PasswordEncoder;
 import com.orizon.coreapi.domain.port.out.RefreshTokenRepository;
 import com.orizon.coreapi.domain.port.out.TokenProvider;
@@ -33,12 +34,14 @@ class UserServiceTest {
     @Mock PasswordEncoder passwordEncoder;
     @Mock TokenProvider tokenProvider;
     @Mock RefreshTokenRepository refreshTokenRepository;
+    @Mock AvatarStoragePort avatarStoragePort;
 
     private UserService service;
 
     @BeforeEach
     void setUp() {
-        service = new UserService(userRepository, passwordEncoder, tokenProvider, refreshTokenRepository);
+        service = new UserService(userRepository, passwordEncoder, tokenProvider,
+                refreshTokenRepository, avatarStoragePort);
     }
 
     // --- U1 ---

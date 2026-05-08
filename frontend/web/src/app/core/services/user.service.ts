@@ -22,6 +22,12 @@ export class UserService {
     return this.http.put<void>(`${this.apiUrl}/users/me/password`, request);
   }
 
+  uploadAvatar(file: File): Observable<UserProfile> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.put<UserProfile>(`${this.apiUrl}/users/me/avatar`, form);
+  }
+
   deleteMe(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/users/me`);
   }

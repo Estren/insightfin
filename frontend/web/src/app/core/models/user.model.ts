@@ -6,6 +6,7 @@ export interface UserProfile {
   email: string;
   role: UserRole;
   createdAt: string;
+  avatarUrl?: string;
 }
 
 export interface UpdateUserRequest {

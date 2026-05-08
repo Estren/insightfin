@@ -2,6 +2,7 @@ package com.orizon.coreapi.config;
 
 import com.orizon.coreapi.application.service.*;
 import com.orizon.coreapi.domain.port.out.*;
+import com.orizon.coreapi.domain.port.out.AvatarStoragePort;
 import com.orizon.coreapi.domain.port.out.EventPublisher;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
@@ -14,8 +15,10 @@ public class BeanConfig {
     public UserService userService(UserRepository userRepository,
                                    PasswordEncoder passwordEncoder,
                                    TokenProvider tokenProvider,
-                                   RefreshTokenRepository refreshTokenRepository) {
-        return new UserService(userRepository, passwordEncoder, tokenProvider, refreshTokenRepository);
+                                   RefreshTokenRepository refreshTokenRepository,
+                                   AvatarStoragePort avatarStoragePort) {
+        return new UserService(userRepository, passwordEncoder, tokenProvider,
+                refreshTokenRepository, avatarStoragePort);
     }
 
     @Produces

@@ -10,5 +10,6 @@ public record UserResponse(
         String name,
         String email,
         Role role,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String avatarUrl
 ) {}
