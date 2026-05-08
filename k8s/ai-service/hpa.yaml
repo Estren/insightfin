@@ -1,11 +1,11 @@
 apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
+kind: HinsightfintalPodAutoscaler
 metadata:
   name: ai-service
-  namespace: orizon
+  namespace: insightfin
   labels:
     app.kubernetes.io/name: ai-service
-    app.kubernetes.io/part-of: orizon
+    app.kubernetes.io/part-of: insightfin
 spec:
   scaleTargetRef:
     apiVersion: apps/v1

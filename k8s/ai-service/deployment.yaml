@@ -2,10 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ai-service
-  namespace: orizon
+  namespace: insightfin
   labels:
     app.kubernetes.io/name: ai-service
-    app.kubernetes.io/part-of: orizon
+    app.kubernetes.io/part-of: insightfin
     app.kubernetes.io/component: ai
 spec:
   replicas: 1
@@ -16,27 +16,27 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: ai-service
-        app.kubernetes.io/part-of: orizon
+        app.kubernetes.io/part-of: insightfin
     spec:
       containers:
         - name: ai-service
-          image: orizon-ai:latest
+          image: insightfin-ai:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8081
           envFrom:
             - configMapRef:
-                name: orizon-config
+                name: insightfin-config
           env:
             - name: AZURE_OPENAI_ENDPOINT
               valueFrom:
                 secretKeyRef:
-                  name: orizon-secrets
+                  name: insightfin-secrets
                   key: AZURE_OPENAI_ENDPOINT
             - name: AZURE_OPENAI_KEY
               valueFrom:
                 secretKeyRef:
-                  name: orizon-secrets
+                  name: insightfin-secrets
                   key: AZURE_OPENAI_KEY
           resources:
             requests:

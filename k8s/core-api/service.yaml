@@ -2,10 +2,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: core-api
-  namespace: orizon
+  namespace: insightfin
   labels:
     app.kubernetes.io/name: core-api
-    app.kubernetes.io/part-of: orizon
+    app.kubernetes.io/part-of: insightfin
     app.kubernetes.io/component: api
 spec:
   selector:

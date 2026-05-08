@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.orizon.com.br/api',
+  apiUrl: 'https://api.insightfin.com.br/api',
 };

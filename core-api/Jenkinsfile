@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_REGION      = 'us-east-1'
         ECR_REGISTRY    = credentials('ecr-registry-url')
-        ECR_REPOSITORY  = 'orizon/core-api'
+        ECR_REPOSITORY  = 'insightfin/core-api'
         IMAGE_TAG       = "${env.BUILD_NUMBER}"
     }
 

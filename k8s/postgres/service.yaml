@@ -2,10 +2,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: orizon
+  namespace: insightfin
   labels:
     app.kubernetes.io/name: postgres
-    app.kubernetes.io/part-of: orizon
+    app.kubernetes.io/part-of: insightfin
     app.kubernetes.io/component: database
 spec:
   selector:
@@ -13,4 +13,4 @@ spec:
   ports:
     - port: 5432
       targetPort: 5432
-  clusterIP: None  # headless — stable DNS for StatefulSet
+  clusterIP: None # headless — stable DNS for StatefulSet

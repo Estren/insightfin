@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="Orizon AI Service", version="1.0.0", lifespan=lifespan)
+    app = FastAPI(title="insightfin AI Service", version="1.0.0", lifespan=lifespan)
     app.include_router(router)
     Instrumentator().instrument(app).expose(app, endpoint="/metrics")
     return app

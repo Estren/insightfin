@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map, tap } from 'rxjs';
-import { AuthService } from '../services/auth.service';
 import { LoginRequest, RegisterRequest, UserResponse } from '../models/auth.model';
+import { AuthService } from '../services/auth.service';
 
-const ACCESS_TOKEN_KEY = 'orizon_access_token';
-const REFRESH_TOKEN_KEY = 'orizon_refresh_token';
+const ACCESS_TOKEN_KEY = 'insightfin_access_token';
+const REFRESH_TOKEN_KEY = 'insightfin_refresh_token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthStore {

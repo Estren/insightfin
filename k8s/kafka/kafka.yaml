@@ -2,10 +2,10 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: kafka
-  namespace: orizon
+  namespace: insightfin
   labels:
     app.kubernetes.io/name: kafka
-    app.kubernetes.io/part-of: orizon
+    app.kubernetes.io/part-of: insightfin
     app.kubernetes.io/component: messaging
 spec:
   serviceName: kafka-headless
@@ -17,7 +17,7 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: kafka
-        app.kubernetes.io/part-of: orizon
+        app.kubernetes.io/part-of: insightfin
     spec:
       containers:
         - name: kafka
@@ -29,7 +29,7 @@ spec:
               name: controller
           env:
             - name: KAFKA_NODE_ID
-              value: "0"
+              value: '0'
             - name: KAFKA_PROCESS_ROLES
               value: broker,controller
             - name: KAFKA_LISTENERS
@@ -39,17 +39,17 @@ spec:
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
             - name: KAFKA_CONTROLLER_QUORUM_VOTERS
-              value: 0@kafka-0.kafka-headless.orizon.svc.cluster.local:9093
+              value: 0@kafka-0.kafka-headless.insightfin.svc.cluster.local:9093
             - name: KAFKA_CONTROLLER_LISTENER_NAMES
               value: CONTROLLER
             - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
-              value: "1"
+              value: '1'
             - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
-              value: "1"
+              value: '1'
             - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
-              value: "1"
+              value: '1'
             - name: KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS
-              value: "0"
+              value: '0'
             - name: CLUSTER_ID
               value: MkU3OEVBNTcwNTJENDM2Qk
           volumeMounts:
@@ -76,7 +76,7 @@ spec:
     - metadata:
         name: kafka-data
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: ['ReadWriteOnce']
         resources:
           requests:
             storage: 5Gi

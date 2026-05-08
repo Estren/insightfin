@@ -2,10 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: core-api
-  namespace: orizon
+  namespace: insightfin
   labels:
     app.kubernetes.io/name: core-api
-    app.kubernetes.io/part-of: orizon
+    app.kubernetes.io/part-of: insightfin
     app.kubernetes.io/component: api
 spec:
   replicas: 2
@@ -16,27 +16,27 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: core-api
-        app.kubernetes.io/part-of: orizon
+        app.kubernetes.io/part-of: insightfin
     spec:
       containers:
         - name: core-api
-          image: orizon-core-api:latest
+          image: insightfin-core-api:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           envFrom:
             - configMapRef:
-                name: orizon-config
+                name: insightfin-config
           env:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: orizon-secrets
+                  name: insightfin-secrets
                   key: DB_PASSWORD
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: orizon-secrets
+                  name: insightfin-secrets
                   key: JWT_SECRET
           resources:
             requests:

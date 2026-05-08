@@ -1,12 +1,12 @@
 {
   "name": "angular-tailwind",
-  "displayName": "Orizon",
+  "displayName": "insightfin",
   "version": "0.11.0",
   "description": "Angular & Tailwind CSS Admin Dashboard Starter Kit, Free and Open Source",
-  "homepage": "https://github.com/Estren/orizon#readme",
+  "homepage": "https://github.com/Estren/insightfin#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Estren/orizon.git"
+    "url": "git+https://github.com/Estren/insightfin.git"
   },
   "keywords": [
     "angular",

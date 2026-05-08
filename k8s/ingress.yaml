@@ -1,10 +1,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: orizon-ingress
-  namespace: orizon
+  name: insightfin-ingress
+  namespace: insightfin
   labels:
-    app.kubernetes.io/part-of: orizon
+    app.kubernetes.io/part-of: insightfin
 spec:
   ingressClassName: nginx
   rules:

@@ -1,7 +1,7 @@
 {
   "id": null,
-  "uid": "orizon-main",
-  "title": "Orizon — Observabilidade",
+  "uid": "insightfin-main",
+  "title": "insightfin — Observabilidade",
   "schemaVersion": 38,
   "version": 1,
   "refresh": "30s",
@@ -82,7 +82,7 @@
       },
       "options": {
         "reduceOptions": { "calcs": ["lastNotNull"] },
-        "orientation": "horizontal",
+        "orientation": "hinsightfintal",
         "colorMode": "background"
       }
     },

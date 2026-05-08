@@ -2,10 +2,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ai-service
-  namespace: orizon
+  namespace: insightfin
   labels:
     app.kubernetes.io/name: ai-service
-    app.kubernetes.io/part-of: orizon
+    app.kubernetes.io/part-of: insightfin
     app.kubernetes.io/component: ai
 spec:
   selector:

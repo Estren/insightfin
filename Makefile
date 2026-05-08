@@ -44,7 +44,7 @@ docs: ## Open Swagger UI (core-api)
 prometheus: ## Open Prometheus UI
 	cmd /c start http://localhost:9090
 
-grafana: ## Open Grafana (admin / orizon)
+grafana: ## Open Grafana (admin / insightfin)
 	cmd /c start http://localhost:3000
 
 # === Testing ===
@@ -61,18 +61,18 @@ test-ai: ## Run AI service tests (requires: make setup-ai)
 # === Kubernetes ===
 
 k8s-deploy-api: ## [k8s] Rebuild core-api image and redeploy to local cluster
-	docker build -t orizon-core-api:latest ./core-api
-	kubectl rollout restart deployment/core-api -n orizon
+	docker build -t insightfin-core-api:latest ./core-api
+	kubectl rollout restart deployment/core-api -n insightfin
 
 k8s-deploy-ai: ## [k8s] Rebuild ai-service image and redeploy to local cluster
-	docker build -t orizon-ai:latest ./ai
-	kubectl rollout restart deployment/ai-service -n orizon
+	docker build -t insightfin-ai:latest ./ai
+	kubectl rollout restart deployment/ai-service -n insightfin
 
-k8s-status: ## [k8s] Show pod status in orizon namespace
-	kubectl get pods -n orizon
+k8s-status: ## [k8s] Show pod status in insightfin namespace
+	kubectl get pods -n insightfin
 
 k8s-logs: ## [k8s] Stream logs from core-api pods
-	kubectl logs -f -l app.kubernetes.io/name=core-api -n orizon --max-log-requests=5
+	kubectl logs -f -l app.kubernetes.io/name=core-api -n insightfin --max-log-requests=5
 
 # === Cleanup ===
 
