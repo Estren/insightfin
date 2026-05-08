@@ -1,4 +1,4 @@
-.PHONY: up down up-db up-api up-ai build logs clean frontend-install frontend-run frontend-build test-api test-ai setup-ai docs prometheus grafana k8s-deploy-api k8s-deploy-ai k8s-status k8s-logs help
+.PHONY: up down up-db up-api rebuild-api up-ai build logs clean frontend-install frontend-run frontend-build test-api test-ai setup-ai docs prometheus grafana k8s-deploy-api k8s-deploy-ai k8s-status k8s-logs help
 
 # === Full Stack ===
 
@@ -21,6 +21,9 @@ up-db: ## Start only PostgreSQL
 
 up-api: ## Start core-api + PostgreSQL (dev mode)
 	docker compose up -d postgres core-api
+
+rebuild-api: ## Rebuild core-api image and restart the container
+	docker compose up --build core-api -d
 
 up-ai: ## Start ai + core-api + PostgreSQL
 	docker compose up -d postgres core-api ai

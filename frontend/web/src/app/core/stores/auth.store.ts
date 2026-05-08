@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map, tap } from 'rxjs';
-import { LoginRequest, RegisterRequest, UserResponse } from '../models/auth.model';
+import { LoginRequest, RegisterRequest } from '../models/auth.model';
 import { AuthService } from '../services/auth.service';
 
 const ACCESS_TOKEN_KEY = 'insightfin_access_token';
@@ -36,8 +36,15 @@ export class AuthStore {
     );
   }
 
-  register(request: RegisterRequest): Observable<UserResponse> {
-    return this.authService.register(request);
+  register(request: RegisterRequest): Observable<void> {
+    return this.authService.register(request).pipe(
+      tap((response) => {
+        localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+        this._isAuthenticated$.next(true);
+      }),
+      map(() => void 0),
+    );
   }
 
   logout(): void {

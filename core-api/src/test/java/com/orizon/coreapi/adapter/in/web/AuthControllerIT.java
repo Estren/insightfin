@@ -43,7 +43,7 @@ class AuthControllerIT {
 
     // A1
     @Test
-    void register_validRequest_returns201WithUserData() {
+    void register_validRequest_returns201WithTokenPair() {
         String email = uniqueEmail();
 
         given()
@@ -55,9 +55,8 @@ class AuthControllerIT {
                 .post("/api/auth/register")
                 .then()
                 .statusCode(201)
-                .body("id", notNullValue())
-                .body("name", equalTo("Alice"))
-                .body("email", equalTo(email));
+                .body("accessToken", notNullValue())
+                .body("refreshToken", notNullValue());
     }
 
     // A2

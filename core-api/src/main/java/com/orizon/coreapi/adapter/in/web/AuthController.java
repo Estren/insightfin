@@ -4,8 +4,6 @@ import com.orizon.coreapi.adapter.in.web.dto.AuthRequest;
 import com.orizon.coreapi.adapter.in.web.dto.AuthResponse;
 import com.orizon.coreapi.adapter.in.web.dto.CreateUserRequest;
 import com.orizon.coreapi.adapter.in.web.dto.RefreshTokenRequest;
-import com.orizon.coreapi.adapter.in.web.dto.UserResponse;
-import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
 import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.AuthenticateUserUseCase;
 import com.orizon.coreapi.domain.port.in.CreateUserUseCase;
@@ -43,8 +41,11 @@ public class AuthController {
     @POST
     @Path("/register")
     public Response register(@Valid CreateUserRequest request) {
-        var user = createUserUseCase.execute(request.name(), request.email(), request.password());
-        return Response.status(Response.Status.CREATED).entity(WebMapper.toResponse(user)).build();
+        createUserUseCase.execute(request.name(), request.email(), request.password());
+        var tokens = authenticateUserUseCase.execute(request.email(), request.password());
+        return Response.status(Response.Status.CREATED)
+                .entity(new AuthResponse(tokens.getAccessToken(), tokens.getRefreshToken()))
+                .build();
     }
 
     @POST
