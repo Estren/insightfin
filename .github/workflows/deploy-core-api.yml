@@ -1,0 +1,45 @@
+name: Deploy core-api
+
+on:
+  push:
+    branches: [main]
+    paths: [core-api/**]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build
+        run: cd core-api && ./mvnw package -DskipTests
+
+      - name: Login ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build & Push image
+        run: |
+          docker build -t ${{ secrets.ACR_SERVER }}/core-api:${{ github.sha }} core-api/
+          docker push ${{ secrets.ACR_SERVER }}/core-api:${{ github.sha }}
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Container App
+        run: |
+          az containerapp update \
+            --name core-api \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --image ${{ secrets.ACR_SERVER }}/core-api:${{ github.sha }}

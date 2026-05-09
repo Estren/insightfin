@@ -12,6 +12,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -23,8 +24,8 @@ public class AzureBlobStorageAdapter implements AvatarStoragePort {
     @ConfigProperty(name = "azure.storage.container-name", defaultValue = "avatars")
     String containerName;
 
-    @ConfigProperty(name = "azure.storage.public-base-url", defaultValue = "")
-    String publicBaseUrl;
+    @ConfigProperty(name = "azure.storage.public-base-url")
+    Optional<String> publicBaseUrl;
 
     private BlobContainerClient containerClient;
 
@@ -62,10 +63,10 @@ public class AzureBlobStorageAdapter implements AvatarStoragePort {
     }
 
     private String toPublicUrl(String internalUrl, String blobName) {
-        if (publicBaseUrl == null || publicBaseUrl.isBlank()) {
-            return internalUrl;
-        }
-        return publicBaseUrl.stripTrailing() + "/" + containerName + "/" + blobName;
+        return publicBaseUrl
+                .filter(url -> !url.isBlank())
+                .map(url -> url.stripTrailing() + "/" + containerName + "/" + blobName)
+                .orElse(internalUrl);
     }
 
     private String extractExtension(String fileName) {
