@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     # Kafka
     kafka_bootstrap_servers: str = "kafka:9092"
     kafka_consumer_group: str = "ai-service"
+    kafka_security_protocol: str = "PLAINTEXT"
+    kafka_sasl_mechanism: str = "PLAIN"
+    kafka_sasl_password: str = ""
 
     # Operational
     monthly_cron: str = "0 8 1 * *"

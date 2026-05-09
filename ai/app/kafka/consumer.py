@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import ssl
 from uuid import UUID
 
 import structlog
@@ -21,6 +22,16 @@ class KafkaConsumer:
         self._task: asyncio.Task | None = None
 
     async def start(self) -> None:
+        sasl_kwargs = {}
+        if settings.kafka_security_protocol != "PLAINTEXT":
+            sasl_kwargs = {
+                "security_protocol": settings.kafka_security_protocol,
+                "sasl_mechanism": settings.kafka_sasl_mechanism,
+                "sasl_plain_username": "$ConnectionString",
+                "sasl_plain_password": settings.kafka_sasl_password,
+                "ssl_context": ssl.create_default_context(),
+            }
+
         self._consumer = AIOKafkaConsumer(
             *TOPICS,
             bootstrap_servers=settings.kafka_bootstrap_servers,
@@ -28,6 +39,7 @@ class KafkaConsumer:
             auto_offset_reset="latest",
             enable_auto_commit=True,
             value_deserializer=lambda v: json.loads(v.decode("utf-8")),
+            **sasl_kwargs,
         )
         await self._consumer.start()
         self._task = asyncio.create_task(self._consume_loop())
