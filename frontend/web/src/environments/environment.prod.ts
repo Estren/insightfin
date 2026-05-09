@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.insightfin.com.br/api',
+  apiUrl: 'https://coreapi.insightfin.app/api',
 };
