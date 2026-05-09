@@ -1,21 +1,58 @@
-name: Deploy core-api
+name: core-api
 
 on:
   push:
     branches: [main]
     paths: [core-api/**]
+  pull_request:
+    branches: [main]
+    paths: [core-api/**]
+
+concurrency:
+  group: core-api-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: temurin
+          cache: maven
+
+      - name: Run tests
+        run: |
+          chmod +x core-api/mvnw
+          cd core-api && ./mvnw test
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-api-test-report
+          path: core-api/target/surefire-reports/
+          retention-days: 7
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
 
       - name: Build
         run: |
