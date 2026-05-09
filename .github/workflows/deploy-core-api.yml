@@ -18,7 +18,9 @@ jobs:
           distribution: 'temurin'
 
       - name: Build
-        run: cd core-api && ./mvnw package -DskipTests
+        run: |
+          chmod +x core-api/mvnw
+          cd core-api && ./mvnw package -DskipTests
 
       - name: Login ACR
         uses: azure/docker-login@v1
