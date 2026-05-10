@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DashboardService } from '../services/dashboard.service';
 import { DashboardResponse } from '../models/dashboard.model';
+import { ToastService } from '../services/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardStore {
@@ -13,7 +14,10 @@ export class DashboardStore {
   readonly loading$ = this._loading$.asObservable();
   readonly error$ = this._error$.asObservable();
 
-  constructor(private readonly dashboardService: DashboardService) {}
+  constructor(
+    private readonly dashboardService: DashboardService,
+    private readonly toastService: ToastService,
+  ) {}
 
   load(month: string): void {
     this._loading$.next(true);
@@ -27,6 +31,7 @@ export class DashboardStore {
       error: () => {
         this._error$.next('Failed to load dashboard data.');
         this._loading$.next(false);
+        this.toastService.error('toast.dashboard.loadError');
       },
     });
   }

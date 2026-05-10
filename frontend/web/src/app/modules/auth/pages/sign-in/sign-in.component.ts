@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
 import { AuthStore } from '../../../../core/stores/auth.store';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-sign-in',
@@ -17,12 +18,12 @@ export class SignInComponent implements OnInit {
   submitted = false;
   passwordTextType!: boolean;
   loading = false;
-  errorMessage = '';
 
   constructor(
     private readonly _formBuilder: FormBuilder,
     private readonly _router: Router,
     private readonly _authStore: AuthStore,
+    private readonly _toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +43,6 @@ export class SignInComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-    this.errorMessage = '';
 
     if (this.form.invalid) {
       return;
@@ -58,7 +58,8 @@ export class SignInComponent implements OnInit {
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err.status === 401 ? 'Invalid email or password.' : 'An error occurred. Please try again.';
+        const key = err.status === 401 ? 'toast.auth.loginError' : 'toast.auth.genericError';
+        this._toastService.error(key);
       },
     });
   }

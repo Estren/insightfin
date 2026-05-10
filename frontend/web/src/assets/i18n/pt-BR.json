@@ -1,0 +1,126 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "back": "Voltar",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "actions": "Ações",
+    "yes": "Sim",
+    "no": "Não"
+  },
+  "nav": {
+    "yourProfile": "Meu Perfil",
+    "logout": "Sair",
+    "dashboard": "Painel",
+    "transactions": "Transações",
+    "categories": "Categorias",
+    "budgets": "Orçamentos",
+    "goals": "Metas",
+    "profile": "Perfil"
+  },
+  "theme": {
+    "color": "Cor",
+    "mode": "Modo",
+    "direction": "Direção",
+    "language": "Idioma",
+    "light": "Claro",
+    "dark": "Escuro",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "language": {
+    "ptBR": "Português",
+    "enUS": "English"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Criar Conta",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
+    "name": "Nome",
+    "forgotPassword": "Esqueceu a senha?",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "rememberMe": "Lembrar de mim",
+    "errors": {
+      "invalidCredentials": "E-mail ou senha inválidos.",
+      "emailRequired": "O e-mail é obrigatório.",
+      "emailInvalid": "Informe um e-mail válido.",
+      "passwordRequired": "A senha é obrigatória.",
+      "nameRequired": "O nome é obrigatório."
+    }
+  },
+  "toast": {
+    "transactions": {
+      "loadError": "Falha ao carregar transações.",
+      "created": "Transação criada com sucesso.",
+      "updated": "Transação atualizada com sucesso.",
+      "deleted": "Transação excluída com sucesso.",
+      "createError": "Falha ao criar transação.",
+      "updateError": "Falha ao atualizar transação.",
+      "deleteError": "Falha ao excluir transação."
+    },
+    "categories": {
+      "loadError": "Falha ao carregar categorias.",
+      "created": "Categoria criada com sucesso.",
+      "updated": "Categoria atualizada com sucesso.",
+      "deleted": "Categoria excluída com sucesso.",
+      "createError": "Falha ao criar categoria.",
+      "updateError": "Falha ao atualizar categoria.",
+      "deleteError": "Falha ao excluir categoria."
+    },
+    "goals": {
+      "loadError": "Falha ao carregar metas.",
+      "created": "Meta criada com sucesso.",
+      "updated": "Meta atualizada com sucesso.",
+      "deleted": "Meta excluída com sucesso.",
+      "contributed": "Contribuição adicionada com sucesso.",
+      "createError": "Falha ao criar meta.",
+      "updateError": "Falha ao atualizar meta.",
+      "deleteError": "Falha ao excluir meta.",
+      "contributeError": "Falha ao adicionar contribuição."
+    },
+    "budgets": {
+      "loadError": "Falha ao carregar orçamentos.",
+      "created": "Orçamento criado com sucesso.",
+      "updated": "Orçamento atualizado com sucesso.",
+      "deleted": "Orçamento excluído com sucesso.",
+      "createError": "Falha ao criar orçamento.",
+      "updateError": "Falha ao atualizar orçamento.",
+      "deleteError": "Falha ao excluir orçamento."
+    },
+    "user": {
+      "loadError": "Falha ao carregar perfil.",
+      "updated": "Perfil atualizado com sucesso.",
+      "passwordChanged": "Senha alterada com sucesso.",
+      "avatarUploaded": "Foto atualizada com sucesso.",
+      "accountDeleted": "Conta excluída com sucesso.",
+      "updateError": "Falha ao atualizar perfil.",
+      "passwordError": "Falha ao alterar senha.",
+      "avatarError": "Falha ao enviar foto de perfil.",
+      "deleteError": "Falha ao excluir conta."
+    },
+    "aiFeedback": {
+      "loadError": "Falha ao carregar insights de IA."
+    },
+    "dashboard": {
+      "loadError": "Falha ao carregar dados do painel."
+    },
+    "auth": {
+      "loginError": "E-mail ou senha inválidos.",
+      "registerError": "Falha ao criar conta. Tente novamente.",
+      "genericError": "Ocorreu um erro. Tente novamente.",
+      "passwordMismatch": "As senhas não coincidem.",
+      "emailTaken": "Este e-mail já está cadastrado."
+    },
+    "generic": {
+      "error": "Ocorreu um erro inesperado."
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AiFeedbackResponse } from '../models/ai-feedback.model';
 import { AiFeedbackService } from '../services/ai-feedback.service';
+import { ToastService } from '../services/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class AiFeedbackStore {
@@ -13,7 +14,10 @@ export class AiFeedbackStore {
   readonly loading$ = this._loading$.asObservable();
   readonly error$ = this._error$.asObservable();
 
-  constructor(private readonly feedbackService: AiFeedbackService) {}
+  constructor(
+    private readonly feedbackService: AiFeedbackService,
+    private readonly toastService: ToastService,
+  ) {}
 
   load(month: string): void {
     this._loading$.next(true);
@@ -27,12 +31,12 @@ export class AiFeedbackStore {
       error: () => {
         this._error$.next('Failed to load AI insights.');
         this._loading$.next(false);
+        this.toastService.error('toast.aiFeedback.loadError');
       },
     });
   }
 
   markAsRead(id: string): void {
-    // Optimistic update — revert if the request fails
     const previous = this._feedbacks$.value;
     this._feedbacks$.next(previous.map((f) => (f.id === id ? { ...f, read: true } : f)));
 

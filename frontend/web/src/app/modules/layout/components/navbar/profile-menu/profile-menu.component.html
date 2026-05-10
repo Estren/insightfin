@@ -31,20 +31,18 @@
       @for (item of profileMenu; track $index) {
         <li
           routerLink="{{ item.link }}"
-          :key="$index"
           class="text-muted-foreground hover:bg-card hover:text-primary inline-flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 text-xs font-semibold">
           <svg-icon src="{{ item.icon }}" [svgClass]="'h-5 w-5 text-muted-foreground/50'"> </svg-icon>
-          {{ item.title }}
+          {{ item.titleKey | translate }}
         </li>
       }
     </ul>
     <hr class="border-border border-dashed" />
     <div class="mx-4 my-2">
-      <span class="text-foreground text-xs font-semibold">Color</span>
+      <span class="text-foreground text-xs font-semibold">{{ 'theme.color' | translate }}</span>
       <div class="mt-2 grid grid-cols-2 gap-2">
         @for (item of themeColors; track $index) {
           <div
-            :key="$index"
             (click)="toggleThemeColor(item.name)"
             [ngClass]="{ 'border-muted-foreground/30 bg-card': item.name == themeService.theme().color }"
             class="focus-visible:ring-ring border-border bg-background text-muted-foreground hover:bg-card hover:text-foreground shadow-xs inline-flex h-8 cursor-pointer items-center justify-start space-x-2 whitespace-nowrap rounded-md border border-dashed px-3 text-xs font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50">
@@ -57,11 +55,10 @@
       </div>
     </div>
     <div class="mx-4 my-2">
-      <span class="text-foreground text-xs font-semibold">Mode</span>
+      <span class="text-foreground text-xs font-semibold">{{ 'theme.mode' | translate }}</span>
       <div class="mt-2 grid grid-cols-2 gap-2">
         @for (item of themeMode; track $index) {
           <div
-            :key="$index"
             (click)="toggleThemeMode()"
             [ngClass]="{ 'border-muted-foreground/30 bg-card': item == themeService.theme().mode }"
             class="focus-visible:ring-ring border-border bg-background text-muted-foreground hover:bg-card hover:text-foreground shadow-xs inline-flex h-8 cursor-pointer items-center justify-start space-x-2 whitespace-nowrap rounded-md border border-dashed px-3 text-xs font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50">
@@ -71,17 +68,16 @@
               "
               [svgClass]="'h-5 w-5 text-muted-foreground/50'">
             </svg-icon>
-            <p class="capitalize">{{ item }}</p>
+            <p class="capitalize">{{ 'theme.' + item | translate }}</p>
           </div>
         }
       </div>
     </div>
     <div class="mx-4 my-2">
-      <span class="text-foreground text-xs font-semibold">Direction</span>
+      <span class="text-foreground text-xs font-semibold">{{ 'theme.direction' | translate }}</span>
       <div class="mt-2 grid grid-cols-2 gap-2">
         @for (item of themeDirection; track $index) {
           <div
-            :key="$index"
             (click)="setDirection(item)"
             [ngClass]="{ 'border-muted-foreground/30 bg-card': item == themeService.theme().direction }"
             class="focus-visible:ring-ring border-border bg-background text-muted-foreground hover:bg-card hover:text-foreground shadow-xs inline-flex h-8 cursor-pointer items-center justify-start space-x-2 whitespace-nowrap rounded-md border border-dashed px-3 text-xs font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1 disabled:pointer-events-none disabled:opacity-50">
@@ -96,6 +92,23 @@
             <p class="uppercase">{{ item }}</p>
           </div>
         }
+      </div>
+    </div>
+    <div class="mx-4 my-2">
+      <span class="text-foreground text-xs font-semibold">{{ 'theme.language' | translate }}</span>
+      <div class="mt-2 grid grid-cols-2 gap-2">
+        <div
+          (click)="setLanguage('pt-BR')"
+          [ngClass]="{ 'border-muted-foreground/30 bg-card': languageService.current === 'pt-BR' }"
+          class="focus-visible:ring-ring border-border bg-background text-muted-foreground hover:bg-card hover:text-foreground shadow-xs inline-flex h-8 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border border-dashed px-3 text-xs font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1">
+          🇧🇷 {{ 'language.ptBR' | translate }}
+        </div>
+        <div
+          (click)="setLanguage('en-US')"
+          [ngClass]="{ 'border-muted-foreground/30 bg-card': languageService.current === 'en-US' }"
+          class="focus-visible:ring-ring border-border bg-background text-muted-foreground hover:bg-card hover:text-foreground shadow-xs inline-flex h-8 cursor-pointer items-center justify-center whitespace-nowrap rounded-md border border-dashed px-3 text-xs font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-1">
+          🇺🇸 {{ 'language.enUS' | translate }}
+        </div>
       </div>
     </div>
   </div>

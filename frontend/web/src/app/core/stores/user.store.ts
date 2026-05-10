@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, map, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, tap, throwError } from 'rxjs';
 import { ChangePasswordRequest, UpdateUserRequest, UserProfile } from '../models/user.model';
 import { UserService } from '../services/user.service';
 import { AuthStore } from './auth.store';
+import { ToastService } from '../services/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserStore {
@@ -17,6 +18,7 @@ export class UserStore {
   constructor(
     private readonly userService: UserService,
     private readonly authStore: AuthStore,
+    private readonly toastService: ToastService,
   ) {}
 
   get profile(): UserProfile | null {
@@ -35,25 +37,46 @@ export class UserStore {
       error: () => {
         this._error$.next('Failed to load user profile.');
         this._loading$.next(false);
+        this.toastService.error('toast.user.loadError');
       },
     });
   }
 
   update(request: UpdateUserRequest): Observable<UserProfile> {
     return this.userService.updateMe(request).pipe(
-      tap((profile) => this._profile$.next(profile)),
+      tap((profile) => {
+        this._profile$.next(profile);
+        this.toastService.success('toast.user.updated');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.user.updateError');
+        return throwError(() => err);
+      }),
     );
   }
 
   uploadAvatar(file: File): Observable<void> {
     return this.userService.uploadAvatar(file).pipe(
-      tap((profile) => this._profile$.next(profile)),
+      tap((profile) => {
+        this._profile$.next(profile);
+        this.toastService.success('toast.user.avatarUploaded');
+      }),
       map(() => void 0),
+      catchError((err) => {
+        this.toastService.error('toast.user.avatarError');
+        return throwError(() => err);
+      }),
     );
   }
 
   changePassword(request: ChangePasswordRequest): Observable<void> {
-    return this.userService.changePassword(request);
+    return this.userService.changePassword(request).pipe(
+      tap(() => this.toastService.success('toast.user.passwordChanged')),
+      catchError((err) => {
+        this.toastService.error('toast.user.passwordError');
+        return throwError(() => err);
+      }),
+    );
   }
 
   deleteAccount(): Observable<void> {
@@ -61,6 +84,11 @@ export class UserStore {
       tap(() => {
         this._profile$.next(null);
         this.authStore.clearTokens();
+        this.toastService.success('toast.user.accountDeleted');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.user.deleteError');
+        return throwError(() => err);
       }),
     );
   }

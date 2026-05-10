@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, forkJoin, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, forkJoin, tap, throwError } from 'rxjs';
 import {
   BudgetResponse,
   BudgetStatusResponse,
@@ -7,6 +7,7 @@ import {
   UpdateBudgetRequest,
 } from '../models/budget.model';
 import { BudgetService } from '../services/budget.service';
+import { ToastService } from '../services/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class BudgetStore {
@@ -22,7 +23,10 @@ export class BudgetStore {
   readonly error$ = this._error$.asObservable();
   readonly selectedMonth$ = this._selectedMonth$.asObservable();
 
-  constructor(private readonly budgetService: BudgetService) {}
+  constructor(
+    private readonly budgetService: BudgetService,
+    private readonly toastService: ToastService,
+  ) {}
 
   get selectedMonth(): string {
     return this._selectedMonth$.value;
@@ -45,25 +49,47 @@ export class BudgetStore {
       error: () => {
         this._error$.next('Failed to load budgets.');
         this._loading$.next(false);
+        this.toastService.error('toast.budgets.loadError');
       },
     });
   }
 
   create(request: CreateBudgetRequest): Observable<BudgetResponse> {
     return this.budgetService.create(request).pipe(
-      tap(() => this.load(this._selectedMonth$.value)),
+      tap(() => {
+        this.load(this._selectedMonth$.value);
+        this.toastService.success('toast.budgets.created');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.budgets.createError');
+        return throwError(() => err);
+      }),
     );
   }
 
   update(id: string, request: UpdateBudgetRequest): Observable<BudgetResponse> {
     return this.budgetService.update(id, request).pipe(
-      tap(() => this.load(this._selectedMonth$.value)),
+      tap(() => {
+        this.load(this._selectedMonth$.value);
+        this.toastService.success('toast.budgets.updated');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.budgets.updateError');
+        return throwError(() => err);
+      }),
     );
   }
 
   delete(id: string): Observable<void> {
     return this.budgetService.delete(id).pipe(
-      tap(() => this.load(this._selectedMonth$.value)),
+      tap(() => {
+        this.load(this._selectedMonth$.value);
+        this.toastService.success('toast.budgets.deleted');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.budgets.deleteError');
+        return throwError(() => err);
+      }),
     );
   }
 

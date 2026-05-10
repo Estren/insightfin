@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import {
   CreateTransactionRequest,
   TransactionResponse,
   UpdateTransactionRequest,
 } from '../models/transaction.model';
 import { TransactionService } from '../services/transaction.service';
+import { ToastService } from '../services/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class TransactionStore {
@@ -19,7 +20,10 @@ export class TransactionStore {
   readonly error$ = this._error$.asObservable();
   readonly selectedMonth$ = this._selectedMonth$.asObservable();
 
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(
+    private readonly transactionService: TransactionService,
+    private readonly toastService: ToastService,
+  ) {}
 
   get selectedMonth(): string {
     return this._selectedMonth$.value;
@@ -39,6 +43,7 @@ export class TransactionStore {
       error: () => {
         this._error$.next('Failed to load transactions.');
         this._loading$.next(false);
+        this.toastService.error('toast.transactions.loadError');
       },
     });
   }
@@ -49,6 +54,11 @@ export class TransactionStore {
         if (created.date.startsWith(this.selectedMonth)) {
           this._transactions$.next([...this._transactions$.value, created]);
         }
+        this.toastService.success('toast.transactions.created');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.transactions.createError');
+        return throwError(() => err);
       }),
     );
   }
@@ -65,13 +75,25 @@ export class TransactionStore {
         } else {
           this._transactions$.next(list.filter((t) => t.id !== id));
         }
+        this.toastService.success('toast.transactions.updated');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.transactions.updateError');
+        return throwError(() => err);
       }),
     );
   }
 
   delete(id: string): Observable<void> {
     return this.transactionService.delete(id).pipe(
-      tap(() => this._transactions$.next(this._transactions$.value.filter((t) => t.id !== id))),
+      tap(() => {
+        this._transactions$.next(this._transactions$.value.filter((t) => t.id !== id));
+        this.toastService.success('toast.transactions.deleted');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.transactions.deleteError');
+        return throwError(() => err);
+      }),
     );
   }
 

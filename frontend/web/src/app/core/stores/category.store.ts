@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
 import { CategoryService } from '../services/category.service';
 import { CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest } from '../models/category.model';
 import { TransactionType } from '../models/transaction.model';
+import { ToastService } from '../services/toast.service';
 
 @Injectable({ providedIn: 'root' })
 export class CategoryStore {
@@ -14,7 +15,10 @@ export class CategoryStore {
   readonly loading$ = this._loading$.asObservable();
   readonly error$ = this._error$.asObservable();
 
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(
+    private readonly categoryService: CategoryService,
+    private readonly toastService: ToastService,
+  ) {}
 
   load(type?: TransactionType): void {
     this._loading$.next(true);
@@ -28,6 +32,7 @@ export class CategoryStore {
       error: () => {
         this._error$.next('Failed to load categories.');
         this._loading$.next(false);
+        this.toastService.error('toast.categories.loadError');
       },
     });
   }
@@ -36,6 +41,11 @@ export class CategoryStore {
     return this.categoryService.create(request).pipe(
       tap((created) => {
         this._categories$.next([...this._categories$.value, created]);
+        this.toastService.success('toast.categories.created');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.categories.createError');
+        return throwError(() => err);
       }),
     );
   }
@@ -45,6 +55,11 @@ export class CategoryStore {
       tap((updated) => {
         const list = this._categories$.value.map((c) => (c.id === id ? updated : c));
         this._categories$.next(list);
+        this.toastService.success('toast.categories.updated');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.categories.updateError');
+        return throwError(() => err);
       }),
     );
   }
@@ -53,6 +68,11 @@ export class CategoryStore {
     return this.categoryService.delete(id).pipe(
       tap(() => {
         this._categories$.next(this._categories$.value.filter((c) => c.id !== id));
+        this.toastService.success('toast.categories.deleted');
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.categories.deleteError');
+        return throwError(() => err);
       }),
     );
   }

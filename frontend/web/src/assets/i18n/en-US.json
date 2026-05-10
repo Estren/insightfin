@@ -1,0 +1,126 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "close": "Close",
+    "confirm": "Confirm",
+    "actions": "Actions",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "nav": {
+    "yourProfile": "Your Profile",
+    "logout": "Log out",
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "categories": "Categories",
+    "budgets": "Budgets",
+    "goals": "Goals",
+    "profile": "Profile"
+  },
+  "theme": {
+    "color": "Color",
+    "mode": "Mode",
+    "direction": "Direction",
+    "language": "Language",
+    "light": "Light",
+    "dark": "Dark",
+    "ltr": "LTR",
+    "rtl": "RTL"
+  },
+  "language": {
+    "ptBR": "Português",
+    "enUS": "English"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Name",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "rememberMe": "Remember me",
+    "errors": {
+      "invalidCredentials": "Invalid email or password.",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email.",
+      "passwordRequired": "Password is required.",
+      "nameRequired": "Name is required."
+    }
+  },
+  "toast": {
+    "transactions": {
+      "loadError": "Failed to load transactions.",
+      "created": "Transaction created successfully.",
+      "updated": "Transaction updated successfully.",
+      "deleted": "Transaction deleted successfully.",
+      "createError": "Failed to create transaction.",
+      "updateError": "Failed to update transaction.",
+      "deleteError": "Failed to delete transaction."
+    },
+    "categories": {
+      "loadError": "Failed to load categories.",
+      "created": "Category created successfully.",
+      "updated": "Category updated successfully.",
+      "deleted": "Category deleted successfully.",
+      "createError": "Failed to create category.",
+      "updateError": "Failed to update category.",
+      "deleteError": "Failed to delete category."
+    },
+    "goals": {
+      "loadError": "Failed to load goals.",
+      "created": "Goal created successfully.",
+      "updated": "Goal updated successfully.",
+      "deleted": "Goal deleted successfully.",
+      "contributed": "Contribution added successfully.",
+      "createError": "Failed to create goal.",
+      "updateError": "Failed to update goal.",
+      "deleteError": "Failed to delete goal.",
+      "contributeError": "Failed to add contribution."
+    },
+    "budgets": {
+      "loadError": "Failed to load budgets.",
+      "created": "Budget created successfully.",
+      "updated": "Budget updated successfully.",
+      "deleted": "Budget deleted successfully.",
+      "createError": "Failed to create budget.",
+      "updateError": "Failed to update budget.",
+      "deleteError": "Failed to delete budget."
+    },
+    "user": {
+      "loadError": "Failed to load user profile.",
+      "updated": "Profile updated successfully.",
+      "passwordChanged": "Password changed successfully.",
+      "avatarUploaded": "Profile photo updated successfully.",
+      "accountDeleted": "Account deleted successfully.",
+      "updateError": "Failed to update profile.",
+      "passwordError": "Failed to change password.",
+      "avatarError": "Failed to upload profile photo.",
+      "deleteError": "Failed to delete account."
+    },
+    "aiFeedback": {
+      "loadError": "Failed to load AI insights."
+    },
+    "dashboard": {
+      "loadError": "Failed to load dashboard data."
+    },
+    "auth": {
+      "loginError": "Invalid email or password.",
+      "registerError": "Failed to create account. Please try again.",
+      "genericError": "An error occurred. Please try again.",
+      "passwordMismatch": "Passwords do not match.",
+      "emailTaken": "This email is already registered."
+    },
+    "generic": {
+      "error": "An unexpected error occurred."
+    }
+  }
+}
