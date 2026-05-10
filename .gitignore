@@ -46,9 +46,9 @@ core-api/target/
 *.class
 *.jar
 *.war
+!core-api/.mvn/wrapper/maven-wrapper.jar
 
 # Maven wrapper (downloaded binaries)
-core-api/.mvn/wrapper/maven-wrapper.jar
 core-api/.mvn/maven/
 
 # Secrets
