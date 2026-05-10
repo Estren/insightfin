@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AsyncPipe, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { DashboardStore } from '../../../../core/stores/dashboard.store';
 import { AiFeedbackStore } from '../../../../core/stores/ai-feedback.store';
 import { AiFeedbackType, AiFeedbackResponse } from '../../../../core/models/ai-feedback.model';
@@ -17,6 +18,7 @@ import { StatCardComponent } from '../../../../shared/components/stat-card/stat-
     CurrencyPipe,
     DatePipe,
     NgClass,
+    TranslateModule,
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
@@ -46,14 +48,14 @@ export class OverviewComponent implements OnInit {
     }
   }
 
-  feedbackTypeLabel(type: AiFeedbackType): string {
-    const labels: Record<AiFeedbackType, string> = {
-      MONTHLY_REPORT: 'Relatório Mensal',
-      HEALTH_SCORE: 'Saúde Financeira',
-      ALERT: 'Alerta',
-      GOAL_PROJECTION: 'Projeção de Meta',
+  feedbackTypeKey(type: AiFeedbackType): string {
+    const keys: Record<AiFeedbackType, string> = {
+      MONTHLY_REPORT: 'dashboard.feedbackTypes.monthlyReport',
+      HEALTH_SCORE: 'dashboard.feedbackTypes.healthScore',
+      ALERT: 'dashboard.feedbackTypes.alert',
+      GOAL_PROJECTION: 'dashboard.feedbackTypes.goalProjection',
     };
-    return labels[type];
+    return keys[type];
   }
 
   feedbackTypeClass(type: AiFeedbackType): string {

@@ -1,6 +1,6 @@
 <!-- Type toggle -->
 <div>
-  <label class="text-foreground mb-2 block text-sm font-medium">Type</label>
+  <label class="text-foreground mb-2 block text-sm font-medium">{{ 'transactions.type' | translate }}</label>
   <div class="flex gap-2">
     <button
       type="button"
@@ -11,7 +11,7 @@
           ? 'bg-red-500 text-white'
           : 'bg-muted text-muted-foreground hover:bg-muted/80'
       ">
-      Expense
+      {{ 'transactions.expense' | translate }}
     </button>
     <button
       type="button"
@@ -22,18 +22,18 @@
           ? 'bg-green-500 text-white'
           : 'bg-muted text-muted-foreground hover:bg-muted/80'
       ">
-      Income
+      {{ 'transactions.income' | translate }}
     </button>
   </div>
 </div>
 
 <!-- Category -->
 <div>
-  <label class="text-foreground mb-1 block text-sm font-medium">Category</label>
+  <label class="text-foreground mb-1 block text-sm font-medium">{{ 'transactions.category' | translate }}</label>
   <select
     formControlName="categoryId"
     class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm">
-    <option value="" disabled>Select a category</option>
+    <option value="" disabled>{{ 'common.selectCategory' | translate }}</option>
     @for (cat of filteredCategories$ | async; track cat.id) {
       <option [value]="cat.id">{{ cat.name }}</option>
     }
@@ -42,7 +42,7 @@
 
 <!-- Amount -->
 <div>
-  <label class="text-foreground mb-1 block text-sm font-medium">Amount</label>
+  <label class="text-foreground mb-1 block text-sm font-medium">{{ 'transactions.amount' | translate }}</label>
   <input
     formControlName="amount"
     type="number"
@@ -55,7 +55,7 @@
 <!-- Description -->
 <div>
   <label class="text-foreground mb-1 block text-sm font-medium">
-    Description <span class="text-muted-foreground">(optional)</span>
+    {{ 'transactions.description' | translate }} <span class="text-muted-foreground">{{ 'common.optional' | translate }}</span>
   </label>
   <input
     formControlName="description"
@@ -65,7 +65,7 @@
 
 <!-- Date -->
 <div>
-  <label class="text-foreground mb-1 block text-sm font-medium">Date</label>
+  <label class="text-foreground mb-1 block text-sm font-medium">{{ 'transactions.date' | translate }}</label>
   <input
     formControlName="date"
     type="date"

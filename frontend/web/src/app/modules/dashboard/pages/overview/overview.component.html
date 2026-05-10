@@ -5,26 +5,26 @@
     <p class="text-center text-sm text-red-600 dark:text-red-400">{{ error }}</p>
   </app-card>
 } @else if (dashboardStore.summary$ | async; as summary) {
-  <app-page-header title="Dashboard" subtitle="Your financial overview for this month" />
+  <app-page-header [title]="'dashboard.title' | translate" [subtitle]="'dashboard.subtitle' | translate" />
 
   <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-    <app-stat-card label="Income" [value]="summary.totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
+    <app-stat-card [label]="'dashboard.income' | translate" [value]="summary.totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
     <app-stat-card
-      label="Expenses"
+      [label]="'dashboard.expenses' | translate"
       tone="negative"
       [value]="summary.totalExpense | currency: 'BRL' : 'symbol' : '1.2-2'" />
     <app-stat-card
-      label="Balance"
+      [label]="'dashboard.balance' | translate"
       [tone]="summary.balance >= 0 ? 'positive' : 'negative'"
       [value]="summary.balance | currency: 'BRL' : 'symbol' : '1.2-2'" />
   </div>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-    <app-card title="Recent Transactions">
+    <app-card [title]="'dashboard.recentTransactions' | translate">
       @if (summary.recentTransactions.length === 0) {
         <app-empty-state
-          title="No transactions this month"
-          description="Your latest activity will appear here." />
+          [title]="'dashboard.noTransactions' | translate"
+          [description]="'dashboard.noTransactionsDesc' | translate" />
       } @else {
         <div class="space-y-3">
           @for (t of summary.recentTransactions; track t.id) {
@@ -46,11 +46,11 @@
       }
     </app-card>
 
-    <app-card title="Budgets">
+    <app-card [title]="'dashboard.budgets' | translate">
       @if (summary.budgetStatuses.length === 0) {
         <app-empty-state
-          title="No budgets set for this month"
-          description="Set monthly limits per category." />
+          [title]="'dashboard.noBudgets' | translate"
+          [description]="'dashboard.noBudgetsDesc' | translate" />
       } @else {
         <div class="space-y-4">
           @for (b of summary.budgetStatuses; track b.budgetId) {
@@ -81,9 +81,9 @@
   </div>
 
   <div class="mt-6">
-    <app-card title="Active Goals">
+    <app-card [title]="'dashboard.activeGoals' | translate">
       @if (summary.activeGoals.length === 0) {
-        <app-empty-state title="No active goals" description="Create a goal to start saving." />
+        <app-empty-state [title]="'dashboard.noActiveGoals' | translate" [description]="'dashboard.noActiveGoalsDesc' | translate" />
       } @else {
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           @for (g of summary.activeGoals; track g.id) {
@@ -101,7 +101,7 @@
               </div>
               @if (g.deadline) {
                 <p class="text-muted-foreground mt-1 text-xs">
-                  Deadline: {{ g.deadline | date: 'dd/MM/yyyy' }}
+                  {{ 'dashboard.deadline' | translate }} {{ g.deadline | date: 'dd/MM/yyyy' }}
                 </p>
               }
             </div>
@@ -112,14 +112,14 @@
   </div>
 
   <div class="mt-6">
-    <app-card title="AI Insights">
+    <app-card [title]="'dashboard.aiInsights' | translate">
       @if (feedbackStore.loading$ | async) {
         <app-loading />
       } @else if (feedbackStore.feedbacks$ | async; as feedbacks) {
         @if (feedbacks.length === 0) {
           <app-empty-state
-            title="No insights yet"
-            description="AI analysis will appear here after the first monthly report." />
+            [title]="'dashboard.noInsights' | translate"
+            [description]="'dashboard.noInsightsDesc' | translate" />
         } @else {
           <div class="space-y-2">
             @for (f of feedbacks; track f.id) {
@@ -132,7 +132,7 @@
                       <span
                         class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
                         [ngClass]="feedbackTypeClass(f.type)">
-                        {{ feedbackTypeLabel(f.type) }}
+                        {{ feedbackTypeKey(f.type) | translate }}
                       </span>
                       @if (!f.read) {
                         <span class="h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></span>

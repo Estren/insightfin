@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { GoalResponse } from '../../../../core/models/goal.model';
 import { GoalStore } from '../../../../core/stores/goal.store';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
@@ -8,13 +9,12 @@ import { ModalComponent } from '../../../../shared/components/modal/modal.compon
 @Component({
   selector: 'app-goal-form',
   templateUrl: './goal-form.component.html',
-  imports: [ReactiveFormsModule, ModalComponent],
+  imports: [ReactiveFormsModule, ModalComponent, TranslateModule],
 })
 export class GoalFormComponent implements OnInit {
   form!: FormGroup;
   editing: GoalResponse | null = null;
   submitting = false;
-  errorMessage = '';
 
   constructor(
     private readonly fb: FormBuilder,
@@ -53,18 +53,15 @@ export class GoalFormComponent implements OnInit {
   onSubmit(): void {
     if (this.form.invalid) return;
     this.submitting = true;
-    this.errorMessage = '';
 
     const title = this.form.controls['title'].value as string;
     const targetAmount = Number(this.form.controls['targetAmount'].value);
     const deadlineRaw = (this.form.controls['deadline'].value as string) || '';
     const deadline = deadlineRaw ? deadlineRaw : undefined;
 
-    const request = { title, targetAmount, deadline };
-
     const action$ = this.editing
-      ? this.goalStore.update(this.editing.id, request)
-      : this.goalStore.create(request);
+      ? this.goalStore.update(this.editing.id, { title, targetAmount, deadline })
+      : this.goalStore.create({ title, targetAmount, deadline });
 
     action$.subscribe({
       next: () => {
@@ -73,7 +70,6 @@ export class GoalFormComponent implements OnInit {
       },
       error: () => {
         this.submitting = false;
-        this.errorMessage = 'Failed to save goal. Please try again.';
       },
     });
   }

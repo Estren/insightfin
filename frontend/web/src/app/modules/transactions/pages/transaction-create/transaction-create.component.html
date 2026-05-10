@@ -1,16 +1,10 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
   <app-transaction-form />
 
-  @if (errorMessage) {
-    <div class="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-      {{ errorMessage }}
-    </div>
-  }
-
   <button
     type="submit"
     [disabled]="form.invalid || submitting"
     class="bg-primary hover:bg-primary/90 mt-2 w-full cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
-    Create Transaction
+    {{ 'transactions.create' | translate }}
   </button>
 </form>

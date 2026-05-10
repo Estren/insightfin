@@ -1,6 +1,7 @@
 import { AsyncPipe, NgClass } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { ControlContainer, FormGroup, FormGroupDirective, ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { combineLatest, map, Observable, startWith } from 'rxjs';
 import { CategoryResponse } from '../../../../core/models/category.model';
 import { TransactionType } from '../../../../core/models/transaction.model';
@@ -10,7 +11,7 @@ import { CategoryStore } from '../../../../core/stores/category.store';
   selector: 'app-transaction-form',
   templateUrl: './transaction-form.component.html',
   viewProviders: [{ provide: ControlContainer, useExisting: FormGroupDirective }],
-  imports: [AsyncPipe, NgClass, ReactiveFormsModule],
+  imports: [AsyncPipe, NgClass, ReactiveFormsModule, TranslateModule],
 })
 export class TransactionFormComponent implements OnInit {
   filteredCategories$!: Observable<CategoryResponse[]>;

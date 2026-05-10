@@ -1,4 +1,4 @@
-<app-modal title="Contribute to Goal" (close)="onCancel()">
+<app-modal [title]="'goals.contributeModal' | translate" (close)="onCancel()">
   @if (goal) {
     <p class="text-muted-foreground mb-4 text-sm">
       {{ goal.title }} &middot;
@@ -9,7 +9,7 @@
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Amount</label>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'goals.amount' | translate }}</label>
       <input
         formControlName="amount"
         type="number"
@@ -20,24 +20,18 @@
     </div>
 
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Date</label>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'goals.date' | translate }}</label>
       <input
         formControlName="date"
         type="date"
         class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm" />
     </div>
 
-    @if (errorMessage) {
-      <div class="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-        {{ errorMessage }}
-      </div>
-    }
-
     <button
       type="submit"
       [disabled]="form.invalid || submitting"
       class="bg-primary hover:bg-primary/90 mt-2 w-full cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
-      Confirm Contribution
+      {{ 'goals.confirmContribution' | translate }}
     </button>
   </form>
 </app-modal>

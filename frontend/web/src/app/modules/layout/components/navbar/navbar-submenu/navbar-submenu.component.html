@@ -19,7 +19,7 @@
                 <svg-icon src="{{ item.icon }}" [svgClass]="'h-5 w-5'"> </svg-icon>
               </span>
             }
-            <span class="ml-1">{{ item.label }}</span>
+            <span class="ml-1">{{ item.label | translate }}</span>
           </div>
         </button>
       </ng-template>
@@ -34,7 +34,7 @@
                   <svg-icon src="{{ item.icon }}" [svgClass]="'h-5 w-5'"> </svg-icon>
                 </span>
               }
-              <span class="ml-1">{{ item.label }}</span>
+              <span class="ml-1">{{ item.label | translate }}</span>
             </div>
             <span class="rtl:rotate-180">
               <svg-icon

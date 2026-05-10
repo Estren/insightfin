@@ -1,8 +1,8 @@
-<app-modal [title]="editing ? 'Edit Budget' : 'New Budget'" (close)="onCancel()">
+<app-modal [title]="editing ? ('budgets.editModal' | translate) : ('budgets.newModal' | translate)" (close)="onCancel()">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
     <!-- Category -->
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Category</label>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'budgets.category' | translate }}</label>
       @if (editing) {
         <p class="text-muted-foreground bg-muted rounded-md px-3 py-2 text-sm">
           {{ editing.categoryName }}
@@ -11,7 +11,7 @@
         <select
           formControlName="categoryId"
           class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm">
-          <option value="" disabled>Select a category</option>
+          <option value="" disabled>{{ 'common.selectCategory' | translate }}</option>
           @for (cat of expenseCategories$ | async; track cat.id) {
             <option [value]="cat.id">{{ cat.name }}</option>
           }
@@ -21,7 +21,7 @@
 
     <!-- Amount -->
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Monthly limit</label>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'budgets.monthlyLimit' | translate }}</label>
       <input
         formControlName="amount"
         type="number"
@@ -33,7 +33,7 @@
 
     <!-- Month -->
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Month</label>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'budgets.month' | translate }}</label>
       @if (editing) {
         <p class="text-muted-foreground bg-muted rounded-md px-3 py-2 text-sm">{{ editing.month }}</p>
       } @else {
@@ -44,17 +44,11 @@
       }
     </div>
 
-    @if (errorMessage) {
-      <div class="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-        {{ errorMessage }}
-      </div>
-    }
-
     <button
       type="submit"
       [disabled]="form.invalid || submitting"
       class="bg-primary hover:bg-primary/90 mt-2 w-full cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
-      {{ editing ? 'Save Changes' : 'Create Budget' }}
+      {{ editing ? ('budgets.saveChanges' | translate) : ('budgets.create' | translate) }}
     </button>
   </form>
 </app-modal>

@@ -3,38 +3,38 @@ import { MenuItem } from '../models/menu.model';
 export class Menu {
   public static pages: MenuItem[] = [
     {
-      group: 'Overview',
+      group: 'nav.overview',
       separator: false,
       items: [
         {
           icon: 'assets/icons/heroicons/outline/chart-pie.svg',
-          label: 'Dashboard',
+          label: 'nav.dashboard',
           route: '/dashboard',
         },
       ],
     },
     {
-      group: 'Finances',
+      group: 'nav.finances',
       separator: true,
       items: [
         {
           icon: 'assets/icons/heroicons/outline/view-grid.svg',
-          label: 'Transactions',
+          label: 'nav.transactions',
           route: '/transactions',
         },
         {
           icon: 'assets/icons/heroicons/outline/bookmark.svg',
-          label: 'Categories',
+          label: 'nav.categories',
           route: '/categories',
         },
         {
           icon: 'assets/icons/heroicons/outline/shield-check.svg',
-          label: 'Budgets',
+          label: 'nav.budgets',
           route: '/budgets',
         },
         {
           icon: 'assets/icons/heroicons/outline/arrow-sm-up.svg',
-          label: 'Goals',
+          label: 'nav.goals',
           route: '/goals',
         },
       ],

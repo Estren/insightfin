@@ -1,6 +1,7 @@
 import { AsyncPipe, CurrencyPipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { BudgetStatusResponse } from '../../../../core/models/budget.model';
 import { BudgetStore } from '../../../../core/stores/budget.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
@@ -17,6 +18,7 @@ import { ProgressRingComponent } from '../../../../shared/components/progress-ri
     CurrencyPipe,
     NgClass,
     RouterLink,
+    TranslateModule,
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
@@ -52,10 +54,10 @@ export class BudgetListComponent implements OnInit {
     this.budgetStore.delete(status.budgetId).subscribe();
   }
 
-  statusLabel(pct: number): string {
-    if (pct >= 90) return 'Over';
-    if (pct >= 70) return 'Warning';
-    return 'On track';
+  statusKey(pct: number): string {
+    if (pct >= 90) return 'budgets.statusOver';
+    if (pct >= 70) return 'budgets.statusWarning';
+    return 'budgets.statusOnTrack';
   }
 
   statusClass(pct: number): string {

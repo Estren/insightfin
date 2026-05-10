@@ -1,6 +1,7 @@
 import { AsyncPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { GoalResponse } from '../../../../core/models/goal.model';
 import { GoalStore } from '../../../../core/stores/goal.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
@@ -18,6 +19,7 @@ import { ProgressRingComponent } from '../../../../shared/components/progress-ri
     DatePipe,
     RouterLink,
     RouterOutlet,
+    TranslateModule,
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,

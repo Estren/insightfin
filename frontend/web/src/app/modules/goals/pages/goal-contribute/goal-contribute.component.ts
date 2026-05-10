@@ -2,6 +2,7 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { GoalResponse } from '../../../../core/models/goal.model';
 import { GoalStore } from '../../../../core/stores/goal.store';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
@@ -9,13 +10,12 @@ import { ModalComponent } from '../../../../shared/components/modal/modal.compon
 @Component({
   selector: 'app-goal-contribute',
   templateUrl: './goal-contribute.component.html',
-  imports: [CurrencyPipe, ReactiveFormsModule, ModalComponent],
+  imports: [CurrencyPipe, ReactiveFormsModule, ModalComponent, TranslateModule],
 })
 export class GoalContributeComponent implements OnInit {
   form!: FormGroup;
   goal: GoalResponse | null = null;
   submitting = false;
-  errorMessage = '';
 
   constructor(
     private readonly fb: FormBuilder,
@@ -46,7 +46,6 @@ export class GoalContributeComponent implements OnInit {
   onSubmit(): void {
     if (!this.goal || this.form.invalid) return;
     this.submitting = true;
-    this.errorMessage = '';
 
     const amount = Number(this.form.controls['amount'].value);
     const date = this.form.controls['date'].value as string;
@@ -58,7 +57,6 @@ export class GoalContributeComponent implements OnInit {
       },
       error: () => {
         this.submitting = false;
-        this.errorMessage = 'Failed to save contribution. Please try again.';
       },
     });
   }

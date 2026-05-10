@@ -1,19 +1,19 @@
-<app-modal [title]="editing ? 'Edit Goal' : 'New Goal'" (close)="onCancel()">
+<app-modal [title]="editing ? ('goals.editModal' | translate) : ('goals.newModal' | translate)" (close)="onCancel()">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
     <!-- Title -->
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Title</label>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'goals.titleLabel' | translate }}</label>
       <input
         formControlName="title"
         type="text"
         maxlength="100"
-        placeholder="e.g. Emergency fund"
+        [placeholder]="'goals.titlePlaceholder' | translate"
         class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
     </div>
 
     <!-- Target amount -->
     <div>
-      <label class="text-foreground mb-1 block text-sm font-medium">Target amount</label>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'goals.targetAmount' | translate }}</label>
       <input
         formControlName="targetAmount"
         type="number"
@@ -26,7 +26,7 @@
     <!-- Deadline -->
     <div>
       <label class="text-foreground mb-1 block text-sm font-medium">
-        Deadline <span class="text-muted-foreground">(optional)</span>
+        {{ 'goals.deadline' | translate }} <span class="text-muted-foreground">{{ 'common.optional' | translate }}</span>
       </label>
       <input
         formControlName="deadline"
@@ -34,17 +34,11 @@
         class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm" />
     </div>
 
-    @if (errorMessage) {
-      <div class="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-        {{ errorMessage }}
-      </div>
-    }
-
     <button
       type="submit"
       [disabled]="form.invalid || submitting"
       class="bg-primary hover:bg-primary/90 mt-2 w-full cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
-      {{ editing ? 'Save Changes' : 'Create Goal' }}
+      {{ editing ? ('goals.saveChanges' | translate) : ('goals.create' | translate) }}
     </button>
   </form>
 </app-modal>

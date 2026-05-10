@@ -2,6 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { map, Observable } from 'rxjs';
 import { BudgetResponse } from '../../../../core/models/budget.model';
 import { CategoryResponse } from '../../../../core/models/category.model';
@@ -12,13 +13,12 @@ import { ModalComponent } from '../../../../shared/components/modal/modal.compon
 @Component({
   selector: 'app-budget-form',
   templateUrl: './budget-form.component.html',
-  imports: [AsyncPipe, ReactiveFormsModule, ModalComponent],
+  imports: [AsyncPipe, ReactiveFormsModule, ModalComponent, TranslateModule],
 })
 export class BudgetFormComponent implements OnInit {
   form!: FormGroup;
   editing: BudgetResponse | null = null;
   submitting = false;
-  errorMessage = '';
   expenseCategories$!: Observable<CategoryResponse[]>;
 
   constructor(
@@ -49,7 +49,6 @@ export class BudgetFormComponent implements OnInit {
         amount: budget.amount,
         month: budget.month,
       });
-      // Category and month are immutable on edit — the backend only accepts amount.
       this.form.controls['categoryId'].disable();
       this.form.controls['month'].disable();
     }
@@ -66,7 +65,6 @@ export class BudgetFormComponent implements OnInit {
   onSubmit(): void {
     if (this.form.invalid) return;
     this.submitting = true;
-    this.errorMessage = '';
 
     const amount = Number(this.form.controls['amount'].value);
 
@@ -76,7 +74,9 @@ export class BudgetFormComponent implements OnInit {
           this.submitting = false;
           this.router.navigate(['/budgets']);
         },
-        error: () => this.handleError(),
+        error: () => {
+          this.submitting = false;
+        },
       });
       return;
     }
@@ -88,22 +88,13 @@ export class BudgetFormComponent implements OnInit {
         this.submitting = false;
         this.router.navigate(['/budgets']);
       },
-      error: (err) => {
+      error: () => {
         this.submitting = false;
-        this.errorMessage =
-          err?.status === 409
-            ? 'A budget already exists for this category and month.'
-            : 'Failed to save budget. Please try again.';
       },
     });
   }
 
   onCancel(): void {
     this.router.navigate(['/budgets']);
-  }
-
-  private handleError(): void {
-    this.submitting = false;
-    this.errorMessage = 'Failed to save budget. Please try again.';
   }
 }

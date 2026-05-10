@@ -2,7 +2,7 @@
   <div class="pt-4">
     <div class="mx-1 mb-2 flex items-center justify-between">
       <small class="text-muted-foreground/50 text-xs font-semibold">
-        {{ menu.group }}
+        {{ menu.group | translate }}
       </small>
     </div>
     <ul class="flex flex-col">
@@ -30,7 +30,7 @@
                 <a
                   routerLinkActive="text-primary"
                   class="truncate text-xs font-semibold tracking-wide focus:outline-hidden">
-                  {{ item.label }}
+                  {{ item.label | translate }}
                 </a>
               </div>
             </ng-template>
@@ -39,7 +39,7 @@
               <div class="flex h-9 grow cursor-pointer items-center justify-start rounded-sm">
                 <a
                   class="text-muted-foreground group-hover:text-primary truncate text-xs font-semibold tracking-wide focus:outline-hidden">
-                  {{ item.label }}
+                  {{ item.label | translate }}
                 </a>
               </div>
             </ng-template>

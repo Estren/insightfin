@@ -1,4 +1,4 @@
-<app-page-header title="Budgets">
+<app-page-header [title]="'budgets.title' | translate">
   <div class="flex items-center gap-2">
     <button
       (click)="changeMonth(-1)"
@@ -17,7 +17,7 @@
   <a
     routerLink="/budgets/new"
     class="bg-primary hover:bg-primary/90 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors">
-    + New Budget
+    {{ 'budgets.newBudget' | translate }}
   </a>
 </app-page-header>
 
@@ -28,9 +28,9 @@
     <p class="text-center text-sm text-red-500">{{ error }}</p>
   </app-card>
 } @else if (budgetStore.statuses$ | async; as statuses) {
-  <app-card title="Monthly Overview">
+  <app-card [title]="'budgets.monthlyOverview' | translate">
     @if (statuses.length === 0) {
-      <app-empty-state title="No budgets for this month" description="Set monthly spending limits per category." />
+      <app-empty-state [title]="'budgets.noBudgets' | translate" [description]="'budgets.noBudgetsDesc' | translate" />
     } @else {
       <div class="space-y-3">
         @for (s of statuses; track s.budgetId) {
@@ -43,12 +43,12 @@
               <div class="mb-0.5 flex items-center gap-2">
                 <p class="text-foreground truncate text-sm font-semibold">{{ s.categoryName }}</p>
                 <span class="rounded-full px-2 py-0.5 text-xs font-semibold" [ngClass]="statusClass(s.percentageUsed)">
-                  {{ statusLabel(s.percentageUsed) }}
+                  {{ statusKey(s.percentageUsed) | translate }}
                 </span>
               </div>
               <p class="text-muted-foreground text-xs">
                 {{ s.spentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                of
+                {{ 'budgets.of' | translate }}
                 {{ s.budgetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
               </p>
             </div>
@@ -58,12 +58,12 @@
               <button
                 (click)="onEdit(s)"
                 class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
-                Edit
+                {{ 'common.edit' | translate }}
               </button>
               <button
                 (click)="onDelete(s)"
                 class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
-                Delete
+                {{ 'common.delete' | translate }}
               </button>
             </div>
           </div>

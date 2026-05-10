@@ -1,6 +1,7 @@
 import { AsyncPipe, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
 import { TransactionStore } from '../../../../core/stores/transaction.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
@@ -28,6 +29,7 @@ interface TransactionGroup {
     CurrencyPipe,
     DatePipe,
     NgClass,
+    TranslateModule,
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
@@ -41,9 +43,9 @@ interface TransactionGroup {
 })
 export class TransactionListComponent implements OnInit {
   readonly tabs: Tab[] = [
-    { label: 'All', value: 'ALL' },
-    { label: 'Revenue', value: 'INCOME' },
-    { label: 'Expenses', value: 'EXPENSE' },
+    { label: 'transactions.all', value: 'ALL' },
+    { label: 'transactions.revenue', value: 'INCOME' },
+    { label: 'transactions.expenses', value: 'EXPENSE' },
   ];
 
   private readonly _activeTab$ = new BehaviorSubject<TabValue>('ALL');

@@ -2,29 +2,23 @@ import { AsyncPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { UserStore } from '../../../../core/stores/user.store';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  imports: [ReactiveFormsModule, AsyncPipe],
+  imports: [ReactiveFormsModule, AsyncPipe, TranslateModule],
 })
 export class ProfileComponent implements OnInit {
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
 
   profileSubmitting = false;
-  profileSuccess = false;
-  profileError = '';
-
   passwordSubmitting = false;
-  passwordSuccess = false;
-  passwordError = '';
 
   deleteConfirmText = '';
-
   avatarUploading = false;
-  avatarError = '';
 
   constructor(
     private readonly fb: FormBuilder,
@@ -60,17 +54,13 @@ export class ProfileComponent implements OnInit {
   onUpdateProfile(): void {
     if (this.profileForm.invalid) return;
     this.profileSubmitting = true;
-    this.profileSuccess = false;
-    this.profileError = '';
 
     this.userStore.update(this.profileForm.value).subscribe({
       next: () => {
         this.profileSubmitting = false;
-        this.profileSuccess = true;
       },
       error: () => {
         this.profileSubmitting = false;
-        this.profileError = 'Failed to update profile. Please try again.';
       },
     });
   }
@@ -78,19 +68,14 @@ export class ProfileComponent implements OnInit {
   onChangePassword(): void {
     if (this.passwordForm.invalid) return;
     this.passwordSubmitting = true;
-    this.passwordSuccess = false;
-    this.passwordError = '';
 
     this.userStore.changePassword(this.passwordForm.value).subscribe({
       next: () => {
         this.passwordSubmitting = false;
-        this.passwordSuccess = true;
         this.passwordForm.reset();
       },
-      error: (err) => {
+      error: () => {
         this.passwordSubmitting = false;
-        this.passwordError =
-          err?.status === 400 ? 'Current password is incorrect.' : 'Failed to change password. Please try again.';
       },
     });
   }
@@ -109,14 +94,12 @@ export class ProfileComponent implements OnInit {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     this.avatarUploading = true;
-    this.avatarError = '';
     this.userStore.uploadAvatar(file).subscribe({
       next: () => {
         this.avatarUploading = false;
       },
       error: () => {
         this.avatarUploading = false;
-        this.avatarError = 'Failed to upload photo. Max 5 MB, jpeg/png/webp/gif only.';
       },
     });
   }

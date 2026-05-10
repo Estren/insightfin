@@ -1,7 +1,7 @@
 <form class="my-10 space-y-6" [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="text-center">
-    <h2 class="text-foreground mb-1 text-3xl font-semibold">Sign Up <span class="text-primary">!</span></h2>
-    <p class="text-muted-foreground text-sm">Create your account to get started</p>
+    <h2 class="text-foreground mb-1 text-3xl font-semibold">{{ 'auth.signUpTitle' | translate }} <span class="text-primary">!</span></h2>
+    <p class="text-muted-foreground text-sm">{{ 'auth.createAccount' | translate }}</p>
   </div>
 
   <div class="space-y-3 text-left">
@@ -18,13 +18,13 @@
           for="name"
           [ngClass]="{ 'peer-focus:text-destructive!': submitted && f['name'].errors }"
           class="bg-background text-muted-foreground peer-focus:text-primary absolute top-2 z-10 origin-[0] -translate-y-4 scale-95 transform px-2 text-sm duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-95 peer-focus:px-2 ltr:left-1 rtl:right-1">
-          Full name
+          {{ 'auth.fullName' | translate }}
         </label>
       </div>
       @if (submitted && f['name'].errors) {
         <div class="is__invalid-error">
           @if (f['name'].errors['required']) {
-            <div>Required field</div>
+            <div>{{ 'common.required' | translate }}</div>
           }
         </div>
       }
@@ -43,16 +43,16 @@
           for="email"
           [ngClass]="{ 'peer-focus:text-destructive!': submitted && f['email'].errors }"
           class="bg-background text-muted-foreground peer-focus:text-primary absolute top-2 z-10 origin-[0] -translate-y-4 scale-95 transform px-2 text-sm duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-95 peer-focus:px-2 ltr:left-1 rtl:right-1">
-          Email address
+          {{ 'auth.emailAddress' | translate }}
         </label>
       </div>
       @if (submitted && f['email'].errors) {
         <div class="is__invalid-error">
           @if (f['email'].errors['required']) {
-            <div>Required field</div>
+            <div>{{ 'common.required' | translate }}</div>
           }
           @if (f['email'].errors['email']) {
-            <div>Email must be a valid email address</div>
+            <div>{{ 'auth.errors.emailInvalid' | translate }}</div>
           }
         </div>
       }
@@ -71,24 +71,22 @@
           for="password"
           [ngClass]="{ 'peer-focus:text-destructive!': submitted && f['password'].errors }"
           class="bg-background text-muted-foreground peer-focus:text-primary absolute top-2 z-10 origin-[0] -translate-y-4 scale-95 transform px-2 text-sm duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-95 peer-focus:px-2 ltr:left-1 rtl:right-1">
-          Password
+          {{ 'auth.password' | translate }}
         </label>
       </div>
       @if (submitted && f['password'].errors) {
         <div class="is__invalid-error">
           @if (f['password'].errors['required']) {
-            <div>Required field</div>
+            <div>{{ 'common.required' | translate }}</div>
           }
           @if (f['password'].errors['minlength']) {
-            <div>Password must be at least 8 characters</div>
+            <div>{{ 'auth.errors.minLength' | translate }}</div>
           }
         </div>
       }
     </div>
 
-    <span class="text-muted-foreground text-xs">
-      Use 8 or more characters with a mix of letters, numbers & symbols.
-    </span>
+    <span class="text-muted-foreground text-xs">{{ 'auth.passwordHint' | translate }}</span>
 
     <div class="form__group">
       <div class="relative">
@@ -103,13 +101,13 @@
           for="confirm-password"
           [ngClass]="{ 'peer-focus:text-destructive!': submitted && f['confirmPassword'].errors }"
           class="bg-background text-muted-foreground peer-focus:text-primary absolute top-2 left-1 z-10 origin-[0] -translate-y-4 scale-95 transform px-2 text-sm duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-focus:top-2 peer-focus:-translate-y-4 peer-focus:scale-95 peer-focus:px-2">
-          Confirm Password
+          {{ 'auth.confirmPassword' | translate }}
         </label>
       </div>
       @if (submitted && f['confirmPassword'].errors) {
         <div class="is__invalid-error">
           @if (f['confirmPassword'].errors['required']) {
-            <div>Required field</div>
+            <div>{{ 'common.required' | translate }}</div>
           }
         </div>
       }
@@ -119,15 +117,15 @@
   <!-- Submit Button -->
   <div>
     <app-button full impact="bold" tone="primary" shape="rounded" size="medium" [disabled]="loading">
-      {{ loading ? 'Signing up...' : 'Sign up' }}
+      {{ loading ? ('auth.signingUp' | translate) : ('auth.signUp' | translate) }}
     </app-button>
   </div>
 
   <!-- Sign-in -->
   <div class="text-muted-foreground flex items-center text-sm">
-    Already have an Account?
+    {{ 'auth.hasAccount' | translate }}
     <app-button routerLink="/auth/sign-in" impact="none" tone="primary" shape="rounded" size="small">
-      Sign in
+      {{ 'auth.signIn' | translate }}
     </app-button>
   </div>
 </form>

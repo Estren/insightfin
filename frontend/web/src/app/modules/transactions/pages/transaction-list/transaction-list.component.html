@@ -1,8 +1,8 @@
-<app-page-header title="Transactions">
+<app-page-header [title]="'transactions.title' | translate">
   <button
     (click)="openCreate()"
     class="bg-primary hover:bg-primary/90 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors">
-    + New Transaction
+    {{ 'transactions.newTransaction' | translate }}
   </button>
 </app-page-header>
 
@@ -36,16 +36,16 @@
 
     @if (groups.length === 0) {
       <app-empty-state
-        title="No transactions this month"
-        description="Your activity will appear here once you add a transaction." />
+        [title]="'transactions.noTransactionsMonth' | translate"
+        [description]="'transactions.noTransactionsDesc' | translate" />
     } @else {
       <app-data-table>
         <thead>
           <tr>
-            <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">Category</th>
-            <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">Description</th>
-            <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">Amount</th>
-            <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">Actions</th>
+            <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">{{ 'transactions.category' | translate }}</th>
+            <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">{{ 'transactions.description' | translate }}</th>
+            <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">{{ 'transactions.amount' | translate }}</th>
+            <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">{{ 'common.actions' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -75,12 +75,12 @@
                     <button
                       (click)="onEdit(t)"
                       class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
-                      Edit
+                      {{ 'common.edit' | translate }}
                     </button>
                     <button
                       (click)="onDelete(t)"
                       class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
-                      Delete
+                      {{ 'common.delete' | translate }}
                     </button>
                   </div>
                 </td>
@@ -94,13 +94,13 @@
 }
 
 @if (showCreate) {
-  <app-modal title="New Transaction" (close)="closeModals()">
+  <app-modal [title]="'transactions.newModal' | translate" (close)="closeModals()">
     <app-transaction-create (saved)="closeModals()" />
   </app-modal>
 }
 
 @if (editingId) {
-  <app-modal title="Edit Transaction" (close)="closeModals()">
+  <app-modal [title]="'transactions.editModal' | translate" (close)="closeModals()">
     <app-transaction-edit [transactionId]="editingId!" (saved)="closeModals()" />
   </app-modal>
 }

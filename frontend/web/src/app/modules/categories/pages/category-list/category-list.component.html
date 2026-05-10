@@ -1,8 +1,8 @@
-<app-page-header title="Categories">
+<app-page-header [title]="'categories.title' | translate">
   <button
     (click)="openCreateForm()"
     class="bg-primary hover:bg-primary/90 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors">
-    + New Category
+    {{ 'categories.newCategory' | translate }}
   </button>
 </app-page-header>
 
@@ -19,8 +19,8 @@
 
     @if (categories.length === 0) {
       <app-empty-state
-        title="No categories yet"
-        description="Create your first category to start organising transactions." />
+        [title]="'categories.noCategories' | translate"
+        [description]="'categories.noCategoriesDesc' | translate" />
     } @else {
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         @for (cat of categories; track cat.id) {
@@ -40,7 +40,7 @@
                   <span
                     class="text-xs font-medium"
                     [ngClass]="cat.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
-                    {{ cat.type === 'INCOME' ? 'Income' : 'Expense' }}
+                    {{ cat.type === 'INCOME' ? ('categories.income' | translate) : ('categories.expense' | translate) }}
                   </span>
                 </div>
               </div>
@@ -48,12 +48,12 @@
                 <button
                   (click)="openEditForm(cat)"
                   class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
-                  Edit
+                  {{ 'common.edit' | translate }}
                 </button>
                 <button
                   (click)="onDelete(cat)"
                   class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
-                  Delete
+                  {{ 'common.delete' | translate }}
                 </button>
               </div>
             </div>
@@ -66,10 +66,10 @@
 
 <!-- Create / Edit modal -->
 @if (showForm) {
-  <app-modal [title]="editingCategory ? 'Edit Category' : 'New Category'" (close)="cancelForm()">
+  <app-modal [title]="editingCategory ? ('categories.editModal' | translate) : ('categories.newModal' | translate)" (close)="cancelForm()">
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
       <div>
-        <label class="text-foreground mb-1 block text-sm font-medium">Name</label>
+        <label class="text-foreground mb-1 block text-sm font-medium">{{ 'categories.name' | translate }}</label>
         <input
           formControlName="name"
           type="text"
@@ -77,20 +77,20 @@
       </div>
 
       <div>
-        <label class="text-foreground mb-1 block text-sm font-medium">Type</label>
+        <label class="text-foreground mb-1 block text-sm font-medium">{{ 'categories.type' | translate }}</label>
         <select
           formControlName="type"
           class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm">
-          <option value="EXPENSE">Expense</option>
-          <option value="INCOME">Income</option>
+          <option value="EXPENSE">{{ 'categories.expense' | translate }}</option>
+          <option value="INCOME">{{ 'categories.income' | translate }}</option>
         </select>
       </div>
 
-      <!-- Color + Icon (identidade visual da categoria) -->
+      <!-- Color + Icon -->
       <div>
-        <label class="text-foreground mb-2 block text-sm font-medium">Appearance</label>
+        <label class="text-foreground mb-2 block text-sm font-medium">{{ 'categories.appearance' | translate }}</label>
 
-        <!-- Preview sempre visível -->
+        <!-- Preview -->
         <div class="mb-3 flex items-center gap-3">
           <div
             class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md text-2xl shadow-sm"
@@ -113,19 +113,19 @@
                 </button>
               }
             </div>
-            <span class="text-muted-foreground text-xs">Background color</span>
+            <span class="text-muted-foreground text-xs">{{ 'categories.backgroundColor' | translate }}</span>
           </div>
         </div>
 
         <!-- Emoji grid -->
         <div class="mb-1 flex items-center justify-between">
-          <span class="text-muted-foreground text-xs font-medium">Select an icon</span>
+          <span class="text-muted-foreground text-xs font-medium">{{ 'categories.selectIcon' | translate }}</span>
           @if (form.controls['icon'].value) {
             <button
               type="button"
               (click)="form.controls['icon'].setValue('')"
               class="text-muted-foreground hover:text-foreground cursor-pointer text-xs transition-colors">
-              Remove
+              {{ 'categories.removeIcon' | translate }}
             </button>
           }
         </div>
@@ -152,7 +152,7 @@
         type="submit"
         [disabled]="form.invalid"
         class="bg-primary hover:bg-primary/90 mt-2 w-full cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50">
-        {{ editingCategory ? 'Save Changes' : 'Create Category' }}
+        {{ editingCategory ? ('categories.saveChanges' | translate) : ('categories.create' | translate) }}
       </button>
     </form>
   </app-modal>

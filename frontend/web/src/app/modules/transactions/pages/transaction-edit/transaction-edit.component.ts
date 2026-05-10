@@ -1,5 +1,6 @@
 import { Component, OnInit, input, output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { TransactionType } from '../../../../core/models/transaction.model';
 import { TransactionStore } from '../../../../core/stores/transaction.store';
 import { TransactionFormComponent } from '../transaction-form/transaction-form.component';
@@ -7,7 +8,7 @@ import { TransactionFormComponent } from '../transaction-form/transaction-form.c
 @Component({
   selector: 'app-transaction-edit',
   templateUrl: './transaction-edit.component.html',
-  imports: [ReactiveFormsModule, TransactionFormComponent],
+  imports: [ReactiveFormsModule, TransactionFormComponent, TranslateModule],
 })
 export class TransactionEditComponent implements OnInit {
   readonly transactionId = input.required<string>();
@@ -15,7 +16,6 @@ export class TransactionEditComponent implements OnInit {
 
   form!: FormGroup;
   submitting = false;
-  errorMessage = '';
 
   constructor(
     private readonly fb: FormBuilder,
@@ -41,7 +41,6 @@ export class TransactionEditComponent implements OnInit {
   onSubmit(): void {
     if (this.form.invalid) return;
     this.submitting = true;
-    this.errorMessage = '';
 
     const { type, categoryId, amount, description, date } = this.form.value;
     this.transactionStore
@@ -59,7 +58,6 @@ export class TransactionEditComponent implements OnInit {
         },
         error: () => {
           this.submitting = false;
-          this.errorMessage = 'Failed to save transaction. Please try again.';
         },
       });
   }

@@ -1,6 +1,7 @@
 import { AsyncPipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { CategoryResponse } from '../../../../core/models/category.model';
 import { TransactionType } from '../../../../core/models/transaction.model';
 import { CategoryStore } from '../../../../core/stores/category.store';
@@ -18,6 +19,7 @@ import { Tab, TabsComponent } from '../../../../shared/components/tabs/tabs.comp
     AsyncPipe,
     NgClass,
     ReactiveFormsModule,
+    TranslateModule,
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
@@ -28,9 +30,9 @@ import { Tab, TabsComponent } from '../../../../shared/components/tabs/tabs.comp
 })
 export class CategoryListComponent implements OnInit {
   readonly filterTabs: Tab[] = [
-    { label: 'All', value: 'ALL' },
-    { label: 'Income', value: 'INCOME' },
-    { label: 'Expense', value: 'EXPENSE' },
+    { label: 'categories.all', value: 'ALL' },
+    { label: 'categories.filterIncome', value: 'INCOME' },
+    { label: 'categories.filterExpense', value: 'EXPENSE' },
   ];
 
   readonly categoryColors: string[] = [
@@ -44,77 +46,15 @@ export class CategoryListComponent implements OnInit {
   ];
 
   readonly emojis: string[] = [
-    // Alimentação
-    '🍔',
-    '🍕',
-    '🍜',
-    '🍣',
-    '🥗',
-    '☕',
-    '🍺',
-    '🛒',
-    '🥐',
-    '🍱',
-    // Transporte
-    '🚗',
-    '🚌',
-    '🚇',
-    '✈️',
-    '🚲',
-    '⛽',
-    '🛵',
-    '🚕',
-    // Moradia
-    '🏠',
-    '💡',
-    '🔧',
-    '📦',
-    '🧹',
-    '🔑',
-    '🛋️',
-    // Saúde
-    '💊',
-    '🏥',
-    '💪',
-    '🧘',
-    '🦷',
-    '👓',
-    // Lazer
-    '🎬',
-    '🎮',
-    '🎵',
-    '📚',
-    '⚽',
-    '🎭',
-    '🎲',
-    '🌴',
-    // Finanças
-    '💰',
-    '💳',
-    '📈',
-    '🏦',
-    '💵',
-    '💎',
-    // Compras
-    '👗',
-    '👟',
-    '🛍️',
-    '💄',
-    '👜',
-    // Educação
-    '🎓',
-    '✏️',
-    '💻',
-    '📖',
-    // Outros
-    '🐾',
-    '🎁',
-    '📱',
-    '🐶',
-    '✂️',
-    '🧴',
-    '🌿',
-    '🍼',
+    '🍔', '🍕', '🍜', '🍣', '🥗', '☕', '🍺', '🛒', '🥐', '🍱',
+    '🚗', '🚌', '🚇', '✈️', '🚲', '⛽', '🛵', '🚕',
+    '🏠', '💡', '🔧', '📦', '🧹', '🔑', '🛋️',
+    '💊', '🏥', '💪', '🧘', '🦷', '👓',
+    '🎬', '🎮', '🎵', '📚', '⚽', '🎭', '🎲', '🌴',
+    '💰', '💳', '📈', '🏦', '💵', '💎',
+    '👗', '👟', '🛍️', '💄', '👜',
+    '🎓', '✏️', '💻', '📖',
+    '🐾', '🎁', '📱', '🐶', '✂️', '🧴', '🌿', '🍼',
   ];
 
   form!: FormGroup;

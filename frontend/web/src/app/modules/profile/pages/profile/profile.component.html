@@ -1,12 +1,12 @@
 <div class="mx-auto max-w-2xl space-y-6 p-6">
   <div>
-    <h2 class="text-foreground text-2xl font-bold">Profile</h2>
-    <p class="text-muted-foreground mt-1 text-sm">Manage your personal information and account security.</p>
+    <h2 class="text-foreground text-2xl font-bold">{{ 'profile.title' | translate }}</h2>
+    <p class="text-muted-foreground mt-1 text-sm">{{ 'profile.subtitle' | translate }}</p>
   </div>
 
   <!-- Personal Info -->
   <div class="bg-background rounded-lg border p-6">
-    <h3 class="text-foreground mb-4 text-base font-semibold">Personal Information</h3>
+    <h3 class="text-foreground mb-4 text-base font-semibold">{{ 'profile.personalInfo' | translate }}</h3>
 
     <!-- Avatar -->
     <div class="mb-6 flex items-center gap-4">
@@ -32,11 +32,8 @@
           (click)="fileInput.click()"
           [disabled]="avatarUploading"
           class="text-primary text-sm font-medium hover:underline disabled:opacity-50">
-          Change photo
+          {{ 'profile.changePhoto' | translate }}
         </button>
-        @if (avatarError) {
-          <p class="mt-1 text-xs text-red-500">{{ avatarError }}</p>
-        }
       </div>
       <input
         #fileInput
@@ -53,33 +50,26 @@
     } @else {
       <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()" class="space-y-4">
         <div>
-          <label class="text-foreground mb-1 block text-sm font-medium">Name</label>
+          <label class="text-foreground mb-1 block text-sm font-medium">{{ 'profile.name' | translate }}</label>
           <input
             formControlName="name"
             type="text"
             class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
         </div>
         <div>
-          <label class="text-foreground mb-1 block text-sm font-medium">Email</label>
+          <label class="text-foreground mb-1 block text-sm font-medium">{{ 'profile.email' | translate }}</label>
           <input
             formControlName="email"
             type="email"
             class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
         </div>
 
-        @if (profileError) {
-          <p class="text-sm text-red-500">{{ profileError }}</p>
-        }
-        @if (profileSuccess) {
-          <p class="text-sm text-green-500">Profile updated successfully.</p>
-        }
-
         <div class="flex justify-end">
           <button
             type="submit"
             [disabled]="profileForm.invalid || profileSubmitting"
             class="bg-primary hover:bg-primary/90 disabled:opacity-50 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
-            {{ profileSubmitting ? 'Saving...' : 'Save Changes' }}
+            {{ profileSubmitting ? ('profile.saving' | translate) : ('profile.saveChanges' | translate) }}
           </button>
         </div>
       </form>
@@ -88,38 +78,31 @@
 
   <!-- Change Password -->
   <div class="bg-background rounded-lg border p-6">
-    <h3 class="text-foreground mb-4 text-base font-semibold">Change Password</h3>
+    <h3 class="text-foreground mb-4 text-base font-semibold">{{ 'profile.changePassword' | translate }}</h3>
 
     <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="space-y-4">
       <div>
-        <label class="text-foreground mb-1 block text-sm font-medium">Current Password</label>
+        <label class="text-foreground mb-1 block text-sm font-medium">{{ 'profile.currentPassword' | translate }}</label>
         <input
           formControlName="currentPassword"
           type="password"
           class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
       </div>
       <div>
-        <label class="text-foreground mb-1 block text-sm font-medium">New Password</label>
+        <label class="text-foreground mb-1 block text-sm font-medium">{{ 'profile.newPassword' | translate }}</label>
         <input
           formControlName="newPassword"
           type="password"
-          placeholder="Minimum 8 characters"
+          [placeholder]="'profile.passwordHint' | translate"
           class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
       </div>
-
-      @if (passwordError) {
-        <p class="text-sm text-red-500">{{ passwordError }}</p>
-      }
-      @if (passwordSuccess) {
-        <p class="text-sm text-green-500">Password changed successfully.</p>
-      }
 
       <div class="flex justify-end">
         <button
           type="submit"
           [disabled]="passwordForm.invalid || passwordSubmitting"
           class="bg-primary hover:bg-primary/90 disabled:opacity-50 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
-          {{ passwordSubmitting ? 'Saving...' : 'Change Password' }}
+          {{ passwordSubmitting ? ('profile.saving' | translate) : ('profile.changePassword' | translate) }}
         </button>
       </div>
     </form>
@@ -127,15 +110,13 @@
 
   <!-- Danger Zone -->
   <div class="bg-background rounded-lg border border-red-200 p-6 dark:border-red-900">
-    <h3 class="mb-1 text-base font-semibold text-red-600 dark:text-red-400">Danger Zone</h3>
-    <p class="text-muted-foreground mb-4 text-sm">
-      Deleting your account is permanent and cannot be undone. All your data will be removed.
-    </p>
+    <h3 class="mb-1 text-base font-semibold text-red-600 dark:text-red-400">{{ 'profile.dangerZone' | translate }}</h3>
+    <p class="text-muted-foreground mb-4 text-sm">{{ 'profile.deleteWarning' | translate }}</p>
 
     <div class="space-y-3">
       <div>
         <label class="text-foreground mb-1 block text-sm font-medium">
-          Type <span class="font-mono font-bold">DELETE</span> to confirm
+          {{ 'profile.typeDelete' | translate }}
         </label>
         <input
           [value]="deleteConfirmText"
@@ -149,7 +130,7 @@
           (click)="onDeleteAccount()"
           [disabled]="deleteConfirmText !== 'DELETE'"
           class="disabled:opacity-50 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700">
-          Delete Account
+          {{ 'profile.deleteAccount' | translate }}
         </button>
       </div>
     </div>

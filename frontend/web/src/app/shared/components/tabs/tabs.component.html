@@ -9,7 +9,7 @@
       [class.border-transparent]="active() !== tab.value"
       [class.text-muted-foreground]="active() !== tab.value"
       [class.hover:text-foreground]="active() !== tab.value">
-      {{ tab.label }}
+      {{ tab.label | translate }}
     </button>
   }
 </div>
