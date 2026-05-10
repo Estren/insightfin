@@ -1,12 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { effect, Injectable, signal } from '@angular/core';
 import { Theme } from '../models/theme.model';
-import { effect } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ThemeService {
-  public theme = signal<Theme>({ mode: 'dark', color: 'base', direction: 'ltr' });
+  public theme = signal<Theme>({ mode: 'light', color: 'base', direction: 'ltr' });
 
   constructor() {
     this.loadTheme();

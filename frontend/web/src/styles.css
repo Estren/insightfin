@@ -162,7 +162,7 @@
     --foreground: #0C1420;
     --card: #F1F5F9;
     --card-foreground: #000000;
-    --primary: #E11D48;
+    --primary: #2490FF;
     --primary-foreground: #FFFFFF;
     --muted: #CFD9E5;
     --muted-foreground: #64748B;
@@ -172,13 +172,14 @@
   }
 
   .dark {
-    --background: #0A0A0A;
-    --foreground: #F2F2F2;
-    --card: #121212;
-    --card-foreground: #262626;
-    --muted: #262626;
-    --muted-foreground: #A3A3A3;
-    --border: #262626;
+    --background: #02080F;
+    --foreground: #F8FAFC;
+    --card: #0B1117;
+    --card-foreground: #F8FAFC;
+    --primary-foreground: #0F1729;
+    --muted: #1E293B;
+    --muted-foreground: #94A3B8;
+    --border: #1E293B;
   }
 
   :root[data-theme='violet'] {
