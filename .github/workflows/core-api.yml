@@ -7,6 +7,7 @@ on:
   pull_request:
     branches: [main]
     paths: [core-api/**]
+  workflow_dispatch:
 
 concurrency:
   group: core-api-${{ github.ref }}
