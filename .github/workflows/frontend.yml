@@ -66,5 +66,5 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
           app_location: frontend/web
-          output_location: dist/angular-tailwind/browser
+          output_location: dist/insightfin/browser
           skip_app_build: true
