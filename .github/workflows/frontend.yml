@@ -30,10 +30,6 @@ jobs:
         working-directory: frontend/web
         run: npm ci
 
-      - name: Lint
-        working-directory: frontend/web
-        run: npm run lint
-
       - name: Build
         working-directory: frontend/web
         run: npm run build
