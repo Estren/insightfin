@@ -21,7 +21,8 @@
     "required": "Campo obrigatório",
     "selectCategory": "Selecione uma categoria",
     "homePage": "Página Inicial",
-    "deleteConfirm": "Excluir \"{{name}}\"? Esta ação não pode ser desfeita."
+    "deleteConfirm": "Excluir \"{{name}}\"? Esta ação não pode ser desfeita.",
+    "deleteTitle": "Confirmar exclusão"
   },
   "nav": {
     "yourProfile": "Meu Perfil",
@@ -169,7 +170,9 @@
     "statusOver": "Excedido",
     "statusWarning": "Atenção",
     "statusOnTrack": "Dentro do limite",
-    "of": "de"
+    "of": "de",
+    "criticalAlertSingular": "1 orçamento ultrapassou 90% do limite",
+    "criticalAlertPlural": "{{count}} orçamentos ultrapassaram 90% do limite"
   },
   "dashboard": {
     "title": "Painel",

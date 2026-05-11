@@ -21,7 +21,8 @@
     "required": "Required field",
     "selectCategory": "Select a category",
     "homePage": "Home Page",
-    "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone."
+    "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone.",
+    "deleteTitle": "Confirm deletion"
   },
   "nav": {
     "yourProfile": "Your Profile",
@@ -169,7 +170,9 @@
     "statusOver": "Over",
     "statusWarning": "Warning",
     "statusOnTrack": "On track",
-    "of": "of"
+    "of": "of",
+    "criticalAlertSingular": "1 budget has exceeded 90% of its limit",
+    "criticalAlertPlural": "{{count}} budgets have exceeded 90% of their limits"
   },
   "dashboard": {
     "title": "Dashboard",

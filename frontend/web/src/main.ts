@@ -6,6 +6,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideZonelessChangeDetection } from '@angular/core';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { AngularSvgIconModule } from 'angular-svg-icon';
 import { AppRoutingModule } from './app/app-routing.module';
 import { AppComponent } from './app/app.component';
 import { authInterceptor } from './app/core/interceptor/auth.interceptor';
@@ -26,7 +27,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
   providers: [
-    importProvidersFrom(BrowserModule, AppRoutingModule),
+    importProvidersFrom(BrowserModule, AppRoutingModule, AngularSvgIconModule.forRoot()),
     provideAnimations(),
     provideZonelessChangeDetection(),
     provideHttpClient(withInterceptors([authInterceptor, httpErrorInterceptor])),

@@ -34,7 +34,13 @@
     } @else {
       <div class="space-y-3">
         @for (s of statuses; track s.budgetId) {
-          <div class="bg-background border-border flex items-center gap-4 rounded-lg border p-4 shadow-sm">
+          <div
+            class="bg-background flex items-center gap-4 rounded-lg border p-4 shadow-sm transition-colors"
+            [ngClass]="
+              isCritical(s.percentageUsed)
+                ? 'border-red-500/40 ring-1 ring-red-500/20'
+                : 'border-border'
+            ">
             <!-- Ring -->
             <app-progress-ring [percentage]="s.percentageUsed" />
 

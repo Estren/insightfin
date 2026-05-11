@@ -1,7 +1,8 @@
 import { AsyncPipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { ConfirmDialogService } from '../../../../core/services/confirm-dialog.service';
 import { CategoryResponse } from '../../../../core/models/category.model';
 import { TransactionType } from '../../../../core/models/transaction.model';
 import { CategoryStore } from '../../../../core/stores/category.store';
@@ -66,7 +67,7 @@ export class CategoryListComponent implements OnInit {
   constructor(
     public readonly categoryStore: CategoryStore,
     private readonly fb: FormBuilder,
-    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService,
   ) {}
 
   ngOnInit(): void {
@@ -133,9 +134,17 @@ export class CategoryListComponent implements OnInit {
   }
 
   onDelete(category: CategoryResponse): void {
-    const msg = this.translate.instant('common.deleteConfirm', { name: category.name });
-    if (!window.confirm(msg)) return;
-    this.categoryStore.delete(category.id).subscribe();
+    this.confirmDialog
+      .confirm({
+        title: 'common.deleteTitle',
+        message: 'common.deleteConfirm',
+        messageParams: { name: category.name },
+        confirmLabel: 'common.delete',
+        variant: 'danger',
+      })
+      .subscribe((confirmed) => {
+        if (confirmed) this.categoryStore.delete(category.id).subscribe();
+      });
   }
 
   onFilterChange(tabValue: string): void {

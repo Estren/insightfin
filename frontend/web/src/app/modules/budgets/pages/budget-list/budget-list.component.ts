@@ -1,7 +1,8 @@
 import { AsyncPipe, CurrencyPipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { ConfirmDialogService } from '../../../../core/services/confirm-dialog.service';
 import { BudgetStatusResponse } from '../../../../core/models/budget.model';
 import { BudgetStore } from '../../../../core/stores/budget.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
@@ -31,7 +32,7 @@ export class BudgetListComponent implements OnInit {
   constructor(
     public readonly budgetStore: BudgetStore,
     private readonly router: Router,
-    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService,
   ) {}
 
   ngOnInit(): void {
@@ -50,9 +51,17 @@ export class BudgetListComponent implements OnInit {
   }
 
   onDelete(status: BudgetStatusResponse): void {
-    const msg = this.translate.instant('common.deleteConfirm', { name: status.categoryName });
-    if (!window.confirm(msg)) return;
-    this.budgetStore.delete(status.budgetId).subscribe();
+    this.confirmDialog
+      .confirm({
+        title: 'common.deleteTitle',
+        message: 'common.deleteConfirm',
+        messageParams: { name: status.categoryName },
+        confirmLabel: 'common.delete',
+        variant: 'danger',
+      })
+      .subscribe((confirmed) => {
+        if (confirmed) this.budgetStore.delete(status.budgetId).subscribe();
+      });
   }
 
   statusKey(pct: number): string {
@@ -65,5 +74,9 @@ export class BudgetListComponent implements OnInit {
     if (pct >= 90) return 'bg-red-500/15 text-red-600 dark:text-red-400';
     if (pct >= 70) return 'bg-amber-500/15 text-amber-600 dark:text-amber-400';
     return 'bg-green-500/15 text-green-600 dark:text-green-400';
+  }
+
+  isCritical(pct: number): boolean {
+    return pct >= 90;
   }
 }
