@@ -20,7 +20,8 @@
     "submit": "Enviar",
     "required": "Campo obrigatório",
     "selectCategory": "Selecione uma categoria",
-    "homePage": "Página Inicial"
+    "homePage": "Página Inicial",
+    "deleteConfirm": "Excluir \"{{name}}\"? Esta ação não pode ser desfeita."
   },
   "nav": {
     "yourProfile": "Meu Perfil",

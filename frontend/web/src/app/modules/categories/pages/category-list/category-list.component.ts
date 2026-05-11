@@ -1,7 +1,7 @@
 import { AsyncPipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CategoryResponse } from '../../../../core/models/category.model';
 import { TransactionType } from '../../../../core/models/transaction.model';
 import { CategoryStore } from '../../../../core/stores/category.store';
@@ -66,6 +66,7 @@ export class CategoryListComponent implements OnInit {
   constructor(
     public readonly categoryStore: CategoryStore,
     private readonly fb: FormBuilder,
+    private readonly translate: TranslateService,
   ) {}
 
   ngOnInit(): void {
@@ -132,8 +133,8 @@ export class CategoryListComponent implements OnInit {
   }
 
   onDelete(category: CategoryResponse): void {
-    const confirmed = window.confirm(`Delete category "${category.name}"? This cannot be undone.`);
-    if (!confirmed) return;
+    const msg = this.translate.instant('common.deleteConfirm', { name: category.name });
+    if (!window.confirm(msg)) return;
     this.categoryStore.delete(category.id).subscribe();
   }
 

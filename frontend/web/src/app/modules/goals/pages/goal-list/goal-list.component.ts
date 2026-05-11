@@ -1,7 +1,7 @@
 import { AsyncPipe, CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { GoalResponse } from '../../../../core/models/goal.model';
 import { GoalStore } from '../../../../core/stores/goal.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
@@ -31,6 +31,7 @@ export class GoalListComponent implements OnInit {
   constructor(
     public readonly goalStore: GoalStore,
     private readonly router: Router,
+    private readonly translate: TranslateService,
   ) {}
 
   ngOnInit(): void {
@@ -52,8 +53,8 @@ export class GoalListComponent implements OnInit {
   }
 
   onDelete(goal: GoalResponse): void {
-    const confirmed = window.confirm(`Delete goal "${goal.title}"? This cannot be undone.`);
-    if (!confirmed) return;
+    const msg = this.translate.instant('common.deleteConfirm', { name: goal.title });
+    if (!window.confirm(msg)) return;
     this.goalStore.delete(goal.id).subscribe();
   }
 }

@@ -20,7 +20,8 @@
     "submit": "Submit",
     "required": "Required field",
     "selectCategory": "Select a category",
-    "homePage": "Home Page"
+    "homePage": "Home Page",
+    "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone."
   },
   "nav": {
     "yourProfile": "Your Profile",

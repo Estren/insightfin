@@ -1,7 +1,7 @@
 import { AsyncPipe, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
 import { TransactionStore } from '../../../../core/stores/transaction.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
@@ -55,7 +55,10 @@ export class TransactionListComponent implements OnInit {
   showCreate = false;
   editingId: string | null = null;
 
-  constructor(public readonly transactionStore: TransactionStore) {
+  constructor(
+    public readonly transactionStore: TransactionStore,
+    private readonly translate: TranslateService,
+  ) {
     this.groupedTransactions$ = combineLatest([this.transactionStore.transactions$, this._activeTab$]).pipe(
       map(([transactions, tab]) => {
         const filtered = tab === 'ALL' ? transactions : transactions.filter((t) => t.type === tab);
@@ -94,8 +97,8 @@ export class TransactionListComponent implements OnInit {
 
   onDelete(transaction: TransactionResponse): void {
     const label = transaction.description || transaction.categoryName;
-    const confirmed = window.confirm(`Delete transaction "${label}"? This cannot be undone.`);
-    if (!confirmed) return;
+    const msg = this.translate.instant('common.deleteConfirm', { name: label });
+    if (!window.confirm(msg)) return;
     this.transactionStore.delete(transaction.id).subscribe();
   }
 

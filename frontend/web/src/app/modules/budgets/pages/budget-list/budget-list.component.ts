@@ -1,7 +1,7 @@
 import { AsyncPipe, CurrencyPipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BudgetStatusResponse } from '../../../../core/models/budget.model';
 import { BudgetStore } from '../../../../core/stores/budget.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
@@ -31,6 +31,7 @@ export class BudgetListComponent implements OnInit {
   constructor(
     public readonly budgetStore: BudgetStore,
     private readonly router: Router,
+    private readonly translate: TranslateService,
   ) {}
 
   ngOnInit(): void {
@@ -49,8 +50,8 @@ export class BudgetListComponent implements OnInit {
   }
 
   onDelete(status: BudgetStatusResponse): void {
-    const confirmed = window.confirm(`Delete budget for "${status.categoryName}"? This cannot be undone.`);
-    if (!confirmed) return;
+    const msg = this.translate.instant('common.deleteConfirm', { name: status.categoryName });
+    if (!window.confirm(msg)) return;
     this.budgetStore.delete(status.budgetId).subscribe();
   }
 
