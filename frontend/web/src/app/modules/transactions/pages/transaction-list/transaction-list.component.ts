@@ -1,7 +1,8 @@
 import { AsyncPipe, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { ConfirmDialogService } from '../../../../core/services/confirm-dialog.service';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
 import { TransactionStore } from '../../../../core/stores/transaction.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
@@ -57,7 +58,7 @@ export class TransactionListComponent implements OnInit {
 
   constructor(
     public readonly transactionStore: TransactionStore,
-    private readonly translate: TranslateService,
+    private readonly confirmDialog: ConfirmDialogService,
   ) {
     this.groupedTransactions$ = combineLatest([this.transactionStore.transactions$, this._activeTab$]).pipe(
       map(([transactions, tab]) => {
@@ -97,9 +98,17 @@ export class TransactionListComponent implements OnInit {
 
   onDelete(transaction: TransactionResponse): void {
     const label = transaction.description || transaction.categoryName;
-    const msg = this.translate.instant('common.deleteConfirm', { name: label });
-    if (!window.confirm(msg)) return;
-    this.transactionStore.delete(transaction.id).subscribe();
+    this.confirmDialog
+      .confirm({
+        title: 'common.deleteTitle',
+        message: 'common.deleteConfirm',
+        messageParams: { name: label },
+        confirmLabel: 'common.delete',
+        variant: 'danger',
+      })
+      .subscribe((confirmed) => {
+        if (confirmed) this.transactionStore.delete(transaction.id).subscribe();
+      });
   }
 
   private groupByDate(list: TransactionResponse[]): TransactionGroup[] {

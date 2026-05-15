@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { AsyncPipe, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { AngularSvgIconModule } from 'angular-svg-icon';
 import { DashboardStore } from '../../../../core/stores/dashboard.store';
 import { AiFeedbackStore } from '../../../../core/stores/ai-feedback.store';
 import { AiFeedbackType, AiFeedbackResponse } from '../../../../core/models/ai-feedback.model';
+import { BudgetStatusResponse } from '../../../../core/models/budget.model';
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
@@ -18,7 +21,9 @@ import { StatCardComponent } from '../../../../shared/components/stat-card/stat-
     CurrencyPipe,
     DatePipe,
     NgClass,
+    RouterLink,
     TranslateModule,
+    AngularSvgIconModule,
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
@@ -28,6 +33,10 @@ import { StatCardComponent } from '../../../../shared/components/stat-card/stat-
 })
 export class OverviewComponent implements OnInit {
   expandedId: string | null = null;
+
+  criticalBudgetsCount(statuses: BudgetStatusResponse[]): number {
+    return statuses.filter((b) => b.percentageUsed >= 90).length;
+  }
 
   constructor(
     public readonly dashboardStore: DashboardStore,

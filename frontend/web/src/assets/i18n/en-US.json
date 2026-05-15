@@ -21,7 +21,8 @@
     "required": "Required field",
     "selectCategory": "Select a category",
     "homePage": "Home Page",
-    "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone."
+    "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone.",
+    "deleteTitle": "Confirm deletion"
   },
   "nav": {
     "yourProfile": "Your Profile",
@@ -75,6 +76,11 @@
     "alreadyReset": "Have you already reset the password?",
     "twoStepTitle": "Two Step Verification",
     "enterCode": "Enter the verification code we sent to",
+    "sending": "Sending...",
+    "resetting": "Resetting...",
+    "forgotEmailSent": "If an account exists with this email, we just sent a reset link. Check your inbox.",
+    "backToLogin": "Back to sign in",
+    "missingToken": "This reset link is missing a token. Request a new one from the forgot password page.",
     "errors": {
       "required": "Required field",
       "emailInvalid": "Please enter a valid email",
@@ -83,7 +89,8 @@
       "emailTaken": "This email is already registered.",
       "passwordMismatch": "Passwords do not match.",
       "registerError": "Failed to create account. Please try again.",
-      "genericError": "An error occurred. Please try again."
+      "genericError": "An error occurred. Please try again.",
+      "invalidToken": "This reset link is invalid or has expired."
     }
   },
   "transactions": {
@@ -169,7 +176,9 @@
     "statusOver": "Over",
     "statusWarning": "Warning",
     "statusOnTrack": "On track",
-    "of": "of"
+    "of": "of",
+    "criticalAlertSingular": "1 budget has exceeded 90% of its limit",
+    "criticalAlertPlural": "{{count}} budgets have exceeded 90% of their limits"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -296,7 +305,11 @@
       "registerError": "Failed to create account. Please try again.",
       "genericError": "An error occurred. Please try again.",
       "passwordMismatch": "Passwords do not match.",
-      "emailTaken": "This email is already registered."
+      "emailTaken": "This email is already registered.",
+      "forgotSent": "If an account exists with this email, we just sent a reset link.",
+      "resetSuccess": "Password reset. You can sign in with your new password.",
+      "resetInvalid": "This reset link is invalid or has expired. Request a new one.",
+      "resetError": "Could not reset the password. Please try again."
     },
     "generic": {
       "error": "An unexpected error occurred."
