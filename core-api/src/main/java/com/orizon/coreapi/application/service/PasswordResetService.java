@@ -18,6 +18,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HexFormat;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -53,10 +54,11 @@ public class PasswordResetService implements RequestPasswordResetUseCase, ResetP
 
     @Override
     public void execute(String email) {
-        Optional<User> maybeUser = userRepository.findByEmail(email);
+        String normalizedEmail = email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+        Optional<User> maybeUser = userRepository.findByEmail(normalizedEmail);
         if (maybeUser.isEmpty()) {
             // Silent no-op to avoid email enumeration.
-            LOG.debugf("Password reset requested for unknown email: %s", email);
+            LOG.debugf("Password reset requested for unknown email: %s", normalizedEmail);
             return;
         }
 

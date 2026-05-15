@@ -148,6 +148,58 @@ class UserServiceTest {
         verify(userRepository, never()).save(any());
     }
 
+    // --- U9: case-insensitive duplicate detection on register ---
+    @Test
+    void createUser_throwsWhenEmailAlreadyRegisteredWithDifferentCase() {
+        when(userRepository.existsByEmail("john@example.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.execute("John", "JOHN@Example.com", "secret"))
+                .isInstanceOf(DuplicateResourceException.class);
+
+        verify(userRepository, never()).save(any());
+    }
+
+    // --- U10: register normalizes email before saving (lowercase + trim) ---
+    @Test
+    void createUser_normalizesEmailBeforeSaving() {
+        when(userRepository.existsByEmail("john@example.com")).thenReturn(false);
+        when(passwordEncoder.encode("secret")).thenReturn("hashed");
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        User result = service.execute("John", "  JOHN@Example.com  ", "secret");
+
+        assertThat(result.getEmail()).isEqualTo("john@example.com");
+    }
+
+    // --- U11: authenticate accepts the same email in different case ---
+    @Test
+    void authenticate_succeedsWithDifferentCase() {
+        User user = buildUser(UUID.randomUUID(), "John", "john@example.com", "hashed");
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("secret", "hashed")).thenReturn(true);
+        when(tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole()))
+                .thenReturn("access-token");
+        when(refreshTokenRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        AuthTokens tokens = service.execute("JOHN@Example.com", "secret");
+
+        assertThat(tokens.getAccessToken()).isEqualTo("access-token");
+    }
+
+    // --- U12: update rejects case variant of another user's email ---
+    @Test
+    void update_throwsWhenEmailTakenByAnotherUserWithDifferentCase() {
+        UUID userId = UUID.randomUUID();
+        User user = buildUser(userId, "John", "john@example.com", "hashed");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.update(userId, "John", "TAKEN@Example.com"))
+                .isInstanceOf(DuplicateResourceException.class);
+
+        verify(userRepository, never()).save(any());
+    }
+
     // --- fixtures ---
 
     private User buildUser(UUID id, String name, String email, String passwordHash) {

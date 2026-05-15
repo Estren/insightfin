@@ -114,6 +114,17 @@ class PasswordResetServiceTest {
     }
 
     @Test
+    void requestReset_caseInsensitive_findsUserAndSendsEmail() {
+        User user = buildUser();
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+
+        service.execute("  JOHN@Example.com  ");
+
+        verify(tokenRepository).save(any(PasswordResetToken.class));
+        verify(emailSender).sendPasswordResetEmail(eq(user.getEmail()), eq(user.getName()), anyString());
+    }
+
+    @Test
     void resetPassword_validToken_updatesPasswordAndRevokesRefreshTokens() {
         User user = buildUser();
         PasswordResetToken token = new PasswordResetToken();

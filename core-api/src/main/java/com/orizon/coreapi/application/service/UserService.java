@@ -25,6 +25,7 @@ import com.orizon.coreapi.domain.port.out.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
@@ -50,14 +51,15 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
 
     @Override
     public User execute(String name, String email, String password) {
-        if (userRepository.existsByEmail(email)) {
-            throw new DuplicateResourceException("Email already registered: " + email);
+        String normalizedEmail = normalizeEmail(email);
+        if (userRepository.existsByEmail(normalizedEmail)) {
+            throw new DuplicateResourceException("Email already registered: " + normalizedEmail);
         }
 
         User user = new User();
         user.setId(UUID.randomUUID());
         user.setName(name);
-        user.setEmail(email);
+        user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setRole(Role.USER);
         user.setCreatedAt(LocalDateTime.now());
@@ -68,7 +70,7 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
 
     @Override
     public AuthTokens execute(String email, String password) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() -> new DomainException("Invalid email or password"));
 
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
@@ -116,12 +118,13 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
 
-        if (!user.getEmail().equals(email) && userRepository.existsByEmail(email)) {
-            throw new DuplicateResourceException("Email already registered: " + email);
+        String normalizedEmail = normalizeEmail(email);
+        if (!user.getEmail().equals(normalizedEmail) && userRepository.existsByEmail(normalizedEmail)) {
+            throw new DuplicateResourceException("Email already registered: " + normalizedEmail);
         }
 
         user.setName(name);
-        user.setEmail(email);
+        user.setEmail(normalizedEmail);
         user.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(user);
     }
@@ -168,6 +171,10 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         user.setAvatarUrl(avatarUrl);
         user.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(user);
+    }
+
+    private static String normalizeEmail(String email) {
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 
     private String createRefreshToken(UUID userId) {
