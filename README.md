@@ -1,6 +1,8 @@
 # InsightFin
 
-[![CI](https://github.com/Estren/insightfin/actions/workflows/ci.yml/badge.svg)](https://github.com/Estren/insightfin/actions/workflows/ci.yml)
+[![Core API](https://github.com/Estren/insightfin/actions/workflows/core-api.yml/badge.svg)](https://github.com/Estren/insightfin/actions/workflows/core-api.yml)
+[![AI Service](https://github.com/Estren/insightfin/actions/workflows/ai-service.yml/badge.svg)](https://github.com/Estren/insightfin/actions/workflows/ai-service.yml)
+[![Frontend](https://github.com/Estren/insightfin/actions/workflows/frontend.yml/badge.svg)](https://github.com/Estren/insightfin/actions/workflows/frontend.yml)
 
 Personal financial management platform — simple, visual, and powered by AI.
 
@@ -12,7 +14,7 @@ insightfin helps users track expenses, set financial goals, and receive personal
 
 | Directory          | Description                                                                                 | Stack                                                |
 | ------------------ | ------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `core-api/`        | 🔧 Main REST API — manages users, transactions, categories, goals, budgets, and AI feedback | Java 17, Quarkus 3.17, PostgreSQL                    |
+| `core-api/`        | 🔧 Main REST API — manages users, transactions, categories, goals, budgets, and AI feedback | Java 21, Quarkus 3.17, PostgreSQL                    |
 | `frontend/web/`    | 💻 Web client (admin dashboard)                                                             | Angular 21, Tailwind CSS 4, RxJS, ApexCharts         |
 | `frontend/mobile/` | 📱 Mobile client — reserved for future development                                          | TBD                                                  |
 | `ai/`              | 🧠 AI reasoning service — financial feedback and insights                                   | Python, FastAPI, Azure OpenAI, aiokafka, APScheduler |
@@ -22,7 +24,7 @@ insightfin helps users track expenses, set financial goals, and receive personal
 ### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) & Docker Compose
-- [Node.js](https://nodejs.org/) 20+ and npm (for web frontend development)
+- [Node.js](https://nodejs.org/) 22+ and npm (for web frontend development)
 - [Make](https://www.gnu.org/software/make/) (optional, for convenience commands)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/) (optional, for Kubernetes commands)
 
@@ -134,20 +136,23 @@ User ──┬── Transaction ── Category
        ├── Goal ── GoalContribution
        ├── Budget ── Category
        ├── AiFeedback
-       └── RefreshToken
+       ├── RefreshToken
+       └── PasswordResetToken
 ```
 
 ## 🛠️ Tech Stack
 
 | Layer           | Technology                                                                                |
 | --------------- | ----------------------------------------------------------------------------------------- |
-| Backend         | Java 17, Quarkus 3.17, Hibernate ORM with Panache, RESTEasy Reactive, JWT (JJWT)          |
+| Backend         | Java 21, Quarkus 3.17, Hibernate ORM with Panache, RESTEasy Reactive, JWT (JJWT)          |
 | Web Frontend    | Angular 21, Tailwind CSS 4, RxJS, ApexCharts, Playwright (e2e)                            |
 | Mobile Frontend | Reserved for future development                                                           |
-| AI              | Python 3.12, FastAPI 0.115, Azure OpenAI (GPT-4o-mini), aiokafka, APScheduler, Prometheus |
+| AI              | Python 3.12, FastAPI 0.115, Azure AI Foundry (GPT-4.1 mini), aiokafka, APScheduler, Prometheus |
+| Email           | Azure Communication Services (password reset)                                             |
 | Database        | PostgreSQL 16, Flyway migrations                                                          |
 | Build           | Maven (core-api), npm / Angular CLI (frontend)                                            |
-| Infra           | Docker, Docker Compose, Make                                                              |
+| Infra           | Docker, Docker Compose, Azure Container Apps                                              |
+| CI/CD           | GitHub Actions (per-service workflows with path filters)                                  |
 | Docs            | Swagger / OpenAPI 3                                                                       |
 
 ## 🧪 Testing
@@ -156,15 +161,19 @@ User ──┬── Transaction ── Category
 
 The `core-api` has a suite of unit and integration tests covering business logic and HTTP contracts.
 
-**Unit tests (48)** — pure JUnit 5 + Mockito + AssertJ, no database, no Kafka, no Quarkus context:
+**Unit tests (54)** — pure JUnit 5 + Mockito + AssertJ, no database, no Kafka, no Quarkus context:
 
-| Class                     | Tests | Coverage                                                                      |
-| ------------------------- | ----- | ----------------------------------------------------------------------------- |
-| `TransactionServiceTest`  | 8     | create, list, update, delete — ownership checks + event publishing            |
-| `BudgetServiceTest`       | 8     | create, list, status (% calculation + division-by-zero guard), update, delete |
-| `GoalServiceTest`         | 8     | create, contribute (target completion + event), update, delete                |
-| `DashboardServiceTest`    | 4     | empty month, totals calculation, recent-5 limit, completed goals excluded     |
-| `CoreApiApplicationTests` | 1     | Application context smoke test                                                |
+| Class                       | Tests | Coverage                                                                      |
+| --------------------------- | ----- | ----------------------------------------------------------------------------- |
+| `UserServiceTest`           | 8     | register, authenticate, refresh, logout, change password, update, delete      |
+| `TransactionServiceTest`    | 8     | create, list, update, delete — ownership checks + event publishing            |
+| `BudgetServiceTest`         | 8     | create, list, status (% calculation + division-by-zero guard), update, delete |
+| `GoalServiceTest`           | 8     | create, contribute (target completion + event), update, delete                |
+| `CategoryServiceTest`       | 6     | CRUD + ownership checks                                                       |
+| `PasswordResetServiceTest`  | 6     | request reset (silent no-op for unknown email), invalid/expired/used tokens   |
+| `AiFeedbackServiceTest`     | 5     | create, list, mark as read, type filtering                                    |
+| `DashboardServiceTest`      | 4     | empty month, totals calculation, recent-5 limit, completed goals excluded     |
+| `CoreApiApplicationTests`   | 1     | Application context smoke test                                                |
 
 **Integration tests (28)** — `@QuarkusTest` + REST-Assured + H2 in-memory database:
 
@@ -176,12 +185,13 @@ The `core-api` has a suite of unit and integration tests covering business logic
 
 ### CI (GitHub Actions)
 
-Every push and PR to `main` triggers two parallel jobs:
+One workflow per service, each scoped by path filter. PRs run only the `test` job; pushes to `main` also run `deploy`.
 
-| Job                       | What it does                                     |
-| ------------------------- | ------------------------------------------------ |
-| `Core API — Unit Tests`   | Runs all 76 tests (unit + integration) via Maven |
-| `Frontend — Lint & Build` | `npm ci` → `ng lint` → `ng build` (production)   |
+| Workflow                          | Trigger path        | Stages                                                                 |
+| --------------------------------- | ------------------- | ---------------------------------------------------------------------- |
+| `.github/workflows/core-api.yml`  | `core-api/**`       | `test` (Maven, 82 tests) → `deploy` (ACR build + Container App update) |
+| `.github/workflows/ai-service.yml` | `ai/**`            | `test` (pytest) → `deploy` (ACR build + Container App update)          |
+| `.github/workflows/frontend.yml`  | `frontend/web/**`   | `test` (`npm run build`) → `deploy` (Azure Static Web Apps)            |
 
 **Run via Make (from monorepo root):**
 
