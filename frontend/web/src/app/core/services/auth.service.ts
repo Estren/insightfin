@@ -25,4 +25,12 @@ export class AuthService {
   logout(): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/auth/logout`, {});
   }
+
+  requestPasswordReset(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, password: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/reset-password`, { token, password });
+  }
 }

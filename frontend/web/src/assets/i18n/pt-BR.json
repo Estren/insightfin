@@ -76,6 +76,11 @@
     "alreadyReset": "Já redefiniu a senha?",
     "twoStepTitle": "Verificação em Duas Etapas",
     "enterCode": "Insira o código de verificação enviado para",
+    "sending": "Enviando...",
+    "resetting": "Redefinindo...",
+    "forgotEmailSent": "Se existir uma conta com este e-mail, enviamos um link de redefinição. Confira sua caixa de entrada.",
+    "backToLogin": "Voltar para entrar",
+    "missingToken": "Este link de redefinição não contém token. Solicite um novo na página de recuperação.",
     "errors": {
       "required": "Campo obrigatório",
       "emailInvalid": "Insira um e-mail válido",
@@ -84,7 +89,8 @@
       "emailTaken": "Este e-mail já está cadastrado.",
       "passwordMismatch": "As senhas não coincidem.",
       "registerError": "Falha ao criar conta. Tente novamente.",
-      "genericError": "Ocorreu um erro. Tente novamente."
+      "genericError": "Ocorreu um erro. Tente novamente.",
+      "invalidToken": "Este link de redefinição é inválido ou expirou."
     }
   },
   "transactions": {
@@ -299,7 +305,11 @@
       "registerError": "Falha ao criar conta. Tente novamente.",
       "genericError": "Ocorreu um erro. Tente novamente.",
       "passwordMismatch": "As senhas não coincidem.",
-      "emailTaken": "Este e-mail já está cadastrado."
+      "emailTaken": "Este e-mail já está cadastrado.",
+      "forgotSent": "Se existir uma conta com este e-mail, enviamos um link de redefinição.",
+      "resetSuccess": "Senha redefinida. Faça login com sua nova senha.",
+      "resetInvalid": "Este link de redefinição é inválido ou expirou. Solicite um novo.",
+      "resetError": "Não foi possível redefinir a senha. Tente novamente."
     },
     "generic": {
       "error": "Ocorreu um erro inesperado."

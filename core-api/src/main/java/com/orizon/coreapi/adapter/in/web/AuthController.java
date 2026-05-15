@@ -3,12 +3,16 @@ package com.orizon.coreapi.adapter.in.web;
 import com.orizon.coreapi.adapter.in.web.dto.AuthRequest;
 import com.orizon.coreapi.adapter.in.web.dto.AuthResponse;
 import com.orizon.coreapi.adapter.in.web.dto.CreateUserRequest;
+import com.orizon.coreapi.adapter.in.web.dto.ForgotPasswordRequest;
 import com.orizon.coreapi.adapter.in.web.dto.RefreshTokenRequest;
+import com.orizon.coreapi.adapter.in.web.dto.ResetPasswordRequest;
 import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.AuthenticateUserUseCase;
 import com.orizon.coreapi.domain.port.in.CreateUserUseCase;
 import com.orizon.coreapi.domain.port.in.LogoutUseCase;
 import com.orizon.coreapi.domain.port.in.RefreshTokenUseCase;
+import com.orizon.coreapi.domain.port.in.RequestPasswordResetUseCase;
+import com.orizon.coreapi.domain.port.in.ResetPasswordUseCase;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -34,6 +38,12 @@ public class AuthController {
 
     @Inject
     LogoutUseCase logoutUseCase;
+
+    @Inject
+    RequestPasswordResetUseCase requestPasswordResetUseCase;
+
+    @Inject
+    ResetPasswordUseCase resetPasswordUseCase;
 
     @Inject
     AuthenticatedUser authenticatedUser;
@@ -66,6 +76,20 @@ public class AuthController {
     @Path("/logout")
     public Response logout() {
         logoutUseCase.execute(authenticatedUser.getUserId());
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/forgot-password")
+    public Response forgotPassword(@Valid ForgotPasswordRequest request) {
+        requestPasswordResetUseCase.execute(request.email());
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/reset-password")
+    public Response resetPassword(@Valid ResetPasswordRequest request) {
+        resetPasswordUseCase.execute(request.token(), request.password());
         return Response.noContent().build();
     }
 }

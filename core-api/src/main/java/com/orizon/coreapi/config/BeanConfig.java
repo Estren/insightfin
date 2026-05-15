@@ -6,9 +6,16 @@ import com.orizon.coreapi.domain.port.out.AvatarStoragePort;
 import com.orizon.coreapi.domain.port.out.EventPublisher;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class BeanConfig {
+
+    @ConfigProperty(name = "app.password-reset.token-ttl-minutes", defaultValue = "30")
+    int passwordResetTtlMinutes;
+
+    @ConfigProperty(name = "app.frontend.base-url", defaultValue = "http://localhost:4200")
+    String frontendBaseUrl;
 
     @Produces
     @ApplicationScoped
@@ -63,5 +70,16 @@ public class BeanConfig {
     @ApplicationScoped
     public AiFeedbackService aiFeedbackService(AiFeedbackRepository aiFeedbackRepository) {
         return new AiFeedbackService(aiFeedbackRepository);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public PasswordResetService passwordResetService(UserRepository userRepository,
+                                                     PasswordResetTokenRepository tokenRepository,
+                                                     PasswordEncoder passwordEncoder,
+                                                     RefreshTokenRepository refreshTokenRepository,
+                                                     EmailSender emailSender) {
+        return new PasswordResetService(userRepository, tokenRepository, passwordEncoder,
+                refreshTokenRepository, emailSender, passwordResetTtlMinutes, frontendBaseUrl);
     }
 }
