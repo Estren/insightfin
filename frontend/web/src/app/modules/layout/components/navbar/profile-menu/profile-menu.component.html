@@ -2,22 +2,53 @@
   <!-- Profile Button -->
   <button (click)="toggleMenu()" class="bg-card relative flex rounded-full text-sm" type="button">
     <span class="sr-only">Open user menu</span>
-    <img
-      clickOutside
-      (clickOutside)="isOpen = false"
-      class="size-9 shrink-0 rounded-md cursor-pointer"
-      src="assets/images/default-user-icon.jpg"
-      alt="" />
+    @if (userStore.profile$ | async; as profile) {
+      @if (profile.avatarUrl && profile.avatarUrl !== failedAvatarUrl) {
+        <img
+          clickOutside
+          (clickOutside)="isOpen = false"
+          class="size-9 shrink-0 rounded-md cursor-pointer object-cover"
+          [src]="profile.avatarUrl"
+          (error)="failedAvatarUrl = profile.avatarUrl ?? null"
+          [attr.alt]="'Avatar de ' + profile.name" />
+      } @else {
+        <span
+          clickOutside
+          (clickOutside)="isOpen = false"
+          [attr.aria-label]="'Avatar de ' + profile.name"
+          class="size-9 shrink-0 rounded-md cursor-pointer bg-primary text-white flex items-center justify-center text-sm font-semibold uppercase">
+          {{ (profile.name || '?').charAt(0) }}
+        </span>
+      }
+    } @else {
+      <span
+        clickOutside
+        (clickOutside)="isOpen = false"
+        aria-hidden="true"
+        class="size-9 shrink-0 rounded-md cursor-pointer bg-muted"></span>
+    }
   </button>
   <!-- Dropdown -->
   <div
     [@openClose]="isOpen ? 'open' : 'closed'"
     class="bg-background shadow-custom border-muted absolute z-20 mt-2 w-60 origin-top-right transform rounded-md border border-dashed py-4 ring-1 ring-transparent ring-opacity-5 transition focus:outline-hidden ltr:right-0 rtl:left-0">
     <div class="flext-row flex items-center px-4 pb-4">
-      <div class="w-10 shrink-0">
-        <img class="rounded-md" src="assets/images/default-user-icon.jpg" alt="" />
-      </div>
       @if (userStore.profile$ | async; as profile) {
+        <div class="w-10 shrink-0">
+          @if (profile.avatarUrl && profile.avatarUrl !== failedAvatarUrl) {
+            <img
+              class="h-10 w-10 rounded-md object-cover"
+              [src]="profile.avatarUrl"
+              (error)="failedAvatarUrl = profile.avatarUrl ?? null"
+              [attr.alt]="'Avatar de ' + profile.name" />
+          } @else {
+            <span
+              [attr.aria-label]="'Avatar de ' + profile.name"
+              class="h-10 w-10 rounded-md bg-primary text-white flex items-center justify-center text-base font-semibold uppercase">
+              {{ (profile.name || '?').charAt(0) }}
+            </span>
+          }
+        </div>
         <div class="text-foreground overflow-hidden px-2 text-sm font-semibold">
           {{ profile.name }}
           <p class="text-muted-foreground truncate text-ellipsis text-xs font-semibold">{{ profile.email }}</p>

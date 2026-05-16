@@ -20,6 +20,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   deleteConfirmText = '';
   avatarUploading = false;
+  failedAvatarUrl: string | null = null;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -193,16 +194,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  getInitials(): string {
-    const name = this.userStore.profile?.name ?? '';
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
-
   onAvatarSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
@@ -210,6 +201,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.userStore.uploadAvatar(file).subscribe({
       next: () => {
         this.avatarUploading = false;
+        this.failedAvatarUrl = null;
       },
       error: () => {
         this.avatarUploading = false;

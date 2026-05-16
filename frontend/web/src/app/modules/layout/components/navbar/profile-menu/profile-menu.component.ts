@@ -39,6 +39,7 @@ import { ClickOutsideDirective } from '../../../../../shared/directives/click-ou
 })
 export class ProfileMenuComponent implements OnInit {
   public isOpen = false;
+  public failedAvatarUrl: string | null = null;
   public profileMenu = [
     {
       titleKey: 'nav.yourProfile',

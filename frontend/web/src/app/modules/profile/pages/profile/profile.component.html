@@ -12,12 +12,22 @@
     <div class="mb-6 flex items-center gap-4">
       <div class="relative">
         <div
-          class="bg-primary/10 flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-full"
+          class="bg-primary flex h-16 w-16 cursor-pointer items-center justify-center overflow-hidden rounded-full"
           (click)="fileInput.click()">
-          @if ((userStore.profile$ | async)?.avatarUrl) {
-            <img [src]="(userStore.profile$ | async)?.avatarUrl" alt="Avatar" class="h-full w-full object-cover" />
-          } @else {
-            <span class="text-primary text-xl font-semibold">{{ getInitials() }}</span>
+          @if ((userStore.profile$ | async); as profile) {
+            @if (profile.avatarUrl && profile.avatarUrl !== failedAvatarUrl) {
+              <img
+                [src]="profile.avatarUrl"
+                (error)="failedAvatarUrl = profile.avatarUrl ?? null"
+                [attr.alt]="'Avatar de ' + profile.name"
+                class="h-full w-full object-cover" />
+            } @else {
+              <span
+                [attr.aria-label]="'Avatar de ' + profile.name"
+                class="text-white text-2xl font-semibold uppercase">
+                {{ (profile.name || '?').charAt(0) }}
+              </span>
+            }
           }
         </div>
         @if (avatarUploading) {
