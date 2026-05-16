@@ -5,13 +5,18 @@ import com.orizon.coreapi.adapter.in.web.dto.AuthResponse;
 import com.orizon.coreapi.adapter.in.web.dto.CreateUserRequest;
 import com.orizon.coreapi.adapter.in.web.dto.ForgotPasswordRequest;
 import com.orizon.coreapi.adapter.in.web.dto.RefreshTokenRequest;
+import com.orizon.coreapi.adapter.in.web.dto.ResendVerificationRequest;
 import com.orizon.coreapi.adapter.in.web.dto.ResetPasswordRequest;
+import com.orizon.coreapi.adapter.in.web.dto.VerifyEmailPinRequest;
+import com.orizon.coreapi.adapter.in.web.dto.VerifyEmailRequest;
 import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.AuthenticateUserUseCase;
+import com.orizon.coreapi.domain.port.in.ConfirmEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.in.CreateUserUseCase;
 import com.orizon.coreapi.domain.port.in.LogoutUseCase;
 import com.orizon.coreapi.domain.port.in.RefreshTokenUseCase;
 import com.orizon.coreapi.domain.port.in.RequestPasswordResetUseCase;
+import com.orizon.coreapi.domain.port.in.ResendEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.in.ResetPasswordUseCase;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -44,6 +49,12 @@ public class AuthController {
 
     @Inject
     ResetPasswordUseCase resetPasswordUseCase;
+
+    @Inject
+    ConfirmEmailVerificationUseCase confirmEmailVerificationUseCase;
+
+    @Inject
+    ResendEmailVerificationUseCase resendEmailVerificationUseCase;
 
     @Inject
     AuthenticatedUser authenticatedUser;
@@ -90,6 +101,27 @@ public class AuthController {
     @Path("/reset-password")
     public Response resetPassword(@Valid ResetPasswordRequest request) {
         resetPasswordUseCase.execute(request.token(), request.password());
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/verify-email")
+    public Response verifyEmail(@Valid VerifyEmailRequest request) {
+        confirmEmailVerificationUseCase.confirmByLink(request.token());
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/verify-email-pin")
+    public Response verifyEmailPin(@Valid VerifyEmailPinRequest request) {
+        confirmEmailVerificationUseCase.confirmByPin(request.email(), request.pin());
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/resend-verification")
+    public Response resendVerification(@Valid ResendVerificationRequest request) {
+        resendEmailVerificationUseCase.execute(request.email());
         return Response.noContent().build();
     }
 }

@@ -15,6 +15,7 @@ import com.orizon.coreapi.domain.port.in.GetCurrentUserUseCase;
 import com.orizon.coreapi.domain.port.in.ListUsersUseCase;
 import com.orizon.coreapi.domain.port.in.LogoutUseCase;
 import com.orizon.coreapi.domain.port.in.RefreshTokenUseCase;
+import com.orizon.coreapi.domain.port.in.RequestEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateUserUseCase;
 import com.orizon.coreapi.domain.port.in.UploadAvatarUseCase;
 import com.orizon.coreapi.domain.port.out.AvatarStoragePort;
@@ -38,15 +39,21 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AvatarStoragePort avatarStoragePort;
+    private final RequestEmailVerificationUseCase requestEmailVerificationUseCase;
+    private final boolean emailVerificationRequired;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
                        TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
-                       AvatarStoragePort avatarStoragePort) {
+                       AvatarStoragePort avatarStoragePort,
+                       RequestEmailVerificationUseCase requestEmailVerificationUseCase,
+                       boolean emailVerificationRequired) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
         this.refreshTokenRepository = refreshTokenRepository;
         this.avatarStoragePort = avatarStoragePort;
+        this.requestEmailVerificationUseCase = requestEmailVerificationUseCase;
+        this.emailVerificationRequired = emailVerificationRequired;
     }
 
     @Override
@@ -62,10 +69,18 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(password));
         user.setRole(Role.USER);
+        user.setEmailVerified(!emailVerificationRequired);
+        if (!emailVerificationRequired) {
+            user.setEmailVerifiedAt(LocalDateTime.now());
+        }
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
 
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        if (emailVerificationRequired) {
+            requestEmailVerificationUseCase.execute(saved.getId());
+        }
+        return saved;
     }
 
     @Override
@@ -77,7 +92,7 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
             throw new DomainException("Invalid email or password");
         }
 
-        String accessToken = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole());
+        String accessToken = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole(), user.isEmailVerified());
         String refreshToken = createRefreshToken(user.getId());
 
         return new AuthTokens(accessToken, refreshToken);
@@ -99,7 +114,7 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         User user = userRepository.findById(refreshToken.getUserId())
                 .orElseThrow(() -> new DomainException("User not found"));
 
-        return tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole());
+        return tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole(), user.isEmailVerified());
     }
 
     @Override
