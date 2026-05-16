@@ -28,7 +28,7 @@ public class JwtTokenProvider implements TokenProvider {
     }
 
     @Override
-    public String generateToken(UUID userId, String email, Role role) {
+    public String generateToken(UUID userId, String email, Role role, boolean emailVerified) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
 
@@ -36,6 +36,7 @@ public class JwtTokenProvider implements TokenProvider {
                 .subject(userId.toString())
                 .claim("email", email)
                 .claim("role", role.name())
+                .claim("email_verified", emailVerified)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)
@@ -53,6 +54,13 @@ public class JwtTokenProvider implements TokenProvider {
         Claims claims = parseClaims(token);
         String role = claims.get("role", String.class);
         return role != null ? Role.valueOf(role) : Role.USER;
+    }
+
+    @Override
+    public boolean isEmailVerified(String token) {
+        Claims claims = parseClaims(token);
+        Boolean verified = claims.get("email_verified", Boolean.class);
+        return verified != null && verified;
     }
 
     @Override

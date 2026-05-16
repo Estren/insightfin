@@ -15,6 +15,8 @@ public class UserPersistenceMapper {
         entity.setPasswordHash(user.getPasswordHash());
         entity.setRole(user.getRole());
         entity.setAvatarUrl(user.getAvatarUrl());
+        entity.setEmailVerified(user.isEmailVerified());
+        entity.setEmailVerifiedAt(user.getEmailVerifiedAt());
         entity.setCreatedAt(user.getCreatedAt());
         entity.setUpdatedAt(user.getUpdatedAt());
         return entity;
@@ -31,6 +33,8 @@ public class UserPersistenceMapper {
                 entity.getUpdatedAt()
         );
         user.setAvatarUrl(entity.getAvatarUrl());
+        user.setEmailVerified(entity.isEmailVerified());
+        user.setEmailVerifiedAt(entity.getEmailVerifiedAt());
         return user;
     }
 }

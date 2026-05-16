@@ -17,15 +17,35 @@ public class BeanConfig {
     @ConfigProperty(name = "app.frontend.base-url", defaultValue = "http://localhost:4200")
     String frontendBaseUrl;
 
+    @ConfigProperty(name = "app.email-verification.required", defaultValue = "true")
+    boolean emailVerificationRequired;
+
+    @ConfigProperty(name = "app.email-verification.registration-ttl-hours", defaultValue = "24")
+    int emailVerificationTtlHours;
+
+    @ConfigProperty(name = "app.email-verification.pin-max-attempts", defaultValue = "5")
+    int emailVerificationPinMaxAttempts;
+
     @Produces
     @ApplicationScoped
     public UserService userService(UserRepository userRepository,
                                    PasswordEncoder passwordEncoder,
                                    TokenProvider tokenProvider,
                                    RefreshTokenRepository refreshTokenRepository,
-                                   AvatarStoragePort avatarStoragePort) {
+                                   AvatarStoragePort avatarStoragePort,
+                                   EmailVerificationService emailVerificationService) {
         return new UserService(userRepository, passwordEncoder, tokenProvider,
-                refreshTokenRepository, avatarStoragePort);
+                refreshTokenRepository, avatarStoragePort, emailVerificationService,
+                emailVerificationRequired);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public EmailVerificationService emailVerificationService(UserRepository userRepository,
+                                                             EmailVerificationTokenRepository tokenRepository,
+                                                             EmailSender emailSender) {
+        return new EmailVerificationService(userRepository, tokenRepository, emailSender,
+                emailVerificationTtlHours, emailVerificationPinMaxAttempts, frontendBaseUrl);
     }
 
     @Produces

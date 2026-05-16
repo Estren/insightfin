@@ -7,6 +7,7 @@ import com.orizon.coreapi.domain.model.AuthTokens;
 import com.orizon.coreapi.domain.model.RefreshToken;
 import com.orizon.coreapi.domain.model.Role;
 import com.orizon.coreapi.domain.model.User;
+import com.orizon.coreapi.domain.port.in.RequestEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.out.AvatarStoragePort;
 import com.orizon.coreapi.domain.port.out.PasswordEncoder;
 import com.orizon.coreapi.domain.port.out.RefreshTokenRepository;
@@ -35,13 +36,14 @@ class UserServiceTest {
     @Mock TokenProvider tokenProvider;
     @Mock RefreshTokenRepository refreshTokenRepository;
     @Mock AvatarStoragePort avatarStoragePort;
+    @Mock RequestEmailVerificationUseCase requestEmailVerificationUseCase;
 
     private UserService service;
 
     @BeforeEach
     void setUp() {
         service = new UserService(userRepository, passwordEncoder, tokenProvider,
-                refreshTokenRepository, avatarStoragePort);
+                refreshTokenRepository, avatarStoragePort, requestEmailVerificationUseCase, true);
     }
 
     // --- U1 ---
@@ -76,7 +78,7 @@ class UserServiceTest {
         User user = buildUser(UUID.randomUUID(), "John", "john@example.com", "hashed");
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("secret", "hashed")).thenReturn(true);
-        when(tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole()))
+        when(tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole(), user.isEmailVerified()))
                 .thenReturn("access-token");
         when(refreshTokenRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -177,7 +179,7 @@ class UserServiceTest {
         User user = buildUser(UUID.randomUUID(), "John", "john@example.com", "hashed");
         when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("secret", "hashed")).thenReturn(true);
-        when(tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole()))
+        when(tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole(), user.isEmailVerified()))
                 .thenReturn("access-token");
         when(refreshTokenRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 

@@ -110,4 +110,77 @@ public class AzureCommunicationEmailAdapter implements EmailSender {
                 If you didn't request this, you can safely ignore this email.
                 """.formatted(name, link);
     }
+
+    @Override
+    public void sendEmailVerificationEmail(String to, String recipientName, String verifyLink, String pin) {
+        if (!enabled || emailClient == null) {
+            LOG.infof("[email-dev] Email verification link for %s: %s | PIN: %s", to, verifyLink, pin);
+            return;
+        }
+
+        String safeName = recipientName == null || recipientName.isBlank() ? "there" : recipientName;
+        String subject = "Confirm your email — InsightFin";
+        String html = buildVerificationHtml(safeName, verifyLink, pin);
+        String plain = buildVerificationPlainText(safeName, verifyLink, pin);
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                EmailMessage message = new EmailMessage()
+                        .setSenderAddress(senderAddress.get())
+                        .setToRecipients(to)
+                        .setSubject(subject)
+                        .setBodyHtml(html)
+                        .setBodyPlainText(plain);
+
+                SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(message, null);
+                EmailSendResult result = poller.waitForCompletion().getValue();
+                LOG.infof("ACS verification email sent to %s, messageId=%s, status=%s",
+                        to, result.getId(), result.getStatus());
+            } catch (Exception ex) {
+                LOG.errorf(ex, "Failed to send verification email to %s", to);
+            }
+        });
+    }
+
+    private String buildVerificationHtml(String name, String link, String pin) {
+        return """
+                <!doctype html>
+                <html>
+                  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color:#f6f8fb; padding:32px;">
+                    <table align="center" width="480" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:12px; padding:32px;">
+                      <tr><td>
+                        <h2 style="color:#1f2937; margin-top:0;">Welcome to InsightFin</h2>
+                        <p style="color:#374151; line-height:1.5;">Hi %s,</p>
+                        <p style="color:#374151; line-height:1.5;">Confirm your email to finish your registration and unlock all features. This link and code expire in 24 hours.</p>
+                        <p style="text-align:center; margin:32px 0;">
+                          <a href="%s" style="background:#2490FF; color:#ffffff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600; display:inline-block;">Confirm email</a>
+                        </p>
+                        <p style="color:#374151; line-height:1.5; text-align:center;">Or enter this code in the app:</p>
+                        <p style="text-align:center; margin:8px 0 32px 0;">
+                          <span style="display:inline-block; background:#f3f4f6; padding:14px 24px; border-radius:8px; font-family:'SF Mono', Consolas, monospace; font-size:24px; letter-spacing:8px; color:#1f2937; font-weight:600;">%s</span>
+                        </p>
+                        <p style="color:#6b7280; font-size:13px; line-height:1.5;">If you didn't sign up, you can safely ignore this email.</p>
+                      </td></tr>
+                    </table>
+                  </body>
+                </html>
+                """.formatted(name, link, pin);
+    }
+
+    private String buildVerificationPlainText(String name, String link, String pin) {
+        return """
+                Hi %s,
+
+                Welcome to InsightFin! Confirm your email to finish your registration.
+
+                Click the link below:
+                %s
+
+                Or enter this code in the app: %s
+
+                This link and code expire in 24 hours.
+
+                If you didn't sign up, you can safely ignore this email.
+                """.formatted(name, link, pin);
+    }
 }
