@@ -209,6 +209,7 @@
   "confirmEmailChange": {
     "successTitle": "E-mail confirmado!",
     "successDesc": "Seu endereço de e-mail foi atualizado com sucesso.",
+    "successSignInDesc": "Seu e-mail foi atualizado. Por segurança, faça login novamente com o novo endereço.",
     "errorTitle": "Link inválido",
     "errorDesc": "Este link de confirmação é inválido ou expirou. Retorne ao perfil e solicite uma nova alteração."
   },
@@ -251,7 +252,9 @@
       "avatarFailed": "Falha ao enviar foto. Máx 5 MB, apenas jpeg/png/webp/gif.",
       "profileFailed": "Falha ao atualizar perfil. Tente novamente.",
       "passwordWrong": "Senha atual incorreta.",
-      "passwordFailed": "Falha ao alterar senha. Tente novamente."
+      "passwordFailed": "Falha ao alterar senha. Tente novamente.",
+      "emailTaken": "Este e-mail já está em uso por outra conta.",
+      "sameEmail": "O novo e-mail deve ser diferente do atual."
     }
   },
   "error": {

@@ -1,12 +1,14 @@
 package com.orizon.coreapi.application.service;
 
 import com.orizon.coreapi.domain.exception.DomainException;
+import com.orizon.coreapi.domain.exception.DuplicateResourceException;
 import com.orizon.coreapi.domain.model.EmailVerificationPurpose;
 import com.orizon.coreapi.domain.model.EmailVerificationToken;
 import com.orizon.coreapi.domain.model.Role;
 import com.orizon.coreapi.domain.model.User;
 import com.orizon.coreapi.domain.port.out.EmailSender;
 import com.orizon.coreapi.domain.port.out.EmailVerificationTokenRepository;
+import com.orizon.coreapi.domain.port.out.RefreshTokenRepository;
 import com.orizon.coreapi.domain.port.out.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,13 +34,14 @@ class EmailVerificationServiceTest {
     @Mock UserRepository userRepository;
     @Mock EmailVerificationTokenRepository tokenRepository;
     @Mock EmailSender emailSender;
+    @Mock RefreshTokenRepository refreshTokenRepository;
 
     private EmailVerificationService service;
 
     @BeforeEach
     void setUp() {
         service = new EmailVerificationService(userRepository, tokenRepository, emailSender,
-                24, 5, "http://localhost:4200");
+                refreshTokenRepository, 24, 5, "http://localhost:4200");
     }
 
     @Test
@@ -247,6 +250,187 @@ class EmailVerificationServiceTest {
 
         assertThatThrownBy(() -> service.confirmByPin(user.getEmail(), "123456"))
                 .isInstanceOf(DomainException.class);
+    }
+
+    // ============================================================
+    // Email change flow
+    // ============================================================
+
+    @Test
+    void requestEmailChange_unknownUser_throws() {
+        UUID userId = UUID.randomUUID();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.execute(userId, "new@example.com"))
+                .isInstanceOf(DomainException.class);
+
+        verifyNoInteractions(tokenRepository, emailSender, refreshTokenRepository);
+    }
+
+    @Test
+    void requestEmailChange_sameEmail_throws() {
+        User user = buildUser(true);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> service.execute(user.getId(), "  JOHN@Example.com  "))
+                .isInstanceOf(DomainException.class);
+
+        verifyNoInteractions(tokenRepository, emailSender, refreshTokenRepository);
+    }
+
+    @Test
+    void requestEmailChange_takenEmail_throws() {
+        User user = buildUser(true);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.existsByEmail("new@example.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.execute(user.getId(), "new@example.com"))
+                .isInstanceOf(DuplicateResourceException.class);
+
+        verifyNoInteractions(emailSender, refreshTokenRepository);
+    }
+
+    @Test
+    void requestEmailChange_success_savesTokenAndSendsBothEmails() {
+        User user = buildUser(true);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.existsByEmail("new@example.com")).thenReturn(false);
+
+        service.execute(user.getId(), "  NEW@Example.com  ");
+
+        verify(tokenRepository).invalidateActiveByUserAndPurpose(user.getId(), EmailVerificationPurpose.EMAIL_CHANGE);
+        ArgumentCaptor<EmailVerificationToken> captor = ArgumentCaptor.forClass(EmailVerificationToken.class);
+        verify(tokenRepository).save(captor.capture());
+        EmailVerificationToken saved = captor.getValue();
+        assertThat(saved.getUserId()).isEqualTo(user.getId());
+        assertThat(saved.getTargetEmail()).isEqualTo("new@example.com");
+        assertThat(saved.getPurpose()).isEqualTo(EmailVerificationPurpose.EMAIL_CHANGE);
+        assertThat(saved.getTokenHash()).isNotBlank();
+        assertThat(saved.getPinHash()).isNotBlank();
+
+        ArgumentCaptor<String> linkCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> pinCaptor = ArgumentCaptor.forClass(String.class);
+        verify(emailSender).sendEmailChangeConfirmation(eq("new@example.com"), eq(user.getName()),
+                linkCaptor.capture(), pinCaptor.capture());
+        assertThat(linkCaptor.getValue()).startsWith("http://localhost:4200/auth/confirm-email-change?token=");
+        assertThat(pinCaptor.getValue()).matches("\\d{6}");
+
+        verify(emailSender).sendEmailChangeNotice(user.getEmail(), user.getName(), "new@example.com");
+        // refresh tokens stay alive until the change is actually confirmed
+        verifyNoInteractions(refreshTokenRepository);
+    }
+
+    @Test
+    void confirmEmailChangeByLink_valid_updatesEmailAndRevokesRefreshTokens() {
+        User user = buildUser(true);
+        EmailVerificationToken token = buildToken(user.getId(), false, false, EmailVerificationPurpose.EMAIL_CHANGE);
+        token.setTargetEmail("new@example.com");
+        when(tokenRepository.findByTokenHash(anyString())).thenReturn(Optional.of(token));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        service.confirmByLink(user.getId(), "raw-token");
+
+        assertThat(user.getEmail()).isEqualTo("new@example.com");
+        assertThat(user.isEmailVerified()).isTrue();
+        verify(userRepository).save(user);
+        verify(refreshTokenRepository).revokeAllByUserId(user.getId());
+    }
+
+    @Test
+    void confirmEmailChangeByLink_wrongUserId_throws() {
+        UUID realOwner = UUID.randomUUID();
+        UUID attacker = UUID.randomUUID();
+        EmailVerificationToken token = buildToken(realOwner, false, false, EmailVerificationPurpose.EMAIL_CHANGE);
+        when(tokenRepository.findByTokenHash(anyString())).thenReturn(Optional.of(token));
+
+        assertThatThrownBy(() -> service.confirmByLink(attacker, "raw-token"))
+                .isInstanceOf(DomainException.class);
+
+        verify(userRepository, never()).save(any());
+        verifyNoInteractions(refreshTokenRepository);
+    }
+
+    @Test
+    void confirmEmailChangeByLink_wrongPurpose_throws() {
+        // Registration token cannot be reused as an email-change confirmation.
+        UUID userId = UUID.randomUUID();
+        EmailVerificationToken token = buildToken(userId, false, false, EmailVerificationPurpose.REGISTRATION);
+        when(tokenRepository.findByTokenHash(anyString())).thenReturn(Optional.of(token));
+
+        assertThatThrownBy(() -> service.confirmByLink(userId, "raw-token"))
+                .isInstanceOf(DomainException.class);
+
+        verify(userRepository, never()).save(any());
+        verifyNoInteractions(refreshTokenRepository);
+    }
+
+    @Test
+    void confirmEmailChangeByPin_valid_updatesEmailAndRevokesRefreshTokens() {
+        User user = buildUser(true);
+        EmailVerificationToken token = buildToken(user.getId(), false, false, EmailVerificationPurpose.EMAIL_CHANGE);
+        token.setTargetEmail("new@example.com");
+        token.setPinHash(sha256Hex("123456"));
+        when(tokenRepository.findActiveByUserAndPurpose(user.getId(), EmailVerificationPurpose.EMAIL_CHANGE))
+                .thenReturn(Optional.of(token));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        service.confirmByPin(user.getId(), "123456");
+
+        assertThat(user.getEmail()).isEqualTo("new@example.com");
+        verify(userRepository).save(user);
+        verify(refreshTokenRepository).revokeAllByUserId(user.getId());
+    }
+
+    @Test
+    void confirmEmailChangeByPin_wrongPin_incrementsAttempts() {
+        UUID userId = UUID.randomUUID();
+        EmailVerificationToken token = buildToken(userId, false, false, EmailVerificationPurpose.EMAIL_CHANGE);
+        token.setPinHash(sha256Hex("123456"));
+        token.setPinAttempts(1);
+        when(tokenRepository.findActiveByUserAndPurpose(userId, EmailVerificationPurpose.EMAIL_CHANGE))
+                .thenReturn(Optional.of(token));
+
+        assertThatThrownBy(() -> service.confirmByPin(userId, "999999"))
+                .isInstanceOf(DomainException.class);
+
+        ArgumentCaptor<EmailVerificationToken> captor = ArgumentCaptor.forClass(EmailVerificationToken.class);
+        verify(tokenRepository).save(captor.capture());
+        assertThat(captor.getValue().getPinAttempts()).isEqualTo(2);
+        assertThat(captor.getValue().getUsedAt()).isNull();
+        verify(userRepository, never()).save(any());
+        verifyNoInteractions(refreshTokenRepository);
+    }
+
+    @Test
+    void confirmEmailChangeByPin_maxAttempts_invalidatesToken() {
+        UUID userId = UUID.randomUUID();
+        EmailVerificationToken token = buildToken(userId, false, false, EmailVerificationPurpose.EMAIL_CHANGE);
+        token.setPinHash(sha256Hex("123456"));
+        token.setPinAttempts(4);
+        when(tokenRepository.findActiveByUserAndPurpose(userId, EmailVerificationPurpose.EMAIL_CHANGE))
+                .thenReturn(Optional.of(token));
+
+        assertThatThrownBy(() -> service.confirmByPin(userId, "999999"))
+                .isInstanceOf(DomainException.class);
+
+        ArgumentCaptor<EmailVerificationToken> captor = ArgumentCaptor.forClass(EmailVerificationToken.class);
+        verify(tokenRepository).save(captor.capture());
+        assertThat(captor.getValue().getPinAttempts()).isEqualTo(5);
+        assertThat(captor.getValue().getUsedAt()).isNotNull();
+        verify(userRepository, never()).save(any());
+        verifyNoInteractions(refreshTokenRepository);
+    }
+
+    @Test
+    void confirmEmailChangeByPin_noActiveToken_throws() {
+        UUID userId = UUID.randomUUID();
+        when(tokenRepository.findActiveByUserAndPurpose(userId, EmailVerificationPurpose.EMAIL_CHANGE))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.confirmByPin(userId, "123456"))
+                .isInstanceOf(DomainException.class);
+
+        verifyNoInteractions(refreshTokenRepository);
     }
 
     // --- helpers ---

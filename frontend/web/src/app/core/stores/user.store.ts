@@ -97,8 +97,10 @@ export class UserStore {
     return this.userService.requestEmailChange(newEmail).pipe(
       tap(() => this.toastService.success('toast.user.emailChangeSent')),
       catchError((err) => {
-        const key = err.status === 409 ? 'toast.auth.emailTaken' : 'toast.user.emailChangeError';
-        this.toastService.error(key);
+        // 409 (duplicate) and 400 (same email) bubble up so the form can show inline errors.
+        if (err.status !== 409 && err.status !== 400) {
+          this.toastService.error('toast.user.emailChangeError');
+        }
         return throwError(() => err);
       }),
     );
@@ -108,7 +110,8 @@ export class UserStore {
     return this.userService.confirmEmailChangeByPin(pin).pipe(
       tap(() => {
         this.toastService.success('toast.user.emailChanged');
-        this.load();
+        this._profile$.next(null);
+        this.authStore.clearTokens();
       }),
       catchError((err) => {
         this.toastService.error('toast.user.emailChangePinError');
@@ -121,7 +124,8 @@ export class UserStore {
     return this.userService.confirmEmailChangeByLink(token).pipe(
       tap(() => {
         this.toastService.success('toast.user.emailChanged');
-        this.load();
+        this._profile$.next(null);
+        this.authStore.clearTokens();
       }),
       catchError((err) => {
         this.toastService.error('toast.user.emailChangeLinkError');

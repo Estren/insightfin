@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -11,7 +11,7 @@ import { AuthStore } from '../../../../core/stores/auth.store';
   templateUrl: './profile.component.html',
   imports: [ReactiveFormsModule, AsyncPipe, TranslateModule, RouterLink],
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
 
@@ -33,6 +33,10 @@ export class ProfileComponent implements OnInit {
   emailChangePinDigits = ['', '', '', '', '', ''];
   emailChangePinSubmitting = false;
   showPinForm = false;
+  pendingNewEmail = '';
+  emailChangePinError = false;
+  resendCooldown = 0;
+  private resendInterval?: ReturnType<typeof setInterval>;
 
   ngOnInit(): void {
     this.profileForm = this.fb.group({
@@ -79,17 +83,43 @@ export class ProfileComponent implements OnInit {
   onRequestEmailChange(): void {
     if (this.emailChangeForm.invalid) return;
     this.emailChangeSubmitting = true;
+    const newEmail = this.emailChangeForm.value.newEmail;
 
-    this.userStore.requestEmailChange(this.emailChangeForm.value.newEmail).subscribe({
+    this.userStore.requestEmailChange(newEmail).subscribe({
       next: () => {
         this.emailChangeSubmitting = false;
         this.showPinForm = true;
+        this.pendingNewEmail = newEmail;
         this.emailChangeForm.reset();
+        this.startResendCooldown();
       },
-      error: () => {
+      error: (err) => {
         this.emailChangeSubmitting = false;
+        const control = this.emailChangeForm.get('newEmail');
+        if (err.status === 409) {
+          control?.setErrors({ emailTaken: true });
+        } else if (err.status === 400) {
+          control?.setErrors({ sameEmail: true });
+        }
       },
     });
+  }
+
+  onResendEmailChange(): void {
+    if (this.resendCooldown > 0 || !this.pendingNewEmail) return;
+    this.userStore.requestEmailChange(this.pendingNewEmail).subscribe({
+      next: () => this.startResendCooldown(),
+      error: () => {},
+    });
+  }
+
+  cancelEmailChange(): void {
+    this.showPinForm = false;
+    this.pendingNewEmail = '';
+    this.emailChangePinDigits = ['', '', '', '', '', ''];
+    this.emailChangePinError = false;
+    clearInterval(this.resendInterval);
+    this.resendCooldown = 0;
   }
 
   onEmailChangePinInput(index: number, event: Event): void {
@@ -97,6 +127,7 @@ export class ProfileComponent implements OnInit {
     const value = input.value.replace(/\D/g, '').slice(-1);
     this.emailChangePinDigits[index] = value;
     input.value = value;
+    this.emailChangePinError = false;
     if (value && index < 5) {
       const inputs = document.querySelectorAll<HTMLInputElement>('.email-change-pin-input');
       inputs[index + 1]?.focus();
@@ -122,14 +153,29 @@ export class ProfileComponent implements OnInit {
     this.userStore.confirmEmailChangePin(pin).subscribe({
       next: () => {
         this.emailChangePinSubmitting = false;
-        this.showPinForm = false;
-        this.emailChangePinDigits = ['', '', '', '', '', ''];
+        this.router.navigate(['/auth/sign-in']);
       },
       error: () => {
         this.emailChangePinSubmitting = false;
         this.emailChangePinDigits = ['', '', '', '', '', ''];
+        this.emailChangePinError = true;
       },
     });
+  }
+
+  private startResendCooldown(): void {
+    clearInterval(this.resendInterval);
+    this.resendCooldown = 60;
+    this.resendInterval = setInterval(() => {
+      this.resendCooldown--;
+      if (this.resendCooldown <= 0) {
+        clearInterval(this.resendInterval);
+      }
+    }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.resendInterval);
   }
 
   onChangePassword(): void {

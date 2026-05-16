@@ -43,9 +43,10 @@ public class BeanConfig {
     @ApplicationScoped
     public EmailVerificationService emailVerificationService(UserRepository userRepository,
                                                              EmailVerificationTokenRepository tokenRepository,
-                                                             EmailSender emailSender) {
+                                                             EmailSender emailSender,
+                                                             RefreshTokenRepository refreshTokenRepository) {
         return new EmailVerificationService(userRepository, tokenRepository, emailSender,
-                emailVerificationTtlHours, emailVerificationPinMaxAttempts, frontendBaseUrl);
+                refreshTokenRepository, emailVerificationTtlHours, emailVerificationPinMaxAttempts, frontendBaseUrl);
     }
 
     @Produces
