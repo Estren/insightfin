@@ -29,6 +29,9 @@ public class UserRepositoryAdapter implements UserRepository {
             managed.setEmail(user.getEmail());
             managed.setPasswordHash(user.getPasswordHash());
             managed.setRole(user.getRole());
+            managed.setAvatarUrl(user.getAvatarUrl());
+            managed.setEmailVerified(user.isEmailVerified());
+            managed.setEmailVerifiedAt(user.getEmailVerifiedAt());
             managed.setUpdatedAt(user.getUpdatedAt());
             return UserPersistenceMapper.toDomain(managed);
         }
