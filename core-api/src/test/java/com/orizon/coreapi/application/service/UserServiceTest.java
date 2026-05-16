@@ -138,16 +138,17 @@ class UserServiceTest {
 
     // --- U8 ---
     @Test
-    void update_throwsWhenEmailTakenByAnotherUser() {
+    void update_savesNewName() {
         UUID userId = UUID.randomUUID();
         User user = buildUser(userId, "John", "john@example.com", "hashed");
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        assertThatThrownBy(() -> service.update(userId, "John", "taken@example.com"))
-                .isInstanceOf(DuplicateResourceException.class);
+        User result = service.update(userId, "Johnny");
 
-        verify(userRepository, never()).save(any());
+        assertThat(result.getName()).isEqualTo("Johnny");
+        assertThat(result.getEmail()).isEqualTo("john@example.com");
+        verify(userRepository).save(any(User.class));
     }
 
     // --- U9: case-insensitive duplicate detection on register ---
@@ -188,16 +189,14 @@ class UserServiceTest {
         assertThat(tokens.getAccessToken()).isEqualTo("access-token");
     }
 
-    // --- U12: update rejects case variant of another user's email ---
+    // --- U12: update throws when user not found ---
     @Test
-    void update_throwsWhenEmailTakenByAnotherUserWithDifferentCase() {
+    void update_throwsWhenUserNotFound() {
         UUID userId = UUID.randomUUID();
-        User user = buildUser(userId, "John", "john@example.com", "hashed");
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.update(userId, "John", "TAKEN@Example.com"))
-                .isInstanceOf(DuplicateResourceException.class);
+        assertThatThrownBy(() -> service.update(userId, "Johnny"))
+                .isInstanceOf(ResourceNotFoundException.class);
 
         verify(userRepository, never()).save(any());
     }

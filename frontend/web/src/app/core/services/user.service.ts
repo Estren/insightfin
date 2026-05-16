@@ -31,4 +31,16 @@ export class UserService {
   deleteMe(): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/users/me`);
   }
+
+  requestEmailChange(newEmail: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/users/me/email/change-request`, { newEmail });
+  }
+
+  confirmEmailChangeByLink(token: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/users/me/email/change-confirm`, { token });
+  }
+
+  confirmEmailChangeByPin(pin: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/users/me/email/change-confirm-pin`, { pin });
+  }
 }

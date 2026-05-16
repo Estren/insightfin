@@ -4,7 +4,10 @@ import com.orizon.coreapi.domain.exception.DomainException;
 import com.orizon.coreapi.domain.model.EmailVerificationPurpose;
 import com.orizon.coreapi.domain.model.EmailVerificationToken;
 import com.orizon.coreapi.domain.model.User;
+import com.orizon.coreapi.domain.exception.DuplicateResourceException;
+import com.orizon.coreapi.domain.port.in.ConfirmEmailChangeUseCase;
 import com.orizon.coreapi.domain.port.in.ConfirmEmailVerificationUseCase;
+import com.orizon.coreapi.domain.port.in.RequestEmailChangeUseCase;
 import com.orizon.coreapi.domain.port.in.RequestEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.in.ResendEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.out.EmailSender;
@@ -25,7 +28,9 @@ import java.util.UUID;
 public class EmailVerificationService implements
         RequestEmailVerificationUseCase,
         ResendEmailVerificationUseCase,
-        ConfirmEmailVerificationUseCase {
+        ConfirmEmailVerificationUseCase,
+        RequestEmailChangeUseCase,
+        ConfirmEmailChangeUseCase {
 
     private static final Logger LOG = Logger.getLogger(EmailVerificationService.class);
     private static final int TOKEN_BYTES = 32;
@@ -134,6 +139,83 @@ public class EmailVerificationService implements
         markUserVerified(user);
     }
 
+    // --- RequestEmailChangeUseCase ---
+    @Override
+    public void execute(UUID userId, String newEmail) {
+        String normalized = newEmail == null ? null : newEmail.trim().toLowerCase(Locale.ROOT);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DomainException("User not found"));
+        if (normalized == null || normalized.equals(user.getEmail())) {
+            throw new DomainException("New email must be different from the current email");
+        }
+        if (userRepository.existsByEmail(normalized)) {
+            throw new DuplicateResourceException("Email already registered: " + normalized);
+        }
+        tokenRepository.invalidateActiveByUserAndPurpose(userId, EmailVerificationPurpose.EMAIL_CHANGE);
+
+        String rawToken = generateToken();
+        String pin = generatePin();
+
+        EmailVerificationToken token = new EmailVerificationToken();
+        token.setId(UUID.randomUUID());
+        token.setUserId(userId);
+        token.setTargetEmail(normalized);
+        token.setTokenHash(sha256(rawToken));
+        token.setPinHash(sha256(pin));
+        token.setPinAttempts(0);
+        token.setPurpose(EmailVerificationPurpose.EMAIL_CHANGE);
+        token.setExpiresAt(LocalDateTime.now().plusHours(registrationTtlHours));
+        token.setCreatedAt(LocalDateTime.now());
+        tokenRepository.save(token);
+
+        String confirmLink = buildEmailChangeLink(rawToken);
+        emailSender.sendEmailChangeConfirmation(normalized, user.getName(), confirmLink, pin);
+        emailSender.sendEmailChangeNotice(user.getEmail(), user.getName(), normalized);
+    }
+
+    // --- ConfirmEmailChangeUseCase ---
+    @Override
+    public void confirmByLink(UUID userId, String rawToken) {
+        if (rawToken == null || rawToken.isBlank()) {
+            throw new DomainException("Invalid or expired token");
+        }
+        String tokenHash = sha256(rawToken);
+        EmailVerificationToken token = tokenRepository.findByTokenHash(tokenHash)
+                .orElseThrow(() -> new DomainException("Invalid or expired token"));
+        if (!token.getUserId().equals(userId)) {
+            throw new DomainException("Invalid or expired token");
+        }
+        if (token.isUsed() || token.isExpired()) {
+            throw new DomainException("Invalid or expired token");
+        }
+        if (token.getPurpose() != EmailVerificationPurpose.EMAIL_CHANGE) {
+            throw new DomainException("Invalid or expired token");
+        }
+        applyEmailChange(userId, token);
+    }
+
+    @Override
+    public void confirmByPin(UUID userId, String pin) {
+        if (pin == null || pin.isBlank()) {
+            throw new DomainException("Invalid or expired PIN");
+        }
+        EmailVerificationToken token = tokenRepository.findActiveByUserAndPurpose(userId, EmailVerificationPurpose.EMAIL_CHANGE)
+                .orElseThrow(() -> new DomainException("Invalid or expired PIN"));
+        if (token.isExpired() || token.isUsed()) {
+            throw new DomainException("Invalid or expired PIN");
+        }
+        token.setPinAttempts(token.getPinAttempts() + 1);
+        boolean match = constantTimeEquals(sha256(pin), token.getPinHash());
+        if (!match) {
+            if (token.getPinAttempts() >= pinMaxAttempts) {
+                token.setUsedAt(LocalDateTime.now());
+            }
+            tokenRepository.save(token);
+            throw new DomainException("Invalid or expired PIN");
+        }
+        applyEmailChange(userId, token);
+    }
+
     // --- internal helpers ---
 
     private void sendVerification(User user) {
@@ -216,5 +298,22 @@ public class EmailVerificationService implements
     private String buildVerifyLink(String token) {
         String base = frontendBaseUrl.endsWith("/") ? frontendBaseUrl.substring(0, frontendBaseUrl.length() - 1) : frontendBaseUrl;
         return base + "/auth/verify-email?token=" + token;
+    }
+
+    private String buildEmailChangeLink(String token) {
+        String base = frontendBaseUrl.endsWith("/") ? frontendBaseUrl.substring(0, frontendBaseUrl.length() - 1) : frontendBaseUrl;
+        return base + "/auth/confirm-email-change?token=" + token;
+    }
+
+    private void applyEmailChange(UUID userId, EmailVerificationToken token) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DomainException("User not found"));
+        token.setUsedAt(LocalDateTime.now());
+        tokenRepository.save(token);
+        user.setEmail(token.getTargetEmail());
+        user.setEmailVerified(true);
+        user.setEmailVerifiedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 }

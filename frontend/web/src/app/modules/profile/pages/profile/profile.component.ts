@@ -28,10 +28,19 @@ export class ProfileComponent implements OnInit {
     public readonly authStore: AuthStore,
   ) {}
 
+  emailChangeForm!: FormGroup;
+  emailChangeSubmitting = false;
+  emailChangePinDigits = ['', '', '', '', '', ''];
+  emailChangePinSubmitting = false;
+  showPinForm = false;
+
   ngOnInit(): void {
     this.profileForm = this.fb.group({
       name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+    });
+
+    this.emailChangeForm = this.fb.group({
+      newEmail: ['', [Validators.required, Validators.email]],
     });
 
     this.passwordForm = this.fb.group({
@@ -45,10 +54,10 @@ export class ProfileComponent implements OnInit {
 
     const profile = this.userStore.profile;
     if (profile) {
-      this.profileForm.patchValue({ name: profile.name, email: profile.email });
+      this.profileForm.patchValue({ name: profile.name });
     } else {
       this.userStore.profile$.subscribe((p) => {
-        if (p) this.profileForm.patchValue({ name: p.name, email: p.email });
+        if (p) this.profileForm.patchValue({ name: p.name });
       });
     }
   }
@@ -63,6 +72,62 @@ export class ProfileComponent implements OnInit {
       },
       error: () => {
         this.profileSubmitting = false;
+      },
+    });
+  }
+
+  onRequestEmailChange(): void {
+    if (this.emailChangeForm.invalid) return;
+    this.emailChangeSubmitting = true;
+
+    this.userStore.requestEmailChange(this.emailChangeForm.value.newEmail).subscribe({
+      next: () => {
+        this.emailChangeSubmitting = false;
+        this.showPinForm = true;
+        this.emailChangeForm.reset();
+      },
+      error: () => {
+        this.emailChangeSubmitting = false;
+      },
+    });
+  }
+
+  onEmailChangePinInput(index: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/\D/g, '').slice(-1);
+    this.emailChangePinDigits[index] = value;
+    input.value = value;
+    if (value && index < 5) {
+      const inputs = document.querySelectorAll<HTMLInputElement>('.email-change-pin-input');
+      inputs[index + 1]?.focus();
+    }
+    if (this.emailChangePinDigits.join('').length === 6) {
+      this.onConfirmEmailChangePin();
+    }
+  }
+
+  onEmailChangePinKeydown(index: number, event: KeyboardEvent): void {
+    if (event.key === 'Backspace' && !this.emailChangePinDigits[index] && index > 0) {
+      this.emailChangePinDigits[index - 1] = '';
+      const inputs = document.querySelectorAll<HTMLInputElement>('.email-change-pin-input');
+      inputs[index - 1]?.focus();
+    }
+  }
+
+  onConfirmEmailChangePin(): void {
+    const pin = this.emailChangePinDigits.join('');
+    if (pin.length < 6 || this.emailChangePinSubmitting) return;
+    this.emailChangePinSubmitting = true;
+
+    this.userStore.confirmEmailChangePin(pin).subscribe({
+      next: () => {
+        this.emailChangePinSubmitting = false;
+        this.showPinForm = false;
+        this.emailChangePinDigits = ['', '', '', '', '', ''];
+      },
+      error: () => {
+        this.emailChangePinSubmitting = false;
+        this.emailChangePinDigits = ['', '', '', '', '', ''];
       },
     });
   }

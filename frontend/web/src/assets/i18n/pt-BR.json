@@ -206,6 +206,12 @@
       "goalProjection": "Projeção de Meta"
     }
   },
+  "confirmEmailChange": {
+    "successTitle": "E-mail confirmado!",
+    "successDesc": "Seu endereço de e-mail foi atualizado com sucesso.",
+    "errorTitle": "Link inválido",
+    "errorDesc": "Este link de confirmação é inválido ou expirou. Retorne ao perfil e solicite uma nova alteração."
+  },
   "verifyEmail": {
     "title": "Verifique seu e-mail",
     "subtitle": "Enviamos um código de 6 dígitos e um link de verificação para",
@@ -221,6 +227,11 @@
     "emailVerified": "E-mail verificado",
     "emailPending": "Verificação pendente",
     "verifyNow": "Verificar agora",
+    "changeEmail": "Alterar E-mail",
+    "changeEmailDesc": "Um código de confirmação será enviado para o novo endereço. O atual continuará ativo até a confirmação.",
+    "newEmail": "Novo e-mail",
+    "requestEmailChange": "Solicitar alteração",
+    "emailChangeCodeSent": "Insira o código de 6 dígitos enviado para o novo e-mail.",
     "changePhoto": "Alterar foto",
     "name": "Nome",
     "email": "E-mail",
@@ -303,7 +314,12 @@
       "updateError": "Falha ao atualizar perfil.",
       "passwordError": "Falha ao alterar senha.",
       "avatarError": "Falha ao enviar foto de perfil.",
-      "deleteError": "Falha ao excluir conta."
+      "deleteError": "Falha ao excluir conta.",
+      "emailChangeSent": "Código de confirmação enviado para o novo e-mail.",
+      "emailChanged": "E-mail alterado com sucesso!",
+      "emailChangeError": "Não foi possível solicitar a alteração. Tente novamente.",
+      "emailChangePinError": "Código inválido ou expirado.",
+      "emailChangeLinkError": "Link de confirmação inválido ou expirado."
     },
     "aiFeedback": {
       "loadError": "Falha ao carregar insights de IA."

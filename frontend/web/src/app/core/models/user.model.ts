@@ -11,7 +11,6 @@ export interface UserProfile {
 
 export interface UpdateUserRequest {
   name: string;
-  email: string;
 }
 
 export interface ChangePasswordRequest {

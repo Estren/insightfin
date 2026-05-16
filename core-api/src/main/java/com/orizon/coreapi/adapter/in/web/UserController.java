@@ -1,13 +1,18 @@
 package com.orizon.coreapi.adapter.in.web;
 
 import com.orizon.coreapi.adapter.in.web.dto.ChangePasswordRequest;
+import com.orizon.coreapi.adapter.in.web.dto.EmailChangeRequest;
+import com.orizon.coreapi.adapter.in.web.dto.EmailChangePinConfirmRequest;
 import com.orizon.coreapi.adapter.in.web.dto.UpdateUserRequest;
+import com.orizon.coreapi.adapter.in.web.dto.VerifyEmailRequest;
 import com.orizon.coreapi.adapter.in.web.dto.UserResponse;
 import com.orizon.coreapi.adapter.in.web.mapper.WebMapper;
 import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.ChangePasswordUseCase;
+import com.orizon.coreapi.domain.port.in.ConfirmEmailChangeUseCase;
 import com.orizon.coreapi.domain.port.in.DeleteUserUseCase;
 import com.orizon.coreapi.domain.port.in.GetCurrentUserUseCase;
+import com.orizon.coreapi.domain.port.in.RequestEmailChangeUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateUserUseCase;
 import com.orizon.coreapi.domain.port.in.UploadAvatarUseCase;
 import jakarta.inject.Inject;
@@ -49,6 +54,12 @@ public class UserController {
     UploadAvatarUseCase uploadAvatarUseCase;
 
     @Inject
+    RequestEmailChangeUseCase requestEmailChangeUseCase;
+
+    @Inject
+    ConfirmEmailChangeUseCase confirmEmailChangeUseCase;
+
+    @Inject
     AuthenticatedUser authenticatedUser;
 
     private static final List<String> ALLOWED_TYPES =
@@ -65,9 +76,29 @@ public class UserController {
     @PUT
     @Path("/me")
     public UserResponse updateMe(@Valid UpdateUserRequest request) {
-        var user = updateUserUseCase.update(
-                authenticatedUser.getUserId(), request.name(), request.email());
+        var user = updateUserUseCase.update(authenticatedUser.getUserId(), request.name());
         return WebMapper.toResponse(user);
+    }
+
+    @POST
+    @Path("/me/email/change-request")
+    public Response emailChangeRequest(@Valid EmailChangeRequest request) {
+        requestEmailChangeUseCase.execute(authenticatedUser.getUserId(), request.newEmail());
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/me/email/change-confirm")
+    public Response emailChangeConfirm(@Valid VerifyEmailRequest request) {
+        confirmEmailChangeUseCase.confirmByLink(authenticatedUser.getUserId(), request.token());
+        return Response.noContent().build();
+    }
+
+    @POST
+    @Path("/me/email/change-confirm-pin")
+    public Response emailChangeConfirmPin(@Valid EmailChangePinConfirmRequest request) {
+        confirmEmailChangeUseCase.confirmByPin(authenticatedUser.getUserId(), request.pin());
+        return Response.noContent().build();
     }
 
     @DELETE

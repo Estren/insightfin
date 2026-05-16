@@ -183,4 +183,137 @@ public class AzureCommunicationEmailAdapter implements EmailSender {
                 If you didn't sign up, you can safely ignore this email.
                 """.formatted(name, link, pin);
     }
+
+    @Override
+    public void sendEmailChangeConfirmation(String toNewEmail, String recipientName, String confirmLink, String pin) {
+        if (!enabled || emailClient == null) {
+            LOG.infof("[email-dev] Email change confirmation link for %s: %s | PIN: %s", toNewEmail, confirmLink, pin);
+            return;
+        }
+
+        String safeName = recipientName == null || recipientName.isBlank() ? "there" : recipientName;
+        String subject = "Confirm your new email — InsightFin";
+        String html = buildEmailChangeConfirmHtml(safeName, confirmLink, pin);
+        String plain = buildEmailChangeConfirmPlainText(safeName, confirmLink, pin);
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                EmailMessage message = new EmailMessage()
+                        .setSenderAddress(senderAddress.get())
+                        .setToRecipients(toNewEmail)
+                        .setSubject(subject)
+                        .setBodyHtml(html)
+                        .setBodyPlainText(plain);
+
+                SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(message, null);
+                EmailSendResult result = poller.waitForCompletion().getValue();
+                LOG.infof("ACS email-change confirmation sent to %s, messageId=%s", toNewEmail, result.getId());
+            } catch (Exception ex) {
+                LOG.errorf(ex, "Failed to send email-change confirmation to %s", toNewEmail);
+            }
+        });
+    }
+
+    @Override
+    public void sendEmailChangeNotice(String toOldEmail, String recipientName, String newEmail) {
+        if (!enabled || emailClient == null) {
+            LOG.infof("[email-dev] Email change notice for %s: new email will be %s", toOldEmail, newEmail);
+            return;
+        }
+
+        String safeName = recipientName == null || recipientName.isBlank() ? "there" : recipientName;
+        String subject = "Your InsightFin email is being changed";
+        String html = buildEmailChangeNoticeHtml(safeName, newEmail);
+        String plain = buildEmailChangeNoticePlainText(safeName, newEmail);
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                EmailMessage message = new EmailMessage()
+                        .setSenderAddress(senderAddress.get())
+                        .setToRecipients(toOldEmail)
+                        .setSubject(subject)
+                        .setBodyHtml(html)
+                        .setBodyPlainText(plain);
+
+                SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(message, null);
+                EmailSendResult result = poller.waitForCompletion().getValue();
+                LOG.infof("ACS email-change notice sent to %s, messageId=%s", toOldEmail, result.getId());
+            } catch (Exception ex) {
+                LOG.errorf(ex, "Failed to send email-change notice to %s", toOldEmail);
+            }
+        });
+    }
+
+    private String buildEmailChangeConfirmHtml(String name, String link, String pin) {
+        return """
+                <!doctype html>
+                <html>
+                  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color:#f6f8fb; padding:32px;">
+                    <table align="center" width="480" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:12px; padding:32px;">
+                      <tr><td>
+                        <h2 style="color:#1f2937; margin-top:0;">Confirm your new email</h2>
+                        <p style="color:#374151; line-height:1.5;">Hi %s,</p>
+                        <p style="color:#374151; line-height:1.5;">We received a request to update your InsightFin email address to this one. Click the button below to confirm. This link and code expire in 24 hours.</p>
+                        <p style="text-align:center; margin:32px 0;">
+                          <a href="%s" style="background:#2490FF; color:#ffffff; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:600; display:inline-block;">Confirm new email</a>
+                        </p>
+                        <p style="color:#374151; line-height:1.5; text-align:center;">Or enter this code in the app:</p>
+                        <p style="text-align:center; margin:8px 0 32px 0;">
+                          <span style="display:inline-block; background:#f3f4f6; padding:14px 24px; border-radius:8px; font-family:'SF Mono', Consolas, monospace; font-size:24px; letter-spacing:8px; color:#1f2937; font-weight:600;">%s</span>
+                        </p>
+                        <p style="color:#6b7280; font-size:13px; line-height:1.5;">If you didn't request this change, contact our support team immediately.</p>
+                      </td></tr>
+                    </table>
+                  </body>
+                </html>
+                """.formatted(name, link, pin);
+    }
+
+    private String buildEmailChangeConfirmPlainText(String name, String link, String pin) {
+        return """
+                Hi %s,
+
+                We received a request to update your InsightFin email to this address. Confirm it using the link or code below.
+
+                Confirmation link:
+                %s
+
+                Or enter this code in the app: %s
+
+                This link and code expire in 24 hours.
+
+                If you didn't request this, contact our support immediately.
+                """.formatted(name, link, pin);
+    }
+
+    private String buildEmailChangeNoticeHtml(String name, String newEmail) {
+        return """
+                <!doctype html>
+                <html>
+                  <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color:#f6f8fb; padding:32px;">
+                    <table align="center" width="480" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:12px; padding:32px;">
+                      <tr><td>
+                        <h2 style="color:#1f2937; margin-top:0;">Email address change requested</h2>
+                        <p style="color:#374151; line-height:1.5;">Hi %s,</p>
+                        <p style="color:#374151; line-height:1.5;">A request was made to change your InsightFin email address to <strong>%s</strong>.</p>
+                        <p style="color:#374151; line-height:1.5;">If this was you, no action is required on this address — a confirmation link was sent to the new email.</p>
+                        <p style="color:#6b7280; font-size:13px; line-height:1.5;">If you didn't request this change, contact our support team immediately to secure your account.</p>
+                      </td></tr>
+                    </table>
+                  </body>
+                </html>
+                """.formatted(name, newEmail);
+    }
+
+    private String buildEmailChangeNoticePlainText(String name, String newEmail) {
+        return """
+                Hi %s,
+
+                A request was made to change your InsightFin email to: %s
+
+                If this was you, no action is required here — check the new email for a confirmation link.
+
+                If you didn't request this, contact our support team immediately.
+                """.formatted(name, newEmail);
+    }
 }
