@@ -1,0 +1,47 @@
+<app-page-header [title]="'feedbacks.title' | translate" [subtitle]="'feedbacks.subtitle' | translate" />
+
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <label class="text-foreground mb-1 block text-sm font-medium">{{ 'feedbacks.month' | translate }}</label>
+    <input
+      type="month"
+      [ngModel]="selectedMonth"
+      (ngModelChange)="onMonthChange($event)"
+      class="border-border bg-background text-foreground focus:ring-primary rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
+  </div>
+
+  <div class="flex flex-wrap gap-2">
+    @for (chip of typeChips; track chip.type) {
+      <button
+        type="button"
+        (click)="toggleType(chip.type)"
+        [ngClass]="
+          isSelected(chip.type)
+            ? 'bg-primary text-white border-primary'
+            : 'bg-background text-muted-foreground border-border hover:text-foreground'
+        "
+        class="cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors">
+        {{ chip.labelKey | translate }}
+      </button>
+    }
+  </div>
+</div>
+
+<app-card>
+  @if (feedbackStore.loading$ | async) {
+    <app-loading />
+  } @else if (feedbackStore.feedbacks$ | async; as all) {
+    @let filtered = applyTypeFilter(all);
+    @if (filtered.length === 0) {
+      <app-empty-state
+        [title]="'feedbacks.empty' | translate"
+        [description]="'feedbacks.emptyDesc' | translate" />
+    } @else {
+      <div class="space-y-2">
+        @for (f of filtered; track f.id) {
+          <app-feedback-card [feedback]="f" />
+        }
+      </div>
+    }
+  }
+</app-card>

@@ -11,6 +11,11 @@ export class Menu {
           label: 'nav.dashboard',
           route: '/dashboard',
         },
+        {
+          icon: 'assets/icons/heroicons/outline/information-circle.svg',
+          label: 'nav.feedbacks',
+          route: '/feedbacks',
+        },
       ],
     },
     {

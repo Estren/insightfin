@@ -1,0 +1,23 @@
+<div
+  class="hover:bg-muted/50 cursor-pointer rounded-md border p-3 transition-colors"
+  (click)="toggle()">
+  <div class="flex items-start gap-3">
+    <div class="min-w-0 flex-1">
+      <div class="mb-1 flex items-center gap-2">
+        <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium" [ngClass]="badgeClass">
+          {{ labelKey | translate }}
+        </span>
+        @if (!feedback().read) {
+          <span class="h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></span>
+        }
+      </div>
+      <p class="text-foreground truncate text-sm font-medium">{{ feedback().title }}</p>
+      @if (feedback().referenceMonth) {
+        <p class="text-muted-foreground mt-0.5 text-xs">{{ feedback().referenceMonth }}</p>
+      }
+    </div>
+  </div>
+  @if (expanded()) {
+    <p class="text-muted-foreground mt-3 whitespace-pre-line border-t pt-3 text-sm">{{ feedback().content }}</p>
+  }
+</div>

@@ -29,6 +29,11 @@ const routes: Routes = [
     loadChildren: () => import('../goals/goals.module').then((m) => m.GoalsModule),
   },
   {
+    path: 'feedbacks',
+    component: LayoutComponent,
+    loadChildren: () => import('../feedbacks/feedbacks.module').then((m) => m.FeedbacksModule),
+  },
+  {
     path: 'profile',
     component: LayoutComponent,
     loadChildren: () => import('../profile/profile.module').then((m) => m.ProfileModule),
