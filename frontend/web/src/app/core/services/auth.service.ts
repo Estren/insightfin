@@ -33,4 +33,16 @@ export class AuthService {
   resetPassword(token: string, password: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/auth/reset-password`, { token, password });
   }
+
+  verifyEmailByLink(token: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/verify-email`, { token });
+  }
+
+  verifyEmailByPin(email: string, pin: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/verify-email-pin`, { email, pin });
+  }
+
+  resendVerification(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/resend-verification`, { email });
+  }
 }

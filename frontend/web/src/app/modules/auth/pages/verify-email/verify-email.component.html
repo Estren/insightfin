@@ -1,0 +1,77 @@
+<div class="my-10 space-y-6">
+  <div class="text-center">
+    <h2 class="text-foreground mb-1 text-3xl font-semibold">
+      {{ 'verifyEmail.title' | translate }} <span class="text-primary">!</span>
+    </h2>
+    <p class="text-muted-foreground text-sm">
+      {{ 'verifyEmail.subtitle' | translate }}
+      @if (email) {
+        <strong class="text-foreground"> {{ email }}</strong>
+      }
+    </p>
+  </div>
+
+  @if (linkError) {
+    <div class="bg-destructive/10 border-destructive/30 rounded-md border px-4 py-3 text-center text-sm text-red-600 dark:text-red-400">
+      {{ 'verifyEmail.linkInvalid' | translate }}
+    </div>
+  }
+
+  @if (loading && !linkError) {
+    <div class="flex flex-col items-center gap-3 py-4">
+      <div class="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+      <p class="text-muted-foreground text-sm">{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else {
+    <div class="space-y-6">
+      <!-- OTP inputs -->
+      <div class="flex justify-center gap-3">
+        @for (digit of digits; track $index) {
+          <input
+            #pinInput
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            [value]="digit"
+            [ngClass]="{ 'border-primary ring-primary ring-1': digit }"
+            class="border-border bg-background text-foreground focus:border-primary focus:ring-primary h-14 w-12 rounded-lg border text-center text-2xl font-semibold shadow-sm transition-all focus:outline-hidden focus:ring-2"
+            (input)="onDigitInput($index, $event)"
+            (keydown)="onDigitKeydown($index, $event)"
+            (paste)="onPaste($event)" />
+        }
+      </div>
+
+      <!-- Verify button -->
+      <div>
+        <app-button
+          full
+          impact="bold"
+          tone="primary"
+          shape="rounded"
+          size="medium"
+          [disabled]="pin.length < 6 || loading"
+          (click)="verifyByPin()">
+          {{ loading ? ('common.loading' | translate) : ('verifyEmail.verify' | translate) }}
+        </app-button>
+      </div>
+
+      <!-- Resend -->
+      <div class="text-muted-foreground flex items-center justify-center text-sm">
+        @if (cooldown > 0) {
+          <span>{{ 'verifyEmail.resendCooldown' | translate : { seconds: cooldown } }}</span>
+        } @else {
+          <app-button impact="none" tone="primary" shape="rounded" size="small" [disabled]="!email" (click)="resend()">
+            {{ 'verifyEmail.resend' | translate }}
+          </app-button>
+        }
+      </div>
+
+      <!-- Back to login -->
+      <div class="text-muted-foreground flex items-center justify-center text-sm">
+        <app-button routerLink="/auth/sign-in" impact="none" tone="light" shape="rounded" size="small">
+          {{ 'auth.backToLogin' | translate }}
+        </app-button>
+      </div>
+    </div>
+  }
+</div>

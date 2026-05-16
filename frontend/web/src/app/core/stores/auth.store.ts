@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map, tap } from 'rxjs';
 import { LoginRequest, RegisterRequest } from '../models/auth.model';
 import { AuthService } from '../services/auth.service';
+import { decodeJwtPayload } from '../utils/jwt.utils';
 
 const ACCESS_TOKEN_KEY = 'insightfin_access_token';
 const REFRESH_TOKEN_KEY = 'insightfin_refresh_token';
@@ -23,6 +24,18 @@ export class AuthStore {
 
   getRefreshToken(): string | null {
     return localStorage.getItem(REFRESH_TOKEN_KEY);
+  }
+
+  isEmailVerified(): boolean {
+    const token = this.getAccessToken();
+    if (!token) return false;
+    return decodeJwtPayload(token)['email_verified'] === true;
+  }
+
+  getEmailFromToken(): string | null {
+    const token = this.getAccessToken();
+    if (!token) return null;
+    return (decodeJwtPayload(token)['email'] as string) ?? null;
   }
 
   login(request: LoginRequest): Observable<void> {

@@ -206,10 +206,21 @@
       "goalProjection": "Goal Projection"
     }
   },
+  "verifyEmail": {
+    "title": "Verify your email",
+    "subtitle": "We sent a 6-digit code and a verification link to",
+    "verify": "Verify",
+    "resend": "Resend email",
+    "resendCooldown": "Resend in {{seconds}}s",
+    "linkInvalid": "Invalid or expired link. Enter the code below."
+  },
   "profile": {
     "title": "Profile",
     "subtitle": "Manage your personal information and account security.",
     "personalInfo": "Personal Information",
+    "emailVerified": "Email verified",
+    "emailPending": "Pending verification",
+    "verifyNow": "Verify now",
     "changePhoto": "Change photo",
     "name": "Name",
     "email": "Email",
@@ -309,7 +320,11 @@
       "forgotSent": "If an account exists with this email, we just sent a reset link.",
       "resetSuccess": "Password reset. You can sign in with your new password.",
       "resetInvalid": "This reset link is invalid or has expired. Request a new one.",
-      "resetError": "Could not reset the password. Please try again."
+      "resetError": "Could not reset the password. Please try again.",
+      "verifySuccess": "Email verified successfully!",
+      "verifyPinError": "Invalid or expired code.",
+      "verifyResent": "Verification email resent.",
+      "verifyResendError": "Could not resend the email. Please try again."
     },
     "generic": {
       "error": "An unexpected error occurred."

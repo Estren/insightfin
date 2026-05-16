@@ -1,14 +1,15 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { UserStore } from '../../../../core/stores/user.store';
+import { AuthStore } from '../../../../core/stores/auth.store';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  imports: [ReactiveFormsModule, AsyncPipe, TranslateModule],
+  imports: [ReactiveFormsModule, AsyncPipe, TranslateModule, RouterLink],
 })
 export class ProfileComponent implements OnInit {
   profileForm!: FormGroup;
@@ -24,6 +25,7 @@ export class ProfileComponent implements OnInit {
     private readonly fb: FormBuilder,
     private readonly router: Router,
     public readonly userStore: UserStore,
+    public readonly authStore: AuthStore,
   ) {}
 
   ngOnInit(): void {

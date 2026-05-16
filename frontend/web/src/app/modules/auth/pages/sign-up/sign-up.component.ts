@@ -58,7 +58,7 @@ export class SignUpComponent implements OnInit {
     this._authStore.register({ name, email, password }).subscribe({
       next: () => {
         this.loading = false;
-        this._router.navigate(['/']);
+        this._router.navigate(['/auth/verify-email']);
       },
       error: (err) => {
         this.loading = false;

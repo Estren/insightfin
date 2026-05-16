@@ -206,10 +206,21 @@
       "goalProjection": "Projeção de Meta"
     }
   },
+  "verifyEmail": {
+    "title": "Verifique seu e-mail",
+    "subtitle": "Enviamos um código de 6 dígitos e um link de verificação para",
+    "verify": "Verificar",
+    "resend": "Reenviar e-mail",
+    "resendCooldown": "Reenviar em {{seconds}}s",
+    "linkInvalid": "Link inválido ou expirado. Insira o código abaixo."
+  },
   "profile": {
     "title": "Perfil",
     "subtitle": "Gerencie suas informações pessoais e segurança da conta.",
     "personalInfo": "Informações Pessoais",
+    "emailVerified": "E-mail verificado",
+    "emailPending": "Verificação pendente",
+    "verifyNow": "Verificar agora",
     "changePhoto": "Alterar foto",
     "name": "Nome",
     "email": "E-mail",
@@ -309,7 +320,11 @@
       "forgotSent": "Se existir uma conta com este e-mail, enviamos um link de redefinição.",
       "resetSuccess": "Senha redefinida. Faça login com sua nova senha.",
       "resetInvalid": "Este link de redefinição é inválido ou expirou. Solicite um novo.",
-      "resetError": "Não foi possível redefinir a senha. Tente novamente."
+      "resetError": "Não foi possível redefinir a senha. Tente novamente.",
+      "verifySuccess": "E-mail verificado com sucesso!",
+      "verifyPinError": "Código inválido ou expirado.",
+      "verifyResent": "E-mail de verificação reenviado.",
+      "verifyResendError": "Não foi possível reenviar o e-mail. Tente novamente."
     },
     "generic": {
       "error": "Ocorreu um erro inesperado."
