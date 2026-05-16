@@ -206,10 +206,32 @@
       "goalProjection": "Goal Projection"
     }
   },
+  "confirmEmailChange": {
+    "successTitle": "Email confirmed!",
+    "successDesc": "Your email address has been updated successfully.",
+    "errorTitle": "Invalid link",
+    "errorDesc": "This confirmation link is invalid or has expired. Go back to your profile and request a new change."
+  },
+  "verifyEmail": {
+    "title": "Verify your email",
+    "subtitle": "We sent a 6-digit code and a verification link to",
+    "verify": "Verify",
+    "resend": "Resend email",
+    "resendCooldown": "Resend in {{seconds}}s",
+    "linkInvalid": "Invalid or expired link. Enter the code below."
+  },
   "profile": {
     "title": "Profile",
     "subtitle": "Manage your personal information and account security.",
     "personalInfo": "Personal Information",
+    "emailVerified": "Email verified",
+    "emailPending": "Pending verification",
+    "verifyNow": "Verify now",
+    "changeEmail": "Change Email",
+    "changeEmailDesc": "A confirmation code will be sent to the new address. Your current email stays active until confirmed.",
+    "newEmail": "New email",
+    "requestEmailChange": "Request change",
+    "emailChangeCodeSent": "Enter the 6-digit code sent to your new email.",
     "changePhoto": "Change photo",
     "name": "Name",
     "email": "Email",
@@ -292,7 +314,12 @@
       "updateError": "Failed to update profile.",
       "passwordError": "Failed to change password.",
       "avatarError": "Failed to upload profile photo.",
-      "deleteError": "Failed to delete account."
+      "deleteError": "Failed to delete account.",
+      "emailChangeSent": "Confirmation code sent to your new email.",
+      "emailChanged": "Email updated successfully!",
+      "emailChangeError": "Could not request the email change. Please try again.",
+      "emailChangePinError": "Invalid or expired code.",
+      "emailChangeLinkError": "Invalid or expired confirmation link."
     },
     "aiFeedback": {
       "loadError": "Failed to load AI insights."
@@ -309,7 +336,11 @@
       "forgotSent": "If an account exists with this email, we just sent a reset link.",
       "resetSuccess": "Password reset. You can sign in with your new password.",
       "resetInvalid": "This reset link is invalid or has expired. Request a new one.",
-      "resetError": "Could not reset the password. Please try again."
+      "resetError": "Could not reset the password. Please try again.",
+      "verifySuccess": "Email verified successfully!",
+      "verifyPinError": "Invalid or expired code.",
+      "verifyResent": "Verification email resent.",
+      "verifyResendError": "Could not resend the email. Please try again."
     },
     "generic": {
       "error": "An unexpected error occurred."

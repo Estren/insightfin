@@ -93,6 +93,43 @@ export class UserStore {
     );
   }
 
+  requestEmailChange(newEmail: string): Observable<void> {
+    return this.userService.requestEmailChange(newEmail).pipe(
+      tap(() => this.toastService.success('toast.user.emailChangeSent')),
+      catchError((err) => {
+        const key = err.status === 409 ? 'toast.auth.emailTaken' : 'toast.user.emailChangeError';
+        this.toastService.error(key);
+        return throwError(() => err);
+      }),
+    );
+  }
+
+  confirmEmailChangePin(pin: string): Observable<void> {
+    return this.userService.confirmEmailChangeByPin(pin).pipe(
+      tap(() => {
+        this.toastService.success('toast.user.emailChanged');
+        this.load();
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.user.emailChangePinError');
+        return throwError(() => err);
+      }),
+    );
+  }
+
+  confirmEmailChangeByLink(token: string): Observable<void> {
+    return this.userService.confirmEmailChangeByLink(token).pipe(
+      tap(() => {
+        this.toastService.success('toast.user.emailChanged');
+        this.load();
+      }),
+      catchError((err) => {
+        this.toastService.error('toast.user.emailChangeLinkError');
+        return throwError(() => err);
+      }),
+    );
+  }
+
   clear(): void {
     this._profile$.next(null);
     this._error$.next('');

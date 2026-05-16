@@ -11,4 +11,5 @@ public interface EmailVerificationTokenRepository {
     Optional<EmailVerificationToken> findByTokenHash(String tokenHash);
     Optional<EmailVerificationToken> findActiveByUserAndPurpose(UUID userId, EmailVerificationPurpose purpose);
     void invalidateActiveByUserAndPurpose(UUID userId, EmailVerificationPurpose purpose);
+    Optional<EmailVerificationToken> findActiveByTargetEmailAndPurpose(String targetEmail, EmailVerificationPurpose purpose);
 }

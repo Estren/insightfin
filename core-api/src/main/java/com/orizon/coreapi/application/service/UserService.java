@@ -129,17 +129,10 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
     }
 
     @Override
-    public User update(UUID userId, String name, String email) {
+    public User update(UUID userId, String name) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
-
-        String normalizedEmail = normalizeEmail(email);
-        if (!user.getEmail().equals(normalizedEmail) && userRepository.existsByEmail(normalizedEmail)) {
-            throw new DuplicateResourceException("Email already registered: " + normalizedEmail);
-        }
-
         user.setName(name);
-        user.setEmail(normalizedEmail);
         user.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(user);
     }

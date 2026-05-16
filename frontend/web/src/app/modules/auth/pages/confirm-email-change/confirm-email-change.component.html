@@ -1,0 +1,38 @@
+<div class="my-10 space-y-6 text-center">
+  @if (loading) {
+    <div class="flex flex-col items-center gap-3 py-4">
+      <div class="border-primary h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"></div>
+      <p class="text-muted-foreground text-sm">{{ 'common.loading' | translate }}</p>
+    </div>
+  } @else if (success) {
+    <div class="space-y-4">
+      <div class="flex justify-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+          <svg class="h-8 w-8 text-green-600 dark:text-green-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 00-1.414 0L8 12.586 4.707 9.293a1 1 0 00-1.414 1.414l4 4a1 1 0 001.414 0l8-8a1 1 0 000-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+      <h2 class="text-foreground text-2xl font-semibold">{{ 'confirmEmailChange.successTitle' | translate }}</h2>
+      <p class="text-muted-foreground text-sm">{{ 'confirmEmailChange.successDesc' | translate }}</p>
+      <app-button impact="bold" tone="primary" shape="rounded" size="medium" (click)="goToDashboard()">
+        {{ 'common.homePage' | translate }}
+      </app-button>
+    </div>
+  } @else {
+    <div class="space-y-4">
+      <div class="flex justify-center">
+        <div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+          <svg class="h-8 w-8 text-red-600 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+      </div>
+      <h2 class="text-foreground text-2xl font-semibold">{{ 'confirmEmailChange.errorTitle' | translate }}</h2>
+      <p class="text-muted-foreground text-sm">{{ 'confirmEmailChange.errorDesc' | translate }}</p>
+      <app-button routerLink="/" impact="bold" tone="primary" shape="rounded" size="medium">
+        {{ 'common.homePage' | translate }}
+      </app-button>
+    </div>
+  }
+</div>

@@ -56,4 +56,10 @@ public class EmailVerificationTokenRepositoryAdapter implements EmailVerificatio
     public void invalidateActiveByUserAndPurpose(UUID userId, EmailVerificationPurpose purpose) {
         jpaRepository.invalidateActiveByUserAndPurpose(userId, purpose, LocalDateTime.now());
     }
+
+    @Override
+    public Optional<EmailVerificationToken> findActiveByTargetEmailAndPurpose(String targetEmail, EmailVerificationPurpose purpose) {
+        return jpaRepository.findActiveByTargetEmailAndPurpose(targetEmail, purpose)
+                .map(EmailVerificationTokenPersistenceMapper::toDomain);
+    }
 }

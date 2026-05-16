@@ -20,6 +20,10 @@ public class JpaEmailVerificationTokenRepository implements PanacheRepositoryBas
         return find("userId = ?1 and purpose = ?2 and usedAt is null", userId, purpose).firstResultOptional();
     }
 
+    public Optional<EmailVerificationTokenEntity> findActiveByTargetEmailAndPurpose(String targetEmail, EmailVerificationPurpose purpose) {
+        return find("targetEmail = ?1 and purpose = ?2 and usedAt is null", targetEmail, purpose).firstResultOptional();
+    }
+
     public int invalidateActiveByUserAndPurpose(UUID userId, EmailVerificationPurpose purpose, LocalDateTime now) {
         return update("usedAt = ?1 where userId = ?2 and purpose = ?3 and usedAt is null", now, userId, purpose);
     }
