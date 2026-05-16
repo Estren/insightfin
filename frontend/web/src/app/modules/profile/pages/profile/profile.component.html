@@ -104,6 +104,15 @@
             formControlName="newEmail"
             type="email"
             class="border-border bg-background text-foreground placeholder:text-muted-foreground focus:ring-primary w-full rounded-md border px-3 py-2 text-sm focus:outline-hidden focus:ring-2" />
+          @if (emailChangeForm.get('newEmail')?.errors?.['emailTaken']) {
+            <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ 'profile.errors.emailTaken' | translate }}</p>
+          }
+          @if (emailChangeForm.get('newEmail')?.errors?.['sameEmail']) {
+            <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ 'profile.errors.sameEmail' | translate }}</p>
+          }
+          @if (emailChangeForm.get('newEmail')?.touched && emailChangeForm.get('newEmail')?.errors?.['email']) {
+            <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ 'auth.errors.emailInvalid' | translate }}</p>
+          }
         </div>
         <div class="flex justify-end">
           <button
@@ -116,7 +125,10 @@
       </form>
     } @else {
       <div class="space-y-4">
-        <p class="text-muted-foreground text-sm">{{ 'profile.emailChangeCodeSent' | translate }}</p>
+        <p class="text-muted-foreground text-sm">
+          {{ 'profile.emailChangeCodeSent' | translate }}
+          <strong class="text-foreground">{{ pendingNewEmail }}</strong>
+        </p>
         <div class="flex justify-center gap-3">
           @for (digit of emailChangePinDigits; track $index) {
             <input
@@ -124,15 +136,28 @@
               inputmode="numeric"
               maxlength="1"
               [value]="digit"
+              [class.border-red-500]="emailChangePinError"
               class="email-change-pin-input border-border bg-background text-foreground focus:border-primary focus:ring-primary h-14 w-12 rounded-lg border text-center text-2xl font-semibold shadow-sm transition-all focus:outline-hidden focus:ring-2"
               (input)="onEmailChangePinInput($index, $event)"
               (keydown)="onEmailChangePinKeydown($index, $event)" />
           }
         </div>
+        @if (emailChangePinError) {
+          <p class="text-center text-xs text-red-600 dark:text-red-400">{{ 'toast.user.emailChangePinError' | translate }}</p>
+        }
+        <div class="flex items-center justify-center text-sm">
+          @if (resendCooldown > 0) {
+            <span class="text-muted-foreground">{{ 'verifyEmail.resendCooldown' | translate : { seconds: resendCooldown } }}</span>
+          } @else {
+            <button type="button" (click)="onResendEmailChange()" class="text-primary text-sm font-medium hover:underline">
+              {{ 'verifyEmail.resend' | translate }}
+            </button>
+          }
+        </div>
         <div class="flex items-center justify-between">
           <button
             type="button"
-            (click)="showPinForm = false"
+            (click)="cancelEmailChange()"
             class="text-muted-foreground text-sm hover:underline">
             {{ 'common.cancel' | translate }}
           </button>

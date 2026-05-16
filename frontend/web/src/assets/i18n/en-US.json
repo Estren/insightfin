@@ -209,6 +209,7 @@
   "confirmEmailChange": {
     "successTitle": "Email confirmed!",
     "successDesc": "Your email address has been updated successfully.",
+    "successSignInDesc": "Your email has been updated. For security, please sign in again with the new address.",
     "errorTitle": "Invalid link",
     "errorDesc": "This confirmation link is invalid or has expired. Go back to your profile and request a new change."
   },
@@ -251,7 +252,9 @@
       "avatarFailed": "Failed to upload photo. Max 5 MB, jpeg/png/webp/gif only.",
       "profileFailed": "Failed to update profile. Please try again.",
       "passwordWrong": "Current password is incorrect.",
-      "passwordFailed": "Failed to change password. Please try again."
+      "passwordFailed": "Failed to change password. Please try again.",
+      "emailTaken": "This email is already in use by another account.",
+      "sameEmail": "The new email must be different from your current one."
     }
   },
   "error": {

@@ -3,9 +3,6 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'src/app/shared/components/button/button.component';
 import { UserStore } from '../../../../core/stores/user.store';
-import { AuthStore } from '../../../../core/stores/auth.store';
-import { AuthService } from '../../../../core/services/auth.service';
-import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-confirm-email-change',
@@ -21,9 +18,6 @@ export class ConfirmEmailChangeComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly userStore: UserStore,
-    private readonly authStore: AuthStore,
-    private readonly authService: AuthService,
-    private readonly toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +32,6 @@ export class ConfirmEmailChangeComponent implements OnInit {
       next: () => {
         this.loading = false;
         this.success = true;
-        this.refreshTokenSilently();
       },
       error: () => {
         this.loading = false;
@@ -47,17 +40,7 @@ export class ConfirmEmailChangeComponent implements OnInit {
     });
   }
 
-  goToDashboard(): void {
-    this.router.navigate(['/']);
-  }
-
-  private refreshTokenSilently(): void {
-    const refreshToken = this.authStore.getRefreshToken();
-    if (!refreshToken) return;
-
-    this.authService.refresh(refreshToken).subscribe({
-      next: (response) => this.authStore.saveTokens(response.accessToken, response.refreshToken),
-      error: () => {},
-    });
+  goToSignIn(): void {
+    this.router.navigate(['/auth/sign-in']);
   }
 }

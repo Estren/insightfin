@@ -14,9 +14,9 @@
         </div>
       </div>
       <h2 class="text-foreground text-2xl font-semibold">{{ 'confirmEmailChange.successTitle' | translate }}</h2>
-      <p class="text-muted-foreground text-sm">{{ 'confirmEmailChange.successDesc' | translate }}</p>
-      <app-button impact="bold" tone="primary" shape="rounded" size="medium" (click)="goToDashboard()">
-        {{ 'common.homePage' | translate }}
+      <p class="text-muted-foreground text-sm">{{ 'confirmEmailChange.successSignInDesc' | translate }}</p>
+      <app-button impact="bold" tone="primary" shape="rounded" size="medium" (click)="goToSignIn()">
+        {{ 'auth.signIn' | translate }}
       </app-button>
     </div>
   } @else {
@@ -30,8 +30,8 @@
       </div>
       <h2 class="text-foreground text-2xl font-semibold">{{ 'confirmEmailChange.errorTitle' | translate }}</h2>
       <p class="text-muted-foreground text-sm">{{ 'confirmEmailChange.errorDesc' | translate }}</p>
-      <app-button routerLink="/" impact="bold" tone="primary" shape="rounded" size="medium">
-        {{ 'common.homePage' | translate }}
+      <app-button routerLink="/auth/sign-in" impact="bold" tone="primary" shape="rounded" size="medium">
+        {{ 'auth.signIn' | translate }}
       </app-button>
     </div>
   }

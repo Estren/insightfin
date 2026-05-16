@@ -12,6 +12,7 @@ import com.orizon.coreapi.domain.port.in.RequestEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.in.ResendEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.out.EmailSender;
 import com.orizon.coreapi.domain.port.out.EmailVerificationTokenRepository;
+import com.orizon.coreapi.domain.port.out.RefreshTokenRepository;
 import com.orizon.coreapi.domain.port.out.UserRepository;
 import org.jboss.logging.Logger;
 
@@ -38,6 +39,7 @@ public class EmailVerificationService implements
     private final UserRepository userRepository;
     private final EmailVerificationTokenRepository tokenRepository;
     private final EmailSender emailSender;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final int registrationTtlHours;
     private final int pinMaxAttempts;
     private final String frontendBaseUrl;
@@ -46,12 +48,14 @@ public class EmailVerificationService implements
     public EmailVerificationService(UserRepository userRepository,
                                     EmailVerificationTokenRepository tokenRepository,
                                     EmailSender emailSender,
+                                    RefreshTokenRepository refreshTokenRepository,
                                     int registrationTtlHours,
                                     int pinMaxAttempts,
                                     String frontendBaseUrl) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.emailSender = emailSender;
+        this.refreshTokenRepository = refreshTokenRepository;
         this.registrationTtlHours = registrationTtlHours;
         this.pinMaxAttempts = pinMaxAttempts;
         this.frontendBaseUrl = frontendBaseUrl;
@@ -315,5 +319,7 @@ public class EmailVerificationService implements
         user.setEmailVerifiedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
+        // Revoke all refresh tokens — force re-login on every device with the new email.
+        refreshTokenRepository.revokeAllByUserId(userId);
     }
 }
