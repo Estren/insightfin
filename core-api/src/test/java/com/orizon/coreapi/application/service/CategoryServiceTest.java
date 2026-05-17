@@ -6,6 +6,7 @@ import com.orizon.coreapi.domain.model.Category;
 import com.orizon.coreapi.domain.model.TransactionType;
 import com.orizon.coreapi.domain.port.in.DeleteCategoryUseCase;
 import com.orizon.coreapi.domain.port.out.CategoryRepository;
+import com.orizon.coreapi.domain.port.out.RecurringTransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,12 +27,13 @@ import static org.mockito.Mockito.*;
 class CategoryServiceTest {
 
     @Mock CategoryRepository categoryRepository;
+    @Mock RecurringTransactionRepository recurringTransactionRepository;
 
     private CategoryService service;
 
     @BeforeEach
     void setUp() {
-        service = new CategoryService(categoryRepository);
+        service = new CategoryService(categoryRepository, recurringTransactionRepository);
     }
 
     // --- C1 ---

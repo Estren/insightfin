@@ -35,6 +35,7 @@
     "budgets": "Orçamentos",
     "goals": "Metas",
     "feedbacks": "Insights",
+    "recurring": "Recorrentes",
     "profile": "Perfil",
     "unreadInsights": "Insights não lidos: {{count}}"
   },
@@ -216,6 +217,41 @@
     "empty": "Nenhum insight para este mês",
     "emptyDesc": "Ajuste os filtros ou aguarde o próximo relatório."
   },
+  "recurring": {
+    "title": "Transações recorrentes",
+    "subtitle": "Salário, aluguel, assinaturas — o app cria as transações pra você no dia certo.",
+    "new": "Nova recorrência",
+    "newTitle": "Nova recorrência",
+    "editTitle": "Editar recorrência",
+    "empty": "Nenhuma recorrência cadastrada",
+    "emptyDesc": "Cadastre seu salário, aluguel ou outra transação que se repete para o app criá-la automaticamente.",
+    "paused": "Pausada",
+    "pause": "Pausar",
+    "resume": "Retomar",
+    "nextOccurrence": "Próxima",
+    "endDate": "Termina em",
+    "fromRecurring": "Gerada automaticamente por uma recorrência",
+    "type": {
+      "income": "Receita",
+      "expense": "Despesa"
+    },
+    "frequencies": {
+      "daily": "Diária",
+      "weekly": "Semanal",
+      "monthly": "Mensal",
+      "yearly": "Anual"
+    },
+    "fields": {
+      "type": "Tipo",
+      "category": "Categoria",
+      "categoryPlaceholder": "Selecione uma categoria",
+      "amount": "Valor",
+      "description": "Descrição",
+      "frequency": "Frequência",
+      "startDate": "Data inicial",
+      "endDate": "Data final"
+    }
+  },
   "avatarCropper": {
     "title": "Recortar foto",
     "hint": "Arraste o quadro e ajuste o zoom para enquadrar seu rosto.",
@@ -366,6 +402,19 @@
       "verifyResent": "E-mail de verificação reenviado.",
       "verifyResendError": "Não foi possível reenviar o e-mail. Tente novamente.",
       "googleSignInError": "Não foi possível entrar com Google. Tente novamente."
+    },
+    "recurring": {
+      "loadError": "Falha ao carregar recorrências.",
+      "created": "Recorrência criada.",
+      "createError": "Falha ao criar recorrência.",
+      "updated": "Recorrência atualizada.",
+      "updateError": "Falha ao atualizar recorrência.",
+      "deleted": "Recorrência excluída.",
+      "deleteError": "Falha ao excluir recorrência.",
+      "paused": "Recorrência pausada.",
+      "pauseError": "Falha ao pausar recorrência.",
+      "resumed": "Recorrência retomada.",
+      "resumeError": "Falha ao retomar recorrência."
     },
     "generic": {
       "error": "Ocorreu um erro inesperado."

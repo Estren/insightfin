@@ -34,6 +34,9 @@ public class TransactionEntity {
     @Column(nullable = false)
     private LocalDate date;
 
+    @Column(name = "recurring_transaction_id")
+    private UUID recurringTransactionId;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
@@ -57,6 +60,9 @@ public class TransactionEntity {
 
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
+
+    public UUID getRecurringTransactionId() { return recurringTransactionId; }
+    public void setRecurringTransactionId(UUID recurringTransactionId) { this.recurringTransactionId = recurringTransactionId; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

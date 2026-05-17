@@ -9,6 +9,7 @@ import com.orizon.coreapi.domain.port.in.DeleteCategoryUseCase;
 import com.orizon.coreapi.domain.port.in.ListCategoriesUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateCategoryUseCase;
 import com.orizon.coreapi.domain.port.out.CategoryRepository;
+import com.orizon.coreapi.domain.port.out.RecurringTransactionRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,9 +19,12 @@ public class CategoryService implements CreateCategoryUseCase, ListCategoriesUse
         UpdateCategoryUseCase, DeleteCategoryUseCase {
 
     private final CategoryRepository categoryRepository;
+    private final RecurringTransactionRepository recurringTransactionRepository;
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    public CategoryService(CategoryRepository categoryRepository,
+                           RecurringTransactionRepository recurringTransactionRepository) {
         this.categoryRepository = categoryRepository;
+        this.recurringTransactionRepository = recurringTransactionRepository;
     }
 
     @Override
@@ -75,6 +79,10 @@ public class CategoryService implements CreateCategoryUseCase, ListCategoriesUse
 
         if (categoryRepository.hasTransactions(categoryId)) {
             throw new DomainException("Cannot delete category with existing transactions");
+        }
+
+        if (recurringTransactionRepository.countActiveByCategoryId(categoryId) > 0) {
+            throw new DomainException("Cannot delete category with active recurring transactions");
         }
 
         categoryRepository.deleteById(categoryId);

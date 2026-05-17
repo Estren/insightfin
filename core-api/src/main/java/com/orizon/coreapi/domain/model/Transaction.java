@@ -14,6 +14,7 @@ public class Transaction {
     private BigDecimal amount;
     private String description;
     private LocalDate date;
+    private UUID recurringTransactionId;
     private LocalDateTime createdAt;
 
     public Transaction() {}
@@ -51,6 +52,9 @@ public class Transaction {
 
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
+
+    public UUID getRecurringTransactionId() { return recurringTransactionId; }
+    public void setRecurringTransactionId(UUID recurringTransactionId) { this.recurringTransactionId = recurringTransactionId; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

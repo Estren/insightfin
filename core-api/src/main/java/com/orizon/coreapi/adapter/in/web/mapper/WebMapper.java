@@ -18,7 +18,16 @@ public class WebMapper {
         return new TransactionResponse(
                 transaction.getId(), transaction.getCategoryId(), categoryName,
                 transaction.getType(), transaction.getAmount(), transaction.getDescription(),
-                transaction.getDate(), transaction.getCreatedAt());
+                transaction.getDate(), transaction.getRecurringTransactionId(), transaction.getCreatedAt());
+    }
+
+    public static RecurringTransactionResponse toResponse(RecurringTransaction r, String categoryName) {
+        return new RecurringTransactionResponse(
+                r.getId(), r.getCategoryId(), categoryName,
+                r.getType(), r.getAmount(), r.getDescription(),
+                r.getFrequency(), r.getStartDate(), r.getEndDate(),
+                r.getNextOccurrence(), r.getLastGeneratedAt(),
+                r.isPaused(), r.getCreatedAt());
     }
 
     public static CategoryResponse toResponse(Category category) {

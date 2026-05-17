@@ -29,6 +29,14 @@ const routes: Routes = [
     loadChildren: () => import('../goals/goals.module').then((m) => m.GoalsModule),
   },
   {
+    path: 'recurring',
+    component: LayoutComponent,
+    loadChildren: () =>
+      import('../recurring-transactions/recurring-transactions.module').then(
+        (m) => m.RecurringTransactionsModule,
+      ),
+  },
+  {
     path: 'feedbacks',
     component: LayoutComponent,
     loadChildren: () => import('../feedbacks/feedbacks.module').then((m) => m.FeedbacksModule),
