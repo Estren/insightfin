@@ -13,6 +13,7 @@ public class User {
     private String avatarUrl;
     private boolean emailVerified;
     private LocalDateTime emailVerifiedAt;
+    private String googleSub;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -58,4 +59,7 @@ public class User {
 
     public LocalDateTime getEmailVerifiedAt() { return emailVerifiedAt; }
     public void setEmailVerifiedAt(LocalDateTime emailVerifiedAt) { this.emailVerifiedAt = emailVerifiedAt; }
+
+    public String getGoogleSub() { return googleSub; }
+    public void setGoogleSub(String googleSub) { this.googleSub = googleSub; }
 }

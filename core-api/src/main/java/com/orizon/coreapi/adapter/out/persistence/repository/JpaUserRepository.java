@@ -15,6 +15,10 @@ public class JpaUserRepository implements PanacheRepositoryBase<UserEntity, UUID
         return find("lower(email) = ?1", normalize(email)).firstResultOptional();
     }
 
+    public Optional<UserEntity> findByGoogleSub(String googleSub) {
+        return find("googleSub", googleSub).firstResultOptional();
+    }
+
     public boolean existsByEmail(String email) {
         return count("lower(email) = ?1", normalize(email)) > 0;
     }

@@ -9,6 +9,7 @@ import com.orizon.coreapi.domain.model.Role;
 import com.orizon.coreapi.domain.model.User;
 import com.orizon.coreapi.domain.port.in.RequestEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.out.AvatarStoragePort;
+import com.orizon.coreapi.domain.port.out.GoogleTokenVerifier;
 import com.orizon.coreapi.domain.port.out.PasswordEncoder;
 import com.orizon.coreapi.domain.port.out.RefreshTokenRepository;
 import com.orizon.coreapi.domain.port.out.TokenProvider;
@@ -36,6 +37,7 @@ class UserServiceTest {
     @Mock TokenProvider tokenProvider;
     @Mock RefreshTokenRepository refreshTokenRepository;
     @Mock AvatarStoragePort avatarStoragePort;
+    @Mock GoogleTokenVerifier googleTokenVerifier;
     @Mock RequestEmailVerificationUseCase requestEmailVerificationUseCase;
 
     private UserService service;
@@ -43,7 +45,8 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         service = new UserService(userRepository, passwordEncoder, tokenProvider,
-                refreshTokenRepository, avatarStoragePort, requestEmailVerificationUseCase, true);
+                refreshTokenRepository, avatarStoragePort, googleTokenVerifier,
+                requestEmailVerificationUseCase, true);
     }
 
     // --- U1 ---

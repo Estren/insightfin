@@ -18,6 +18,10 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, request);
   }
 
+  googleSignIn(credential: string, nonce: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/google`, { credential, nonce });
+  }
+
   refresh(refreshToken: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/refresh`, { refreshToken });
   }

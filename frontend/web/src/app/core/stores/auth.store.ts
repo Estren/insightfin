@@ -60,6 +60,17 @@ export class AuthStore {
     );
   }
 
+  googleSignIn(credential: string, nonce: string): Observable<void> {
+    return this.authService.googleSignIn(credential, nonce).pipe(
+      tap((response) => {
+        localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
+        localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+        this._isAuthenticated$.next(true);
+      }),
+      map(() => void 0),
+    );
+  }
+
   logout(): void {
     this.authService.logout().subscribe({
       complete: () => this.clearTokens(),

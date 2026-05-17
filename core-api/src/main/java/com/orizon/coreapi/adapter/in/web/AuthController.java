@@ -4,6 +4,7 @@ import com.orizon.coreapi.adapter.in.web.dto.AuthRequest;
 import com.orizon.coreapi.adapter.in.web.dto.AuthResponse;
 import com.orizon.coreapi.adapter.in.web.dto.CreateUserRequest;
 import com.orizon.coreapi.adapter.in.web.dto.ForgotPasswordRequest;
+import com.orizon.coreapi.adapter.in.web.dto.GoogleSignInRequest;
 import com.orizon.coreapi.adapter.in.web.dto.RefreshTokenRequest;
 import com.orizon.coreapi.adapter.in.web.dto.ResendVerificationRequest;
 import com.orizon.coreapi.adapter.in.web.dto.ResetPasswordRequest;
@@ -11,6 +12,7 @@ import com.orizon.coreapi.adapter.in.web.dto.VerifyEmailPinRequest;
 import com.orizon.coreapi.adapter.in.web.dto.VerifyEmailRequest;
 import com.orizon.coreapi.config.security.AuthenticatedUser;
 import com.orizon.coreapi.domain.port.in.AuthenticateUserUseCase;
+import com.orizon.coreapi.domain.port.in.AuthenticateWithGoogleUseCase;
 import com.orizon.coreapi.domain.port.in.ConfirmEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.in.CreateUserUseCase;
 import com.orizon.coreapi.domain.port.in.LogoutUseCase;
@@ -37,6 +39,9 @@ public class AuthController {
 
     @Inject
     AuthenticateUserUseCase authenticateUserUseCase;
+
+    @Inject
+    AuthenticateWithGoogleUseCase authenticateWithGoogleUseCase;
 
     @Inject
     RefreshTokenUseCase refreshTokenUseCase;
@@ -73,6 +78,13 @@ public class AuthController {
     @Path("/login")
     public AuthResponse login(@Valid AuthRequest request) {
         var tokens = authenticateUserUseCase.execute(request.email(), request.password());
+        return new AuthResponse(tokens.getAccessToken(), tokens.getRefreshToken());
+    }
+
+    @POST
+    @Path("/google")
+    public AuthResponse google(@Valid GoogleSignInRequest request) {
+        var tokens = authenticateWithGoogleUseCase.authenticateWithGoogle(request.credential(), request.nonce());
         return new AuthResponse(tokens.getAccessToken(), tokens.getRefreshToken());
     }
 

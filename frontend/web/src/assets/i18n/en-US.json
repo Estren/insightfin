@@ -364,7 +364,8 @@
       "verifySuccess": "Email verified successfully!",
       "verifyPinError": "Invalid or expired code.",
       "verifyResent": "Verification email resent.",
-      "verifyResendError": "Could not resend the email. Please try again."
+      "verifyResendError": "Could not resend the email. Please try again.",
+      "googleSignInError": "Could not sign in with Google. Please try again."
     },
     "generic": {
       "error": "An unexpected error occurred."
