@@ -35,7 +35,8 @@
     "budgets": "Budgets",
     "goals": "Goals",
     "feedbacks": "Insights",
-    "profile": "Profile"
+    "profile": "Profile",
+    "unreadInsights": "Unread insights: {{count}}"
   },
   "theme": {
     "color": "Color",

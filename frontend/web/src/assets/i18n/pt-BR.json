@@ -35,7 +35,8 @@
     "budgets": "Orçamentos",
     "goals": "Metas",
     "feedbacks": "Insights",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "unreadInsights": "Insights não lidos: {{count}}"
   },
   "theme": {
     "color": "Cor",

@@ -15,6 +15,10 @@ export class AiFeedbackService {
     return this.http.get<AiFeedbackResponse[]>(`${this.apiUrl}/feedbacks`, { params });
   }
 
+  listAll(): Observable<AiFeedbackResponse[]> {
+    return this.http.get<AiFeedbackResponse[]>(`${this.apiUrl}/feedbacks`);
+  }
+
   getById(id: string): Observable<AiFeedbackResponse> {
     return this.http.get<AiFeedbackResponse>(`${this.apiUrl}/feedbacks/${id}`);
   }
