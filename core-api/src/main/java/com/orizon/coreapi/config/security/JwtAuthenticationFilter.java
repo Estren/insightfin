@@ -96,6 +96,7 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
         String normalized = normalize(path);
         return normalized.startsWith("api/auth/login")
                 || normalized.startsWith("api/auth/register")
+                || normalized.startsWith("api/auth/google")
                 || normalized.startsWith("api/auth/refresh")
                 || normalized.startsWith("api/auth/forgot-password")
                 || normalized.startsWith("api/auth/reset-password")
