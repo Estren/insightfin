@@ -108,8 +108,11 @@ public class RecurringTransactionService implements
         recurring.setEndDate(endDate);
 
         if (frequencyChanged || startChanged) {
-            LocalDate anchor = recurring.getLastGeneratedAt() != null ? recurring.getLastGeneratedAt() : startDate;
-            recurring.setNextOccurrence(frequency.next(anchor));
+            if (recurring.getLastGeneratedAt() == null) {
+                recurring.setNextOccurrence(startDate);
+            } else {
+                recurring.setNextOccurrence(frequency.next(recurring.getLastGeneratedAt()));
+            }
         }
         recurring.setUpdatedAt(LocalDateTime.now());
 
