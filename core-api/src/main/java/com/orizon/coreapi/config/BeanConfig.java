@@ -60,8 +60,20 @@ public class BeanConfig {
 
     @Produces
     @ApplicationScoped
-    public CategoryService categoryService(CategoryRepository categoryRepository) {
-        return new CategoryService(categoryRepository);
+    public CategoryService categoryService(CategoryRepository categoryRepository,
+                                           RecurringTransactionRepository recurringTransactionRepository) {
+        return new CategoryService(categoryRepository, recurringTransactionRepository);
+    }
+
+    @Produces
+    @ApplicationScoped
+    public RecurringTransactionService recurringTransactionService(
+            RecurringTransactionRepository recurringRepository,
+            TransactionRepository transactionRepository,
+            CategoryRepository categoryRepository,
+            EventPublisher eventPublisher) {
+        return new RecurringTransactionService(recurringRepository, transactionRepository,
+                categoryRepository, eventPublisher);
     }
 
     @Produces

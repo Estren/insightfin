@@ -35,6 +35,7 @@
     "budgets": "Budgets",
     "goals": "Goals",
     "feedbacks": "Insights",
+    "recurring": "Recurring",
     "profile": "Profile",
     "unreadInsights": "Unread insights: {{count}}"
   },
@@ -216,6 +217,41 @@
     "empty": "No insights for this month",
     "emptyDesc": "Adjust the filters or wait for the next report."
   },
+  "recurring": {
+    "title": "Recurring transactions",
+    "subtitle": "Salary, rent, subscriptions — the app creates the transactions for you on the right day.",
+    "new": "New recurrence",
+    "newTitle": "New recurrence",
+    "editTitle": "Edit recurrence",
+    "empty": "No recurring transactions yet",
+    "emptyDesc": "Add your salary, rent or any transaction that repeats so the app creates it automatically.",
+    "paused": "Paused",
+    "pause": "Pause",
+    "resume": "Resume",
+    "nextOccurrence": "Next",
+    "endDate": "Ends on",
+    "fromRecurring": "Auto-generated from a recurring transaction",
+    "type": {
+      "income": "Income",
+      "expense": "Expense"
+    },
+    "frequencies": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "fields": {
+      "type": "Type",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category",
+      "amount": "Amount",
+      "description": "Description",
+      "frequency": "Frequency",
+      "startDate": "Start date",
+      "endDate": "End date"
+    }
+  },
   "avatarCropper": {
     "title": "Crop photo",
     "hint": "Drag the frame and adjust the zoom to fit your face.",
@@ -366,6 +402,19 @@
       "verifyResent": "Verification email resent.",
       "verifyResendError": "Could not resend the email. Please try again.",
       "googleSignInError": "Could not sign in with Google. Please try again."
+    },
+    "recurring": {
+      "loadError": "Failed to load recurring transactions.",
+      "created": "Recurring transaction created.",
+      "createError": "Failed to create recurring transaction.",
+      "updated": "Recurring transaction updated.",
+      "updateError": "Failed to update recurring transaction.",
+      "deleted": "Recurring transaction deleted.",
+      "deleteError": "Failed to delete recurring transaction.",
+      "paused": "Recurring transaction paused.",
+      "pauseError": "Failed to pause recurring transaction.",
+      "resumed": "Recurring transaction resumed.",
+      "resumeError": "Failed to resume recurring transaction."
     },
     "generic": {
       "error": "An unexpected error occurred."

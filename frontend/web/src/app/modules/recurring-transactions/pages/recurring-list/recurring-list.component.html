@@ -1,0 +1,87 @@
+<app-page-header [title]="'recurring.title' | translate" [subtitle]="'recurring.subtitle' | translate">
+  <button
+    routerLink="/recurring/new"
+    class="bg-primary hover:bg-primary/90 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors">
+    {{ 'recurring.new' | translate }}
+  </button>
+</app-page-header>
+
+@if (store.loading$ | async) {
+  <app-loading />
+} @else if (store.error$ | async; as error) {
+  <app-card>
+    <p class="text-center text-sm text-red-500">{{ error }}</p>
+  </app-card>
+} @else if (store.items$ | async; as items) {
+  @if (items.length === 0) {
+    <app-card>
+      <app-empty-state
+        [title]="'recurring.empty' | translate"
+        [description]="'recurring.emptyDesc' | translate" />
+    </app-card>
+  } @else {
+    <div class="space-y-3">
+      @for (item of items; track item.id) {
+        <div
+          class="bg-background flex flex-col gap-3 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between"
+          [class.opacity-60]="item.paused">
+          <div class="min-w-0 flex-1">
+            <div class="mb-1 flex items-center gap-2">
+              <span
+                class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                [ngClass]="
+                  item.type === 'INCOME'
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                ">
+                {{ 'recurring.type.' + item.type.toLowerCase() | translate }}
+              </span>
+              <span class="bg-muted text-muted-foreground inline-flex rounded-full px-2 py-0.5 text-xs font-medium">
+                {{ frequencyKey(item.frequency) | translate }}
+              </span>
+              @if (item.paused) {
+                <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                  ⏸ {{ 'recurring.paused' | translate }}
+                </span>
+              }
+            </div>
+            <p class="text-foreground text-sm font-semibold">
+              {{ item.description || item.categoryName }}
+            </p>
+            <p class="text-muted-foreground text-xs">
+              {{ item.categoryName }} ·
+              <span [ngClass]="item.type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+                {{ item.type === 'INCOME' ? '+' : '-' }}{{ item.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+              </span>
+            </p>
+            <p class="text-muted-foreground mt-1 text-xs">
+              {{ 'recurring.nextOccurrence' | translate }}: {{ item.nextOccurrence | date: 'dd/MM/yyyy' }}
+              @if (item.endDate) {
+                · {{ 'recurring.endDate' | translate }}: {{ item.endDate | date: 'dd/MM/yyyy' }}
+              }
+            </p>
+          </div>
+          <div class="flex shrink-0 gap-2">
+            <button
+              (click)="togglePause(item)"
+              class="border-border text-foreground hover:bg-muted cursor-pointer rounded-md border px-3 py-1.5 text-sm transition-colors">
+              {{ (item.paused ? 'recurring.resume' : 'recurring.pause') | translate }}
+            </button>
+            <button
+              (click)="onEdit(item)"
+              class="text-muted-foreground hover:text-foreground cursor-pointer px-2 text-sm transition-colors">
+              {{ 'common.edit' | translate }}
+            </button>
+            <button
+              (click)="onDelete(item)"
+              class="cursor-pointer px-2 text-sm text-red-500 transition-colors hover:text-red-700">
+              {{ 'common.delete' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}
+
+<router-outlet></router-outlet>

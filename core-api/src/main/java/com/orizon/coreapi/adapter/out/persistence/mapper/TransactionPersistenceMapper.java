@@ -17,12 +17,13 @@ public class TransactionPersistenceMapper {
         entity.setAmount(transaction.getAmount());
         entity.setDescription(transaction.getDescription());
         entity.setDate(transaction.getDate());
+        entity.setRecurringTransactionId(transaction.getRecurringTransactionId());
         entity.setCreatedAt(transaction.getCreatedAt());
         return entity;
     }
 
     public static Transaction toDomain(TransactionEntity entity) {
-        return new Transaction(
+        Transaction transaction = new Transaction(
                 entity.getId(),
                 entity.getUserId(),
                 entity.getCategoryId(),
@@ -32,5 +33,7 @@ public class TransactionPersistenceMapper {
                 entity.getDate(),
                 entity.getCreatedAt()
         );
+        transaction.setRecurringTransactionId(entity.getRecurringTransactionId());
+        return transaction;
     }
 }

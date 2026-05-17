@@ -58,7 +58,16 @@
             @for (t of group.transactions; track t.id) {
               <tr class="border-border hover:bg-muted/30 border-b transition-colors last:border-0">
                 <td class="py-3 pr-4">
-                  <span class="text-foreground text-sm font-medium">{{ t.categoryName }}</span>
+                  <span class="text-foreground inline-flex items-center gap-1 text-sm font-medium">
+                    {{ t.categoryName }}
+                    @if (t.recurringTransactionId) {
+                      <span
+                        class="text-muted-foreground text-xs"
+                        [attr.title]="'recurring.fromRecurring' | translate"
+                        aria-label="recurring"
+                        >🔁</span>
+                    }
+                  </span>
                 </td>
                 <td class="py-3 pr-4">
                   <span class="text-muted-foreground text-sm">{{ t.description || '—' }}</span>

@@ -8,6 +8,7 @@ export interface TransactionResponse {
   amount: number;
   description: string | null;
   date: string;
+  recurringTransactionId: string | null;
   createdAt: string;
 }
 

@@ -42,6 +42,11 @@ export class Menu {
           label: 'nav.goals',
           route: '/goals',
         },
+        {
+          icon: 'assets/icons/heroicons/outline/refresh.svg',
+          label: 'nav.recurring',
+          route: '/recurring',
+        },
       ],
     },
   ];

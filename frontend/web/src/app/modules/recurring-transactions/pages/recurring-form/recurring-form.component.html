@@ -1,0 +1,91 @@
+<app-modal
+  [title]="(editing ? 'recurring.editTitle' : 'recurring.newTitle') | translate"
+  (close)="onCancel()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+    <div>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'recurring.fields.type' | translate }}</label>
+      <select
+        formControlName="type"
+        class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm">
+        <option value="EXPENSE">{{ 'recurring.type.expense' | translate }}</option>
+        <option value="INCOME">{{ 'recurring.type.income' | translate }}</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'recurring.fields.category' | translate }}</label>
+      <select
+        formControlName="categoryId"
+        class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm">
+        <option value="" disabled>{{ 'recurring.fields.categoryPlaceholder' | translate }}</option>
+        @for (cat of categories$ | async; track cat.id) {
+          <option [value]="cat.id">{{ cat.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'recurring.fields.amount' | translate }}</label>
+      <input
+        formControlName="amount"
+        type="number"
+        step="0.01"
+        min="0.01"
+        class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
+    </div>
+
+    <div>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'recurring.fields.description' | translate }}</label>
+      <input
+        formControlName="description"
+        type="text"
+        class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
+    </div>
+
+    <div>
+      <label class="text-foreground mb-1 block text-sm font-medium">{{ 'recurring.fields.frequency' | translate }}</label>
+      <select
+        formControlName="frequency"
+        class="border-input bg-background text-foreground w-full cursor-pointer rounded-md border px-3 py-2 text-sm">
+        @for (f of frequencies; track f) {
+          <option [value]="f">{{ 'recurring.frequencies.' + f.toLowerCase() | translate }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div>
+        <label class="text-foreground mb-1 block text-sm font-medium">{{ 'recurring.fields.startDate' | translate }}</label>
+        <input
+          formControlName="startDate"
+          type="date"
+          class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="text-foreground mb-1 block text-sm font-medium">
+          {{ 'recurring.fields.endDate' | translate }}
+          <span class="text-muted-foreground text-xs">({{ 'common.optional' | translate }})</span>
+        </label>
+        <input
+          formControlName="endDate"
+          type="date"
+          class="border-input bg-background text-foreground w-full rounded-md border px-3 py-2 text-sm" />
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-2 pt-2">
+      <button
+        type="button"
+        (click)="onCancel()"
+        class="border-border text-foreground hover:bg-card cursor-pointer rounded-md border px-4 py-2 text-sm font-medium transition-colors">
+        {{ 'common.cancel' | translate }}
+      </button>
+      <button
+        type="submit"
+        [disabled]="form.invalid || submitting"
+        class="bg-primary hover:bg-primary/90 disabled:opacity-50 cursor-pointer rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
+        {{ submitting ? ('common.saving' | translate) : ('common.save' | translate) }}
+      </button>
+    </div>
+  </form>
+</app-modal>
