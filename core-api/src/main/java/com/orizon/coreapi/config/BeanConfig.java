@@ -33,10 +33,11 @@ public class BeanConfig {
                                    TokenProvider tokenProvider,
                                    RefreshTokenRepository refreshTokenRepository,
                                    AvatarStoragePort avatarStoragePort,
+                                   GoogleTokenVerifier googleTokenVerifier,
                                    EmailVerificationService emailVerificationService) {
         return new UserService(userRepository, passwordEncoder, tokenProvider,
-                refreshTokenRepository, avatarStoragePort, emailVerificationService,
-                emailVerificationRequired);
+                refreshTokenRepository, avatarStoragePort, googleTokenVerifier,
+                emailVerificationService, emailVerificationRequired);
     }
 
     @Produces

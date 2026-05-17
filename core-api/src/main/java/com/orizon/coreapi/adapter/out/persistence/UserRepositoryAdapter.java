@@ -32,6 +32,7 @@ public class UserRepositoryAdapter implements UserRepository {
             managed.setAvatarUrl(user.getAvatarUrl());
             managed.setEmailVerified(user.isEmailVerified());
             managed.setEmailVerifiedAt(user.getEmailVerifiedAt());
+            managed.setGoogleSub(user.getGoogleSub());
             managed.setUpdatedAt(user.getUpdatedAt());
             return UserPersistenceMapper.toDomain(managed);
         }
@@ -48,6 +49,11 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public Optional<User> findByEmail(String email) {
         return jpaUserRepository.findByEmail(email).map(UserPersistenceMapper::toDomain);
+    }
+
+    @Override
+    public Optional<User> findByGoogleSub(String googleSub) {
+        return jpaUserRepository.findByGoogleSub(googleSub).map(UserPersistenceMapper::toDomain);
     }
 
     @Override

@@ -5,12 +5,7 @@
     <p class="text-muted-foreground text-sm">{{ 'auth.enterCredentials' | translate }}</p>
   </div>
 
-  <div routerLink="/dashboard">
-    <app-button full impact="bold" tone="light" shape="rounded" size="medium">
-      <svg-icon src="assets/icons/google-logo.svg" [svgClass]="'h-6 w-6 mr-2'"> </svg-icon>
-      {{ 'auth.loginWithGoogle' | translate }}
-    </app-button>
-  </div>
+  <app-google-sign-in-button (credential)="onGoogleCredential($event)" />
 
   <div
     class="before:border-muted after:border-muted my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t after:mt-0.5 after:flex-1 after:border-t">

@@ -5,6 +5,10 @@ import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { ButtonComponent } from 'src/app/shared/components/button/button.component';
+import {
+  GoogleCredentialEvent,
+  GoogleSignInButtonComponent,
+} from 'src/app/shared/components/google-sign-in-button/google-sign-in-button.component';
 import { AuthStore } from '../../../../core/stores/auth.store';
 import { ToastService } from '../../../../core/services/toast.service';
 
@@ -12,7 +16,16 @@ import { ToastService } from '../../../../core/services/toast.service';
   selector: 'app-sign-up',
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.css'],
-  imports: [FormsModule, ReactiveFormsModule, RouterLink, AngularSvgIconModule, ButtonComponent, NgClass, TranslateModule],
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    RouterLink,
+    AngularSvgIconModule,
+    ButtonComponent,
+    GoogleSignInButtonComponent,
+    NgClass,
+    TranslateModule,
+  ],
 })
 export class SignUpComponent implements OnInit {
   form!: FormGroup;
@@ -65,6 +78,13 @@ export class SignUpComponent implements OnInit {
         const key = err.status === 409 ? 'toast.auth.emailTaken' : 'toast.auth.registerError';
         this._toastService.error(key);
       },
+    });
+  }
+
+  onGoogleCredential(event: GoogleCredentialEvent): void {
+    this._authStore.googleSignIn(event.credential, event.nonce).subscribe({
+      next: () => this._router.navigate(['/']),
+      error: () => this._toastService.error('toast.auth.googleSignInError'),
     });
   }
 }

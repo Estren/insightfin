@@ -364,7 +364,8 @@
       "verifySuccess": "E-mail verificado com sucesso!",
       "verifyPinError": "Código inválido ou expirado.",
       "verifyResent": "E-mail de verificação reenviado.",
-      "verifyResendError": "Não foi possível reenviar o e-mail. Tente novamente."
+      "verifyResendError": "Não foi possível reenviar o e-mail. Tente novamente.",
+      "googleSignInError": "Não foi possível entrar com Google. Tente novamente."
     },
     "generic": {
       "error": "Ocorreu um erro inesperado."

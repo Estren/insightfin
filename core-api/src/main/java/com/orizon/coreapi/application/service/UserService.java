@@ -8,6 +8,7 @@ import com.orizon.coreapi.domain.model.RefreshToken;
 import com.orizon.coreapi.domain.model.Role;
 import com.orizon.coreapi.domain.model.User;
 import com.orizon.coreapi.domain.port.in.AuthenticateUserUseCase;
+import com.orizon.coreapi.domain.port.in.AuthenticateWithGoogleUseCase;
 import com.orizon.coreapi.domain.port.in.ChangePasswordUseCase;
 import com.orizon.coreapi.domain.port.in.CreateUserUseCase;
 import com.orizon.coreapi.domain.port.in.DeleteUserUseCase;
@@ -19,6 +20,7 @@ import com.orizon.coreapi.domain.port.in.RequestEmailVerificationUseCase;
 import com.orizon.coreapi.domain.port.in.UpdateUserUseCase;
 import com.orizon.coreapi.domain.port.in.UploadAvatarUseCase;
 import com.orizon.coreapi.domain.port.out.AvatarStoragePort;
+import com.orizon.coreapi.domain.port.out.GoogleTokenVerifier;
 import com.orizon.coreapi.domain.port.out.PasswordEncoder;
 import com.orizon.coreapi.domain.port.out.RefreshTokenRepository;
 import com.orizon.coreapi.domain.port.out.TokenProvider;
@@ -30,6 +32,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
+        AuthenticateWithGoogleUseCase,
         RefreshTokenUseCase, LogoutUseCase,
         GetCurrentUserUseCase, UpdateUserUseCase, DeleteUserUseCase, ChangePasswordUseCase,
         ListUsersUseCase, UploadAvatarUseCase {
@@ -39,12 +42,14 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AvatarStoragePort avatarStoragePort;
+    private final GoogleTokenVerifier googleTokenVerifier;
     private final RequestEmailVerificationUseCase requestEmailVerificationUseCase;
     private final boolean emailVerificationRequired;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
                        TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
                        AvatarStoragePort avatarStoragePort,
+                       GoogleTokenVerifier googleTokenVerifier,
                        RequestEmailVerificationUseCase requestEmailVerificationUseCase,
                        boolean emailVerificationRequired) {
         this.userRepository = userRepository;
@@ -52,6 +57,7 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         this.tokenProvider = tokenProvider;
         this.refreshTokenRepository = refreshTokenRepository;
         this.avatarStoragePort = avatarStoragePort;
+        this.googleTokenVerifier = googleTokenVerifier;
         this.requestEmailVerificationUseCase = requestEmailVerificationUseCase;
         this.emailVerificationRequired = emailVerificationRequired;
     }
@@ -88,12 +94,59 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         User user = userRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() -> new DomainException("Invalid email or password"));
 
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+        if (user.getPasswordHash() == null
+                || !passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new DomainException("Invalid email or password");
         }
 
         String accessToken = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole(), user.isEmailVerified());
         String refreshToken = createRefreshToken(user.getId());
+
+        return new AuthTokens(accessToken, refreshToken);
+    }
+
+    @Override
+    public AuthTokens authenticateWithGoogle(String idToken, String expectedNonce) {
+        var info = googleTokenVerifier.verify(idToken, expectedNonce);
+        String normalizedEmail = normalizeEmail(info.email());
+        LocalDateTime now = LocalDateTime.now();
+
+        User user = userRepository.findByGoogleSub(info.sub()).orElse(null);
+
+        if (user == null) {
+            user = userRepository.findByEmail(normalizedEmail).orElse(null);
+            if (user == null) {
+                user = new User();
+                user.setId(UUID.randomUUID());
+                user.setName(info.name() != null ? info.name() : normalizedEmail);
+                user.setEmail(normalizedEmail);
+                user.setPasswordHash(null);
+                user.setRole(Role.USER);
+                user.setEmailVerified(true);
+                user.setEmailVerifiedAt(now);
+                user.setGoogleSub(info.sub());
+                user.setCreatedAt(now);
+                user.setUpdatedAt(now);
+            } else {
+                user.setGoogleSub(info.sub());
+                if (!user.isEmailVerified()) {
+                    user.setEmailVerified(true);
+                    user.setEmailVerifiedAt(now);
+                }
+                user.setUpdatedAt(now);
+            }
+        } else {
+            if (!user.isEmailVerified()) {
+                user.setEmailVerified(true);
+                user.setEmailVerifiedAt(now);
+            }
+            user.setUpdatedAt(now);
+        }
+
+        User saved = userRepository.save(user);
+
+        String accessToken = tokenProvider.generateToken(saved.getId(), saved.getEmail(), saved.getRole(), saved.isEmailVerified());
+        String refreshToken = createRefreshToken(saved.getId());
 
         return new AuthTokens(accessToken, refreshToken);
     }
@@ -150,6 +203,10 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
     public void changePassword(UUID userId, String currentPassword, String newPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+
+        if (user.getPasswordHash() == null) {
+            throw new DomainException("No password set. Use forgot-password to define one.");
+        }
 
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
             throw new DomainException("Current password is incorrect");
