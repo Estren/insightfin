@@ -1,17 +1,23 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { UserStore } from '../../../../core/stores/user.store';
 import { AuthStore } from '../../../../core/stores/auth.store';
+import { ToastService } from '../../../../core/services/toast.service';
+import { AvatarCropperModalComponent } from '../../../../shared/components/avatar-cropper-modal/avatar-cropper-modal.component';
+
+const MAX_AVATAR_BYTES = 10 * 1024 * 1024;
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  imports: [ReactiveFormsModule, AsyncPipe, TranslateModule, RouterLink],
+  imports: [ReactiveFormsModule, AsyncPipe, TranslateModule, RouterLink, AvatarCropperModalComponent],
 })
 export class ProfileComponent implements OnInit, OnDestroy {
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  pendingAvatarFile: File | null = null;
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
 
@@ -27,6 +33,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     public readonly userStore: UserStore,
     public readonly authStore: AuthStore,
+    private readonly toastService: ToastService,
   ) {}
 
   emailChangeForm!: FormGroup;
@@ -197,16 +204,49 @@ export class ProfileComponent implements OnInit, OnDestroy {
   onAvatarSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
+
+    if (file.type === 'image/gif') {
+      this.toastService.error('avatarCropper.errors.gifNotSupported');
+      this.resetFileInput();
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      this.toastService.error('avatarCropper.errors.tooLarge');
+      this.resetFileInput();
+      return;
+    }
+
+    this.pendingAvatarFile = file;
+  }
+
+  onCropConfirm(file: File): void {
     this.avatarUploading = true;
     this.userStore.uploadAvatar(file).subscribe({
       next: () => {
         this.avatarUploading = false;
         this.failedAvatarUrl = null;
+        this.closeCropper();
       },
       error: () => {
         this.avatarUploading = false;
+        this.closeCropper();
       },
     });
+  }
+
+  onCropCancel(): void {
+    this.closeCropper();
+  }
+
+  private closeCropper(): void {
+    this.pendingAvatarFile = null;
+    this.resetFileInput();
+  }
+
+  private resetFileInput(): void {
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
   onDeleteAccount(): void {

@@ -215,6 +215,17 @@
     "empty": "No insights for this month",
     "emptyDesc": "Adjust the filters or wait for the next report."
   },
+  "avatarCropper": {
+    "title": "Crop photo",
+    "hint": "Drag the frame and adjust the zoom to fit your face.",
+    "zoom": "Zoom",
+    "confirm": "Save photo",
+    "errors": {
+      "gifNotSupported": "Animated GIFs are not supported. Choose a JPEG, PNG, or WebP image.",
+      "tooLarge": "Image must be 10 MB or smaller.",
+      "loadFailed": "Could not load the image. Try another file."
+    }
+  },
   "confirmEmailChange": {
     "successTitle": "Email confirmed!",
     "successDesc": "Your email address has been updated successfully.",

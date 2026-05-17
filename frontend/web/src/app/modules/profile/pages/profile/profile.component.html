@@ -48,7 +48,7 @@
       <input
         #fileInput
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp"
         class="hidden"
         (change)="onAvatarSelected($event)" />
     </div>
@@ -243,3 +243,11 @@
     </div>
   </div>
 </div>
+
+@if (pendingAvatarFile) {
+  <app-avatar-cropper-modal
+    [file]="pendingAvatarFile"
+    [uploading]="avatarUploading"
+    (confirm)="onCropConfirm($event)"
+    (cancel)="onCropCancel()" />
+}

@@ -1,16 +1,20 @@
 <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
   <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/50" (click)="close.emit()"></div>
+  <div class="absolute inset-0 bg-black/50" (click)="requestClose()"></div>
 
   <!-- Card -->
-  <div class="bg-background relative z-10 w-full max-w-md overflow-y-auto rounded-lg shadow-xl" style="max-height: 90vh">
+  <div
+    class="bg-background relative z-10 w-full overflow-y-auto rounded-lg shadow-xl"
+    [ngClass]="widthClass"
+    style="max-height: 90vh">
     <!-- Header -->
     <div class="border-border flex items-center justify-between border-b px-6 py-4">
       <h3 class="text-foreground text-base font-semibold">{{ title() }}</h3>
       <button
         type="button"
-        (click)="close.emit()"
-        class="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
+        (click)="requestClose()"
+        [disabled]="!dismissible()"
+        class="text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors">
         <svg-icon src="assets/icons/heroicons/outline/x.svg" [svgClass]="'h-5 w-5'"></svg-icon>
       </button>
     </div>

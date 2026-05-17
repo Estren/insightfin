@@ -215,6 +215,17 @@
     "empty": "Nenhum insight para este mês",
     "emptyDesc": "Ajuste os filtros ou aguarde o próximo relatório."
   },
+  "avatarCropper": {
+    "title": "Recortar foto",
+    "hint": "Arraste o quadro e ajuste o zoom para enquadrar seu rosto.",
+    "zoom": "Zoom",
+    "confirm": "Salvar foto",
+    "errors": {
+      "gifNotSupported": "GIFs animados não são suportados. Escolha uma imagem JPEG, PNG ou WebP.",
+      "tooLarge": "A imagem deve ter no máximo 10 MB.",
+      "loadFailed": "Não foi possível carregar a imagem. Tente outro arquivo."
+    }
+  },
   "confirmEmailChange": {
     "successTitle": "E-mail confirmado!",
     "successDesc": "Seu endereço de e-mail foi atualizado com sucesso.",
