@@ -41,7 +41,7 @@
           type="button"
           (click)="fileInput.click()"
           [disabled]="avatarUploading"
-          class="text-primary text-sm font-medium hover:underline disabled:opacity-50">
+          class="text-primary cursor-pointer text-sm font-medium hover:underline disabled:cursor-not-allowed disabled:opacity-50">
           {{ 'profile.changePhoto' | translate }}
         </button>
       </div>
@@ -104,7 +104,7 @@
           <button
             type="submit"
             [disabled]="profileForm.invalid || profileSubmitting"
-            class="bg-primary hover:bg-primary/90 disabled:opacity-50 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
+            class="bg-primary hover:bg-primary/90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
             {{ profileSubmitting ? ('profile.saving' | translate) : ('profile.saveChanges' | translate) }}
           </button>
         </div>
@@ -139,7 +139,7 @@
           <button
             type="submit"
             [disabled]="emailChangeForm.invalid || emailChangeSubmitting"
-            class="bg-primary hover:bg-primary/90 disabled:opacity-50 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
+            class="bg-primary hover:bg-primary/90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
             {{ emailChangeSubmitting ? ('profile.saving' | translate) : ('profile.requestEmailChange' | translate) }}
           </button>
         </div>
@@ -170,7 +170,7 @@
           @if (resendCooldown > 0) {
             <span class="text-muted-foreground">{{ 'verifyEmail.resendCooldown' | translate : { seconds: resendCooldown } }}</span>
           } @else {
-            <button type="button" (click)="onResendEmailChange()" class="text-primary text-sm font-medium hover:underline">
+            <button type="button" (click)="onResendEmailChange()" class="text-primary cursor-pointer text-sm font-medium hover:underline">
               {{ 'verifyEmail.resend' | translate }}
             </button>
           }
@@ -179,14 +179,14 @@
           <button
             type="button"
             (click)="cancelEmailChange()"
-            class="text-muted-foreground text-sm hover:underline">
+            class="text-muted-foreground cursor-pointer text-sm hover:underline">
             {{ 'common.cancel' | translate }}
           </button>
           <button
             type="button"
             [disabled]="emailChangePinDigits.join('').length < 6 || emailChangePinSubmitting"
             (click)="onConfirmEmailChangePin()"
-            class="bg-primary hover:bg-primary/90 disabled:opacity-50 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
+            class="bg-primary hover:bg-primary/90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
             {{ emailChangePinSubmitting ? ('profile.saving' | translate) : ('verifyEmail.verify' | translate) }}
           </button>
         </div>
@@ -220,7 +220,7 @@
           <button
             type="submit"
             [disabled]="passwordForm.invalid || passwordSubmitting"
-            class="bg-primary hover:bg-primary/90 disabled:opacity-50 rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
+            class="bg-primary hover:bg-primary/90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed rounded-md px-4 py-2 text-sm font-medium text-white transition-colors">
             {{ passwordSubmitting ? ('profile.saving' | translate) : ('profile.changePassword' | translate) }}
           </button>
         </div>
@@ -249,7 +249,7 @@
         <button
           (click)="onDeleteAccount()"
           [disabled]="deleteConfirmText !== 'DELETE'"
-          class="disabled:opacity-50 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700">
+          class="disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700">
           {{ 'profile.deleteAccount' | translate }}
         </button>
       </div>

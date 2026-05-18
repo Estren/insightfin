@@ -1,6 +1,6 @@
 <div class="relative ml-3">
   <!-- Profile Button -->
-  <button (click)="toggleMenu()" class="bg-card relative flex rounded-full text-sm" type="button">
+  <button (click)="toggleMenu()" class="bg-card relative flex cursor-pointer rounded-full text-sm" type="button">
     <span class="sr-only">Open user menu</span>
     @if (userStore.profile$ | async; as profile) {
       @if (profile.avatarUrl && profile.avatarUrl !== failedAvatarUrl) {
