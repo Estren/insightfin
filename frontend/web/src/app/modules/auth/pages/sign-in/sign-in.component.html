@@ -85,7 +85,7 @@
           <label for="remember-me" class="text-muted-foreground ml-2 block cursor-pointer text-sm">{{ 'auth.rememberMe' | translate }}</label>
         </div>
 
-        <app-button routerLink="/auth/forgot-password" impact="none" tone="primary" shape="rounded" size="small">
+        <app-button type="button" routerLink="/auth/forgot-password" impact="none" tone="primary" shape="rounded" size="small">
           {{ 'auth.forgotPassword' | translate }}
         </app-button>
       </div>
@@ -100,7 +100,7 @@
       <!-- Sign-up -->
       <div class="text-muted-foreground flex items-center text-sm">
         {{ 'auth.notMember' | translate }}
-        <app-button routerLink="/auth/sign-up" impact="none" tone="primary" shape="rounded" size="small">
+        <app-button type="button" routerLink="/auth/sign-up" impact="none" tone="primary" shape="rounded" size="small">
           {{ 'auth.signUp' | translate }}
         </app-button>
       </div>
