@@ -285,6 +285,7 @@
     "emailVerified": "Email verified",
     "emailPending": "Pending verification",
     "verifyNow": "Verify now",
+    "linkedWithGoogle": "Connected with Google",
     "changeEmail": "Change Email",
     "changeEmailDesc": "A confirmation code will be sent to the new address. Your current email stays active until confirmed.",
     "newEmail": "New email",

@@ -11,5 +11,7 @@ public record UserResponse(
         String email,
         Role role,
         LocalDateTime createdAt,
-        String avatarUrl
+        String avatarUrl,
+        boolean hasPassword,
+        boolean linkedWithGoogle
 ) {}
