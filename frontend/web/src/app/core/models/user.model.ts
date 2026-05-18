@@ -7,6 +7,8 @@ export interface UserProfile {
   role: UserRole;
   createdAt: string;
   avatarUrl?: string;
+  hasPassword: boolean;
+  linkedWithGoogle: boolean;
 }
 
 export interface UpdateUserRequest {
