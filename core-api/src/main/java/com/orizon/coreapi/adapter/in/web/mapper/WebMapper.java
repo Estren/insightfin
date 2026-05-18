@@ -11,7 +11,11 @@ public class WebMapper {
     private WebMapper() {}
 
     public static UserResponse toResponse(User user) {
-        return new UserResponse(user.getId(), user.getName(), user.getEmail(), user.getRole(), user.getCreatedAt(), user.getAvatarUrl());
+        return new UserResponse(
+                user.getId(), user.getName(), user.getEmail(), user.getRole(),
+                user.getCreatedAt(), user.getAvatarUrl(),
+                user.getPasswordHash() != null,
+                user.getGoogleSub() != null);
     }
 
     public static TransactionResponse toResponse(Transaction transaction, String categoryName) {
