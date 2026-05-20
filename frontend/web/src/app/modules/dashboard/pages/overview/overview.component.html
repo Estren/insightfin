@@ -13,6 +13,7 @@
         routerLink="/budgets"
         class="mb-6 flex items-center gap-3 rounded-lg border border-red-500/40 bg-red-50 px-4 py-3 text-sm transition-colors hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30">
         <svg-icon
+          class="shrink-0"
           src="assets/icons/heroicons/outline/exclamation-triangle.svg"
           [svgClass]="'h-5 w-5 text-red-600 dark:text-red-400'">
         </svg-icon>
@@ -48,15 +49,15 @@
       } @else {
         <div class="space-y-3">
           @for (t of summary.recentTransactions; track t.id) {
-            <div class="flex items-center justify-between rounded-md p-3">
-              <div>
-                <p class="text-foreground text-sm font-medium">{{ t.description || t.categoryName }}</p>
-                <p class="text-muted-foreground text-xs">
+            <div class="flex items-center justify-between gap-3 rounded-md p-3">
+              <div class="min-w-0 flex-1">
+                <p class="text-foreground truncate text-sm font-medium">{{ t.description || t.categoryName }}</p>
+                <p class="text-muted-foreground truncate text-xs">
                   {{ t.categoryName }} &middot; {{ t.date | date: 'dd/MM/yyyy' }}
                 </p>
               </div>
               <span
-                class="text-sm font-semibold"
+                class="shrink-0 text-sm font-semibold whitespace-nowrap"
                 [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
                 {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
               </span>
@@ -75,9 +76,9 @@
         <div class="space-y-4">
           @for (b of summary.budgetStatuses; track b.budgetId) {
             <div>
-              <div class="mb-1 flex items-center justify-between">
-                <span class="text-foreground text-sm font-medium">{{ b.categoryName }}</span>
-                <span class="text-muted-foreground text-xs">
+              <div class="mb-1 flex items-center justify-between gap-2">
+                <span class="text-foreground truncate text-sm font-medium">{{ b.categoryName }}</span>
+                <span class="text-muted-foreground shrink-0 text-xs">
                   {{ b.spentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }} /
                   {{ b.budgetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
                 </span>
