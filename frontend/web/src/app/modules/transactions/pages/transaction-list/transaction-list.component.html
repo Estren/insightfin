@@ -15,9 +15,9 @@
 } @else if (groupedTransactions$ | async; as groups) {
   <app-card>
     <!-- Tabs + month nav -->
-    <div class="border-border -mx-6 -mt-6 mb-6 flex items-center justify-between border-b px-6 pb-0">
+    <div class="border-border -mx-6 -mt-6 mb-6 flex flex-col gap-3 border-b px-6 pb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:pb-0">
       <app-tabs [tabs]="tabs" [active]="(activeTab$ | async)!" (tabChange)="setTab($event)" />
-      <div class="flex items-center gap-1 pb-2">
+      <div class="flex items-center gap-1 sm:pb-2">
         <button
           (click)="changeMonth(-1)"
           class="bg-muted text-muted-foreground hover:bg-muted/80 cursor-pointer rounded-md px-2.5 py-1 text-sm font-medium transition-colors">
@@ -39,65 +39,119 @@
         [title]="'transactions.noTransactionsMonth' | translate"
         [description]="'transactions.noTransactionsDesc' | translate" />
     } @else {
-      <app-data-table>
-        <thead>
-          <tr>
-            <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">{{ 'transactions.category' | translate }}</th>
-            <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">{{ 'transactions.description' | translate }}</th>
-            <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">{{ 'transactions.amount' | translate }}</th>
-            <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">{{ 'common.actions' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (group of groups; track group.date) {
-            <tr class="bg-muted/40">
-              <td colspan="4" class="text-muted-foreground px-0 py-2 text-xs font-semibold uppercase">
-                {{ group.date | date: 'EEEE, dd MMMM yyyy' }}
-              </td>
+      <!-- Desktop: table -->
+      <div class="hidden sm:block">
+        <app-data-table>
+          <thead>
+            <tr>
+              <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">{{ 'transactions.category' | translate }}</th>
+              <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">{{ 'transactions.description' | translate }}</th>
+              <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">{{ 'transactions.amount' | translate }}</th>
+              <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">{{ 'common.actions' | translate }}</th>
             </tr>
-            @for (t of group.transactions; track t.id) {
-              <tr class="border-border hover:bg-muted/30 border-b transition-colors last:border-0">
-                <td class="py-3 pr-4">
-                  <span class="text-foreground inline-flex items-center gap-1 text-sm font-medium">
-                    {{ t.categoryName }}
-                    @if (t.recurringTransactionId) {
-                      <span
-                        class="text-muted-foreground text-xs"
-                        [attr.title]="'recurring.fromRecurring' | translate"
-                        aria-label="recurring"
-                        >🔁</span>
-                    }
-                  </span>
+          </thead>
+          <tbody>
+            @for (group of groups; track group.date) {
+              <tr class="bg-muted/40">
+                <td colspan="4" class="text-muted-foreground px-0 py-2 text-xs font-semibold uppercase">
+                  {{ group.date | date: 'EEEE, dd MMMM yyyy' }}
                 </td>
-                <td class="py-3 pr-4">
-                  <span class="text-muted-foreground text-sm">{{ t.description || '—' }}</span>
-                </td>
-                <td class="py-3 pr-4 text-right">
-                  <span
-                    class="text-sm font-semibold"
-                    [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
-                    {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                  </span>
-                </td>
-                <td class="py-3 text-right">
-                  <div class="flex justify-end gap-3">
+              </tr>
+              @for (t of group.transactions; track t.id) {
+                <tr class="border-border hover:bg-muted/30 border-b transition-colors last:border-0">
+                  <td class="py-3 pr-4">
+                    <span class="text-foreground inline-flex items-center gap-1 text-sm font-medium">
+                      {{ t.categoryName }}
+                      @if (t.recurringTransactionId) {
+                        <span
+                          class="text-muted-foreground text-xs"
+                          [attr.title]="'recurring.fromRecurring' | translate"
+                          aria-label="recurring"
+                          >🔁</span>
+                      }
+                    </span>
+                  </td>
+                  <td class="py-3 pr-4">
+                    <span class="text-muted-foreground text-sm">{{ t.description || '—' }}</span>
+                  </td>
+                  <td class="py-3 pr-4 text-right">
+                    <span
+                      class="text-sm font-semibold"
+                      [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+                      {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                    </span>
+                  </td>
+                  <td class="py-3 text-right">
+                    <div class="flex justify-end gap-3">
+                      <button
+                        (click)="onEdit(t)"
+                        class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
+                        {{ 'common.edit' | translate }}
+                      </button>
+                      <button
+                        (click)="onDelete(t)"
+                        class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
+                        {{ 'common.delete' | translate }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </app-data-table>
+      </div>
+
+      <!-- Mobile: cards -->
+      <div class="space-y-4 sm:hidden">
+        @for (group of groups; track group.date) {
+          <div>
+            <p class="text-muted-foreground mb-2 text-xs font-semibold uppercase">
+              {{ group.date | date: 'EEEE, dd MMMM yyyy' }}
+            </p>
+            <div class="space-y-2">
+              @for (t of group.transactions; track t.id) {
+                <div class="bg-muted/30 hover:bg-muted/50 rounded-md p-3 transition-colors">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0 flex-1">
+                      <p class="text-foreground inline-flex items-center gap-1 text-sm font-semibold">
+                        {{ t.categoryName }}
+                        @if (t.recurringTransactionId) {
+                          <span
+                            class="text-muted-foreground text-xs"
+                            [attr.title]="'recurring.fromRecurring' | translate"
+                            aria-label="recurring"
+                            >🔁</span>
+                        }
+                      </p>
+                      @if (t.description) {
+                        <p class="text-muted-foreground mt-0.5 truncate text-xs">{{ t.description }}</p>
+                      }
+                    </div>
+                    <span
+                      class="shrink-0 text-sm font-semibold whitespace-nowrap"
+                      [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+                      {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                    </span>
+                  </div>
+                  <div class="mt-2 flex gap-4 text-xs">
                     <button
                       (click)="onEdit(t)"
-                      class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">
+                      class="text-muted-foreground hover:text-foreground cursor-pointer transition-colors">
                       {{ 'common.edit' | translate }}
                     </button>
                     <button
                       (click)="onDelete(t)"
-                      class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
+                      class="cursor-pointer text-red-500 transition-colors hover:text-red-700">
                       {{ 'common.delete' | translate }}
                     </button>
                   </div>
-                </td>
-              </tr>
-            }
-          }
-        </tbody>
-      </app-data-table>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
     }
   </app-card>
 }
