@@ -98,7 +98,7 @@
             {{ form.controls['icon'].value || '' }}
           </div>
           <div class="flex flex-1 flex-col gap-2">
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
               @for (color of categoryColors; track color) {
                 <button
                   type="button"
@@ -130,7 +130,7 @@
           }
         </div>
         <div class="border-border max-h-44 overflow-y-auto rounded-md border p-2">
-          <div class="grid grid-cols-10 gap-1">
+          <div class="grid grid-cols-8 gap-1 sm:grid-cols-10">
             @for (emoji of emojis; track emoji) {
               <button
                 type="button"
