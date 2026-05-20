@@ -35,32 +35,32 @@
       <div class="space-y-3">
         @for (s of statuses; track s.budgetId) {
           <div
-            class="bg-background flex items-center gap-4 rounded-lg p-4 transition-colors"
+            class="bg-background flex flex-col gap-3 rounded-lg p-4 transition-colors sm:flex-row sm:items-center sm:gap-4"
             [ngClass]="
               isCritical(s.percentageUsed)
                 ? 'border-red-500/40 ring-1 ring-red-500/20'
                 : 'border-border'
             ">
-            <!-- Ring -->
-            <app-progress-ring [percentage]="s.percentageUsed" />
-
-            <!-- Info -->
-            <div class="min-w-0 flex-1">
-              <div class="mb-0.5 flex items-center gap-2">
-                <p class="text-foreground truncate text-sm font-semibold">{{ s.categoryName }}</p>
-                <span class="rounded-full px-2 py-0.5 text-xs font-semibold" [ngClass]="statusClass(s.percentageUsed)">
-                  {{ statusKey(s.percentageUsed) | translate }}
-                </span>
+            <!-- Ring + Info -->
+            <div class="flex min-w-0 flex-1 items-center gap-4">
+              <app-progress-ring [percentage]="s.percentageUsed" />
+              <div class="min-w-0 flex-1">
+                <div class="mb-0.5 flex flex-wrap items-center gap-2">
+                  <p class="text-foreground truncate text-sm font-semibold">{{ s.categoryName }}</p>
+                  <span class="rounded-full px-2 py-0.5 text-xs font-semibold" [ngClass]="statusClass(s.percentageUsed)">
+                    {{ statusKey(s.percentageUsed) | translate }}
+                  </span>
+                </div>
+                <p class="text-muted-foreground text-xs">
+                  {{ s.spentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                  {{ 'budgets.of' | translate }}
+                  {{ s.budgetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                </p>
               </div>
-              <p class="text-muted-foreground text-xs">
-                {{ s.spentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                {{ 'budgets.of' | translate }}
-                {{ s.budgetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-              </p>
             </div>
 
             <!-- Actions -->
-            <div class="flex shrink-0 gap-3">
+            <div class="flex shrink-0 flex-wrap items-center gap-3">
               <button
                 (click)="onEdit(s)"
                 class="text-muted-foreground hover:text-foreground cursor-pointer text-sm transition-colors">

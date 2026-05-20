@@ -19,25 +19,25 @@
     } @else {
       <div class="space-y-3">
         @for (g of goalStore.activeGoals$ | async; track g.id) {
-          <div class="bg-background border-border flex items-center gap-4 rounded-lg border p-4 shadow-sm">
-            <!-- Ring -->
-            <app-progress-ring [percentage]="progressPercent(g)" [size]="64" />
-
-            <!-- Info -->
-            <div class="min-w-0 flex-1">
-              <p class="text-foreground truncate text-sm font-semibold">{{ g.title }}</p>
-              <p class="text-muted-foreground text-xs">
-                {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                {{ 'goals.of' | translate }}
-                {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                @if (g.deadline) {
-                  <span class="ml-2">{{ 'goals.due' | translate }} {{ g.deadline | date: 'mediumDate' }}</span>
-                }
-              </p>
+          <div class="bg-background border-border flex flex-col gap-3 rounded-lg border p-4 shadow-sm sm:flex-row sm:items-center sm:gap-4">
+            <!-- Ring + Info -->
+            <div class="flex min-w-0 flex-1 items-center gap-4">
+              <app-progress-ring [percentage]="progressPercent(g)" [size]="64" />
+              <div class="min-w-0 flex-1">
+                <p class="text-foreground truncate text-sm font-semibold">{{ g.title }}</p>
+                <p class="text-muted-foreground text-xs">
+                  {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                  {{ 'goals.of' | translate }}
+                  {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                  @if (g.deadline) {
+                    <span class="ml-2">{{ 'goals.due' | translate }} {{ g.deadline | date: 'mediumDate' }}</span>
+                  }
+                </p>
+              </div>
             </div>
 
             <!-- Actions -->
-            <div class="flex shrink-0 gap-2">
+            <div class="flex shrink-0 flex-wrap items-center gap-2">
               <button
                 (click)="onContribute(g)"
                 class="bg-primary hover:bg-primary/90 cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium text-white transition-colors">
@@ -64,19 +64,21 @@
     <app-card [title]="'goals.completed' | translate" class="mt-6">
       <div class="space-y-3">
         @for (g of goalStore.completedGoals$ | async; track g.id) {
-          <div class="bg-background border-border flex items-center gap-4 rounded-lg border p-4 opacity-70 shadow-sm">
-            <app-progress-ring [percentage]="100" [size]="48" />
-            <div class="min-w-0 flex-1">
-              <p class="text-foreground truncate text-sm font-semibold">{{ g.title }}</p>
-              <p class="text-muted-foreground text-xs">
-                {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-                {{ 'goals.of' | translate }}
-                {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-              </p>
+          <div class="bg-background border-border flex flex-col gap-3 rounded-lg border p-4 opacity-70 shadow-sm sm:flex-row sm:items-center sm:gap-4">
+            <div class="flex min-w-0 flex-1 items-center gap-4">
+              <app-progress-ring [percentage]="100" [size]="48" />
+              <div class="min-w-0 flex-1">
+                <p class="text-foreground truncate text-sm font-semibold">{{ g.title }}</p>
+                <p class="text-muted-foreground text-xs">
+                  {{ g.currentAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                  {{ 'goals.of' | translate }}
+                  {{ g.targetAmount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+                </p>
+              </div>
             </div>
             <button
               (click)="onDelete(g)"
-              class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
+              class="shrink-0 cursor-pointer text-left text-sm text-red-500 transition-colors hover:text-red-700 sm:text-right">
               {{ 'common.delete' | translate }}
             </button>
           </div>
