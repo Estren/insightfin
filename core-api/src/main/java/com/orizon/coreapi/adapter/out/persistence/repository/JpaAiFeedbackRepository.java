@@ -11,7 +11,7 @@ import java.util.UUID;
 public class JpaAiFeedbackRepository implements PanacheRepositoryBase<AiFeedbackEntity, UUID> {
 
     public List<AiFeedbackEntity> findByUserId(UUID userId) {
-        return list("userId order by createdAt desc", userId);
+        return list("userId = ?1 order by createdAt desc", userId);
     }
 
     public List<AiFeedbackEntity> findByUserIdAndReferenceMonth(UUID userId, String referenceMonth) {
