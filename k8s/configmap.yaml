@@ -26,3 +26,7 @@ data:
   MAX_LLM_CALLS_PER_DAY: '500'
   ANALYSIS_BATCH_SIZE: '10'
   LLM_TIMEOUT_SECONDS: '30'
+
+  # Sentry (error monitoring) - disabled locally; enable per-environment in production
+  SENTRY_ENABLED: 'false'
+  SENTRY_ENVIRONMENT: 'local'
