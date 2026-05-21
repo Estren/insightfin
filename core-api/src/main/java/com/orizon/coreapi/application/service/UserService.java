@@ -4,6 +4,7 @@ import com.orizon.coreapi.domain.exception.DomainException;
 import com.orizon.coreapi.domain.exception.DuplicateResourceException;
 import com.orizon.coreapi.domain.exception.ResourceNotFoundException;
 import com.orizon.coreapi.domain.model.AuthTokens;
+import com.orizon.coreapi.domain.model.GoogleAuthResult;
 import com.orizon.coreapi.domain.model.RefreshToken;
 import com.orizon.coreapi.domain.model.Role;
 import com.orizon.coreapi.domain.model.User;
@@ -106,16 +107,18 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
     }
 
     @Override
-    public AuthTokens authenticateWithGoogle(String idToken, String expectedNonce) {
+    public GoogleAuthResult authenticateWithGoogle(String idToken, String expectedNonce) {
         var info = googleTokenVerifier.verify(idToken, expectedNonce);
         String normalizedEmail = normalizeEmail(info.email());
         LocalDateTime now = LocalDateTime.now();
 
         User user = userRepository.findByGoogleSub(info.sub()).orElse(null);
+        boolean isNewUser = false;
 
         if (user == null) {
             user = userRepository.findByEmail(normalizedEmail).orElse(null);
             if (user == null) {
+                isNewUser = true;
                 user = new User();
                 user.setId(UUID.randomUUID());
                 user.setName(info.name() != null ? info.name() : normalizedEmail);
@@ -148,7 +151,7 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         String accessToken = tokenProvider.generateToken(saved.getId(), saved.getEmail(), saved.getRole(), saved.isEmailVerified());
         String refreshToken = createRefreshToken(saved.getId());
 
-        return new AuthTokens(accessToken, refreshToken);
+        return new GoogleAuthResult(new AuthTokens(accessToken, refreshToken), isNewUser);
     }
 
     @Override

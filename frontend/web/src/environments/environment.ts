@@ -4,4 +4,6 @@ export const environment = {
   googleClientId: '594160933820-rqcqk1qp4dbv77cnqokbfr133lkhbfib.apps.googleusercontent.com',
   sentryDsn: '',
   sentryEnvironment: 'development',
+  posthogKey: '',
+  posthogHost: '',
 };

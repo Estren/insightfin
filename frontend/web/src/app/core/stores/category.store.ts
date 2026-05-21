@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, tap, throwError } from 'rxjs';
+import { AnalyticsService } from '../services/analytics.service';
 import { CategoryService } from '../services/category.service';
 import { CategoryResponse, CreateCategoryRequest, UpdateCategoryRequest } from '../models/category.model';
 import { TransactionType } from '../models/transaction.model';
@@ -18,6 +19,7 @@ export class CategoryStore {
   constructor(
     private readonly categoryService: CategoryService,
     private readonly toastService: ToastService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   load(type?: TransactionType): void {
@@ -42,6 +44,7 @@ export class CategoryStore {
       tap((created) => {
         this._categories$.next([...this._categories$.value, created]);
         this.toastService.success('toast.categories.created');
+        this.analytics.capture('category_created', { type: created.type });
       }),
       catchError((err) => {
         this.toastService.error('toast.categories.createError');

@@ -6,6 +6,7 @@ import {
   CreateBudgetRequest,
   UpdateBudgetRequest,
 } from '../models/budget.model';
+import { AnalyticsService } from '../services/analytics.service';
 import { BudgetService } from '../services/budget.service';
 import { ToastService } from '../services/toast.service';
 
@@ -26,6 +27,7 @@ export class BudgetStore {
   constructor(
     private readonly budgetService: BudgetService,
     private readonly toastService: ToastService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   get selectedMonth(): string {
@@ -59,6 +61,7 @@ export class BudgetStore {
       tap(() => {
         this.load(this._selectedMonth$.value);
         this.toastService.success('toast.budgets.created');
+        this.analytics.capture('budget_created');
       }),
       catchError((err) => {
         this.toastService.error('toast.budgets.createError');

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AiFeedbackResponse } from '../models/ai-feedback.model';
 import { AiFeedbackService } from '../services/ai-feedback.service';
+import { AnalyticsService } from '../services/analytics.service';
 import { ToastService } from '../services/toast.service';
 
 @Injectable({ providedIn: 'root' })
@@ -19,6 +20,7 @@ export class AiFeedbackStore {
   constructor(
     private readonly feedbackService: AiFeedbackService,
     private readonly toastService: ToastService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   load(month: string): void {
@@ -57,6 +59,11 @@ export class AiFeedbackStore {
     }
 
     this.feedbackService.markAsRead(id).subscribe({
+      next: () => {
+        if (wasUnread) {
+          this.analytics.capture('feedback_marked_read');
+        }
+      },
       error: () => {
         this._feedbacks$.next(previousList);
         this._unreadCount$.next(previousCount);
