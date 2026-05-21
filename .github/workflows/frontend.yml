@@ -56,6 +56,34 @@ jobs:
           npm ci
           npm run build
 
+      - name: Detect Sentry config
+        id: sentry
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_WEB_AUTH_TOKEN }}
+        run: |
+          if [ -n "$SENTRY_AUTH_TOKEN" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SENTRY_AUTH_TOKEN not set — skipping source map upload."
+          fi
+
+      - name: Upload source maps to Sentry
+        if: steps.sentry.outputs.enabled == 'true'
+        continue-on-error: true
+        working-directory: frontend/web
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_WEB_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_WEB_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_WEB_PROJECT }}
+        run: |
+          npx --yes @sentry/cli@2 sourcemaps inject dist/insightfin/browser
+          npx --yes @sentry/cli@2 sourcemaps upload dist/insightfin/browser
+
+      - name: Strip source maps from deploy artifact
+        working-directory: frontend/web
+        run: find dist/insightfin/browser -name '*.map' -type f -delete
+
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:

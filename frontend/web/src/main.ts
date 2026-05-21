@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, enableProdMode, importProvidersFrom } from '@angular/core';
+import { APP_INITIALIZER, enableProdMode, ErrorHandler, importProvidersFrom } from '@angular/core';
 
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
@@ -13,10 +13,13 @@ import { authInterceptor } from './app/core/interceptor/auth.interceptor';
 import { httpErrorInterceptor } from './app/core/interceptor/http-error.interceptor';
 import { LanguageService } from './app/core/services/language.service';
 import { environment } from './environments/environment';
+import { initSentry, sentryErrorHandler } from './app/core/sentry/sentry.config';
 
 function initLanguage(languageService: LanguageService): () => void {
   return () => languageService.init();
 }
+
+initSentry();
 
 if (environment.production) {
   enableProdMode();
@@ -31,6 +34,7 @@ bootstrapApplication(AppComponent, {
     provideAnimations(),
     provideZonelessChangeDetection(),
     provideHttpClient(withInterceptors([authInterceptor, httpErrorInterceptor])),
+    { provide: ErrorHandler, useValue: sentryErrorHandler },
     ...provideTranslateService({ defaultLanguage: 'pt-BR' }),
     ...provideTranslateHttpLoader({ prefix: './assets/i18n/', suffix: '.json' }),
     {
