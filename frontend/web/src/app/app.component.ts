@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgxSonnerToaster } from 'ngx-sonner';
+import { AnalyticsService } from './core/services/analytics.service';
 import { ThemeService } from './core/services/theme.service';
+import { AuthStore } from './core/stores/auth.store';
 import { ConfirmDialogComponent } from './shared/components/confirm-dialog/confirm-dialog.component';
 import { ResponsiveHelperComponent } from './shared/components/responsive-helper/responsive-helper.component';
 @Component({
@@ -13,5 +15,12 @@ import { ResponsiveHelperComponent } from './shared/components/responsive-helper
 export class AppComponent {
   title = 'InsightFin';
 
-  constructor(public themeService: ThemeService) {}
+  constructor(
+    public themeService: ThemeService,
+    analytics: AnalyticsService,
+    authStore: AuthStore,
+  ) {
+    analytics.init();
+    authStore.identifyCurrentUser();
+  }
 }

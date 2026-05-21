@@ -1,7 +1,7 @@
 package com.orizon.coreapi.domain.port.in;
 
-import com.orizon.coreapi.domain.model.AuthTokens;
+import com.orizon.coreapi.domain.model.GoogleAuthResult;
 
 public interface AuthenticateWithGoogleUseCase {
-    AuthTokens authenticateWithGoogle(String idToken, String expectedNonce);
+    GoogleAuthResult authenticateWithGoogle(String idToken, String expectedNonce);
 }

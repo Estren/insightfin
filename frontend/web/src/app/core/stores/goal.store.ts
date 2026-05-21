@@ -7,6 +7,7 @@ import {
   GoalResponse,
   UpdateGoalRequest,
 } from '../models/goal.model';
+import { AnalyticsService } from '../services/analytics.service';
 import { GoalService } from '../services/goal.service';
 import { ToastService } from '../services/toast.service';
 
@@ -26,6 +27,7 @@ export class GoalStore {
   constructor(
     private readonly goalService: GoalService,
     private readonly toastService: ToastService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   load(): void {
@@ -49,6 +51,7 @@ export class GoalStore {
       tap(() => {
         this.load();
         this.toastService.success('toast.goals.created');
+        this.analytics.capture('goal_created');
       }),
       catchError((err) => {
         this.toastService.error('toast.goals.createError');

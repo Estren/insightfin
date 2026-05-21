@@ -84,8 +84,9 @@ public class AuthController {
     @POST
     @Path("/google")
     public AuthResponse google(@Valid GoogleSignInRequest request) {
-        var tokens = authenticateWithGoogleUseCase.authenticateWithGoogle(request.credential(), request.nonce());
-        return new AuthResponse(tokens.getAccessToken(), tokens.getRefreshToken());
+        var result = authenticateWithGoogleUseCase.authenticateWithGoogle(request.credential(), request.nonce());
+        var tokens = result.tokens();
+        return new AuthResponse(tokens.getAccessToken(), tokens.getRefreshToken(), result.isNewUser());
     }
 
     @POST

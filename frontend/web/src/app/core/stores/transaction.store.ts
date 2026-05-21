@@ -5,6 +5,7 @@ import {
   TransactionResponse,
   UpdateTransactionRequest,
 } from '../models/transaction.model';
+import { AnalyticsService } from '../services/analytics.service';
 import { TransactionService } from '../services/transaction.service';
 import { ToastService } from '../services/toast.service';
 
@@ -23,6 +24,7 @@ export class TransactionStore {
   constructor(
     private readonly transactionService: TransactionService,
     private readonly toastService: ToastService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   get selectedMonth(): string {
@@ -55,6 +57,7 @@ export class TransactionStore {
           this._transactions$.next([...this._transactions$.value, created]);
         }
         this.toastService.success('toast.transactions.created');
+        this.analytics.capture('transaction_created', { type: created.type });
       }),
       catchError((err) => {
         this.toastService.error('toast.transactions.createError');

@@ -5,6 +5,7 @@ import {
   RecurringTransactionResponse,
   UpdateRecurringTransactionRequest,
 } from '../models/recurring-transaction.model';
+import { AnalyticsService } from '../services/analytics.service';
 import { RecurringTransactionService } from '../services/recurring-transaction.service';
 import { ToastService } from '../services/toast.service';
 
@@ -21,6 +22,7 @@ export class RecurringTransactionStore {
   constructor(
     private readonly service: RecurringTransactionService,
     private readonly toastService: ToastService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   load(): void {
@@ -45,6 +47,10 @@ export class RecurringTransactionStore {
       tap((created) => {
         this._items$.next([created, ...this._items$.value]);
         this.toastService.success('toast.recurring.created');
+        this.analytics.capture('recurring_transaction_created', {
+          frequency: created.frequency,
+          type: created.type,
+        });
       }),
       catchError((err) => {
         this.toastService.error('toast.recurring.createError');
