@@ -24,11 +24,12 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:e2e": "npx playwright test --ui",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "prettier": "prettier --config ./.prettierrc --write \"src/{app,environments}/**/*{.ts,.html,.scss,.json}\"",
     "prettier:verify": "prettier --config ./.prettierrc --check \"src/{app,environments}/**/*{.ts,.html,.scss,.json}\"",
-    "prettier:staged": "pretty-quick --staged",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "prepare": "cd ../.. && husky frontend/web/.husky || true"
   },
   "private": true,
   "dependencies": {
@@ -57,20 +58,30 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@angular-eslint/builder": "21.4.0",
+    "@angular-eslint/eslint-plugin": "21.4.0",
+    "@angular-eslint/eslint-plugin-template": "21.4.0",
+    "@angular-eslint/schematics": "21.4.0",
+    "@angular-eslint/template-parser": "21.4.0",
     "@angular/build": "^21.0.4",
     "@angular/cli": "^21.0.4",
     "@angular/compiler-cli": "^21.0.6",
     "@playwright/test": "^1.50.1",
     "@types/jasmine": "~3.10.0",
     "@types/node": "^12.11.1",
+    "@typescript-eslint/eslint-plugin": "7.11.0",
+    "@typescript-eslint/parser": "7.11.0",
     "autoprefixer": "^10.4.7",
     "cz-conventional-changelog": "^3.3.0",
+    "eslint": "8.57.1",
+    "husky": "^9.1.7",
     "jasmine-core": "~3.10.0",
     "karma": "^6.4.4",
     "karma-chrome-launcher": "~3.1.0",
     "karma-coverage": "~2.0.3",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
+    "lint-staged": "^16.4.0",
     "postcss": "^8.5.3",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.7.2",
@@ -82,5 +93,9 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "lint-staged": {
+    "*.{ts,html}": ["eslint --fix", "prettier --write"],
+    "*.{scss,json}": ["prettier --write"]
   }
 }
