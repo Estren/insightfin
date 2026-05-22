@@ -1,8 +1,10 @@
-
 import { AfterViewInit, Directive, ElementRef, EventEmitter, Inject, OnDestroy, Output, DOCUMENT } from '@angular/core';
 import { filter, fromEvent, Subscription } from 'rxjs';
 
 @Directive({
+  // Renaming the selector would require touching modules/layout (frozen shell),
+  // the directive's only consumer.
+  // eslint-disable-next-line @angular-eslint/directive-selector
   selector: '[clickOutside]',
   standalone: true,
 })
@@ -11,7 +13,10 @@ export class ClickOutsideDirective implements AfterViewInit, OnDestroy {
 
   documentClickSubscription: Subscription | undefined;
 
-  constructor(private element: ElementRef, @Inject(DOCUMENT) private document: Document) {}
+  constructor(
+    private element: ElementRef,
+    @Inject(DOCUMENT) private document: Document,
+  ) {}
 
   ngAfterViewInit(): void {
     this.documentClickSubscription = fromEvent(this.document, 'click')

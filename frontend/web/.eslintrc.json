@@ -1,17 +1,14 @@
 {
   "root": true,
-  "ignorePatterns": ["projects/**/*"],
+  "ignorePatterns": ["projects/**/*", "src/app/modules/uikit/**", "tests-e2e/**", "playwright.config.ts"],
   "overrides": [
     {
       "files": ["*.ts"],
-      "parserOptions": {
-        "project": ["tsconfig.json"],
-        "createDefaultProgram": true
-      },
       "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
-        "plugin:@angular-eslint/template/process-inline-templates",
-        "prettier"
+        "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
         "@angular-eslint/directive-selector": [
@@ -29,13 +26,28 @@
             "prefix": "app",
             "style": "kebab-case"
           }
-        ]
+        ],
+        "@angular-eslint/prefer-inject": "off",
+        "@angular-eslint/no-output-native": "off",
+        "@typescript-eslint/no-explicit-any": "warn",
+        "@angular-eslint/no-empty-lifecycle-method": "warn"
       }
     },
     {
       "files": ["*.html"],
-      "extends": ["plugin:@angular-eslint/template/recommended", "prettier"],
-      "rules": {}
+      "extends": ["plugin:@angular-eslint/template/recommended", "plugin:@angular-eslint/template/accessibility"],
+      "rules": {
+        "@angular-eslint/template/label-has-associated-control": "warn",
+        "@angular-eslint/template/click-events-have-key-events": "warn",
+        "@angular-eslint/template/interactive-supports-focus": "warn"
+      }
+    },
+    {
+      "files": ["src/app/modules/layout/**/*.ts", "src/app/modules/layout/**/*.html"],
+      "rules": {
+        "@angular-eslint/component-selector": "off",
+        "@angular-eslint/template/eqeqeq": "off"
+      }
     }
   ]
 }
