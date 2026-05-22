@@ -36,8 +36,25 @@
     "goals": "Metas",
     "feedbacks": "Insights",
     "recurring": "Recorrentes",
+    "reports": "Relatórios",
     "profile": "Perfil",
     "unreadInsights": "Insights não lidos: {{count}}"
+  },
+  "reports": {
+    "title": "Relatórios",
+    "subtitle": "Visão geral dos últimos 6 meses",
+    "incomeVsExpense": "Receita vs Despesa",
+    "expensesByCategory": "Despesas por categoria (mês atual)",
+    "income": "Receita",
+    "expense": "Despesa",
+    "totalIncome": "Receita total",
+    "totalExpense": "Despesa total",
+    "balance": "Saldo",
+    "empty": "Sem dados para relatórios",
+    "emptyDesc": "Registre transações para ver seus relatórios aqui.",
+    "loadError": "Não foi possível carregar os relatórios",
+    "loadErrorDesc": "Tente novamente em instantes.",
+    "noExpensesThisMonth": "Sem despesas neste mês."
   },
   "theme": {
     "color": "Cor",

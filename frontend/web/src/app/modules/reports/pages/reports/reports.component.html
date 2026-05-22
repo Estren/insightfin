@@ -1,0 +1,56 @@
+@if (loading) {
+  <app-loading />
+} @else {
+  <app-page-header [title]="'reports.title' | translate" [subtitle]="'reports.subtitle' | translate" />
+
+  @if (error) {
+    <app-empty-state [title]="'reports.loadError' | translate" [description]="'reports.loadErrorDesc' | translate" />
+  } @else if (!hasData) {
+    <app-empty-state [title]="'reports.empty' | translate" [description]="'reports.emptyDesc' | translate" />
+  } @else {
+    <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+      <app-stat-card
+        [label]="'reports.totalIncome' | translate"
+        tone="positive"
+        [value]="totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
+      <app-stat-card
+        [label]="'reports.totalExpense' | translate"
+        tone="negative"
+        [value]="totalExpense | currency: 'BRL' : 'symbol' : '1.2-2'" />
+      <app-stat-card
+        [label]="'reports.balance' | translate"
+        [tone]="balance >= 0 ? 'positive' : 'negative'"
+        [value]="balance | currency: 'BRL' : 'symbol' : '1.2-2'" />
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <app-chart-card [title]="'reports.incomeVsExpense' | translate">
+        <apx-chart
+          [series]="trendSeries"
+          [chart]="trendChart"
+          [xaxis]="trendXaxis"
+          [yaxis]="trendYaxis"
+          [stroke]="trendStroke"
+          [dataLabels]="trendDataLabels"
+          [tooltip]="trendTooltip"
+          [colors]="trendColors" />
+      </app-chart-card>
+
+      <app-chart-card [title]="'reports.expensesByCategory' | translate">
+        @if (categorySeries.length) {
+          <apx-chart
+            [series]="categorySeries"
+            [chart]="donutChart"
+            [labels]="categoryLabels"
+            [legend]="donutLegend"
+            [colors]="donutColors"
+            [tooltip]="donutTooltip" />
+        } @else {
+          <p class="text-muted-foreground py-12 text-center text-sm">
+            {{ 'reports.noExpensesThisMonth' | translate }}
+          </p>
+        }
+      </app-chart-card>
+    </div>
+  }
+}

@@ -32,14 +32,17 @@ const routes: Routes = [
     path: 'recurring',
     component: LayoutComponent,
     loadChildren: () =>
-      import('../recurring-transactions/recurring-transactions.module').then(
-        (m) => m.RecurringTransactionsModule,
-      ),
+      import('../recurring-transactions/recurring-transactions.module').then((m) => m.RecurringTransactionsModule),
   },
   {
     path: 'feedbacks',
     component: LayoutComponent,
     loadChildren: () => import('../feedbacks/feedbacks.module').then((m) => m.FeedbacksModule),
+  },
+  {
+    path: 'reports',
+    component: LayoutComponent,
+    loadChildren: () => import('../reports/reports.module').then((m) => m.ReportsModule),
   },
   {
     path: 'profile',

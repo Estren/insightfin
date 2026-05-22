@@ -36,8 +36,25 @@
     "goals": "Goals",
     "feedbacks": "Insights",
     "recurring": "Recurring",
+    "reports": "Reports",
     "profile": "Profile",
     "unreadInsights": "Unread insights: {{count}}"
+  },
+  "reports": {
+    "title": "Reports",
+    "subtitle": "Last 6 months overview",
+    "incomeVsExpense": "Income vs Expense",
+    "expensesByCategory": "Expenses by category (current month)",
+    "income": "Income",
+    "expense": "Expense",
+    "totalIncome": "Total income",
+    "totalExpense": "Total expense",
+    "balance": "Balance",
+    "empty": "No report data yet",
+    "emptyDesc": "Add transactions to see your reports here.",
+    "loadError": "Couldn't load the reports",
+    "loadErrorDesc": "Please try again in a moment.",
+    "noExpensesThisMonth": "No expenses this month."
   },
   "theme": {
     "color": "Color",
