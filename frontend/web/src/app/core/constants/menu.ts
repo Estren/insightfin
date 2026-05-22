@@ -47,6 +47,11 @@ export class Menu {
           label: 'nav.recurring',
           route: '/recurring',
         },
+        {
+          icon: 'assets/icons/heroicons/outline/chart-pie.svg',
+          label: 'nav.reports',
+          route: '/reports',
+        },
       ],
     },
   ];
