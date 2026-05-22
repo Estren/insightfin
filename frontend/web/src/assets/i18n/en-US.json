@@ -56,6 +56,29 @@
     "loadErrorDesc": "Please try again in a moment.",
     "noExpensesThisMonth": "No expenses this month."
   },
+  "onboarding": {
+    "stepOf": "Step {{current}} of {{total}}",
+    "skip": "Skip",
+    "next": "Next",
+    "finish": "Finish",
+    "category": {
+      "title": "Create your first category",
+      "desc": "Categories organize your transactions by type of spending or income.",
+      "nameLabel": "Category name"
+    },
+    "budget": {
+      "title": "Set a budget",
+      "desc": "How much do you want to spend on {{category}} per month?",
+      "noCategory": "You skipped creating a category — you can set a budget later.",
+      "amountLabel": "Monthly limit"
+    },
+    "goal": {
+      "title": "Create a goal",
+      "desc": "A savings target to keep you motivated.",
+      "titleLabel": "Goal name",
+      "targetLabel": "Target amount"
+    }
+  },
   "theme": {
     "color": "Color",
     "mode": "Mode",

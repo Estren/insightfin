@@ -56,6 +56,29 @@
     "loadErrorDesc": "Tente novamente em instantes.",
     "noExpensesThisMonth": "Sem despesas neste mês."
   },
+  "onboarding": {
+    "stepOf": "Passo {{current}} de {{total}}",
+    "skip": "Pular",
+    "next": "Avançar",
+    "finish": "Concluir",
+    "category": {
+      "title": "Crie sua primeira categoria",
+      "desc": "Categorias organizam suas transações por tipo de gasto ou receita.",
+      "nameLabel": "Nome da categoria"
+    },
+    "budget": {
+      "title": "Defina um orçamento",
+      "desc": "Quanto você quer gastar com {{category}} por mês?",
+      "noCategory": "Você pulou a criação de categoria — pode definir um orçamento depois.",
+      "amountLabel": "Limite mensal"
+    },
+    "goal": {
+      "title": "Crie uma meta",
+      "desc": "Um objetivo de economia para se manter motivado.",
+      "titleLabel": "Nome da meta",
+      "targetLabel": "Valor alvo"
+    }
+  },
   "theme": {
     "color": "Cor",
     "mode": "Modo",
