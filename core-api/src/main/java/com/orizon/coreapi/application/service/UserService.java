@@ -46,13 +46,17 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
     private final GoogleTokenVerifier googleTokenVerifier;
     private final RequestEmailVerificationUseCase requestEmailVerificationUseCase;
     private final boolean emailVerificationRequired;
+    private final int lockoutMaxAttempts;
+    private final int lockoutDurationMinutes;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
                        TokenProvider tokenProvider, RefreshTokenRepository refreshTokenRepository,
                        AvatarStoragePort avatarStoragePort,
                        GoogleTokenVerifier googleTokenVerifier,
                        RequestEmailVerificationUseCase requestEmailVerificationUseCase,
-                       boolean emailVerificationRequired) {
+                       boolean emailVerificationRequired,
+                       int lockoutMaxAttempts,
+                       int lockoutDurationMinutes) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
@@ -61,6 +65,8 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         this.googleTokenVerifier = googleTokenVerifier;
         this.requestEmailVerificationUseCase = requestEmailVerificationUseCase;
         this.emailVerificationRequired = emailVerificationRequired;
+        this.lockoutMaxAttempts = lockoutMaxAttempts;
+        this.lockoutDurationMinutes = lockoutDurationMinutes;
     }
 
     @Override
@@ -95,9 +101,21 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         User user = userRepository.findByEmail(normalizeEmail(email))
                 .orElseThrow(() -> new DomainException("Invalid email or password"));
 
+        if (isLocked(user)) {
+            throw new DomainException("Account temporarily locked due to repeated failed logins. Try again later.");
+        }
+
         if (user.getPasswordHash() == null
                 || !passwordEncoder.matches(password, user.getPasswordHash())) {
+            registerFailedAttempt(user);
             throw new DomainException("Invalid email or password");
+        }
+
+        if (user.getFailedLoginAttempts() > 0 || user.getLockedUntil() != null) {
+            user.setFailedLoginAttempts(0);
+            user.setLockedUntil(null);
+            user.setUpdatedAt(LocalDateTime.now());
+            userRepository.save(user);
         }
 
         String accessToken = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole(), user.isEmailVerified());
@@ -155,11 +173,14 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
     }
 
     @Override
-    public String execute(String refreshTokenValue) {
+    public AuthTokens execute(String refreshTokenValue) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
                 .orElseThrow(() -> new DomainException("Invalid refresh token"));
 
         if (refreshToken.isRevoked()) {
+            // A revoked token presented again signals theft — revoke the whole
+            // family so a stolen token cannot be used either.
+            refreshTokenRepository.revokeAllByUserId(refreshToken.getUserId());
             throw new DomainException("Refresh token has been revoked");
         }
 
@@ -170,7 +191,13 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
         User user = userRepository.findById(refreshToken.getUserId())
                 .orElseThrow(() -> new DomainException("User not found"));
 
-        return tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole(), user.isEmailVerified());
+        // Rotate: revoke the used token and issue a fresh pair.
+        refreshTokenRepository.revokeByToken(refreshTokenValue);
+
+        String accessToken = tokenProvider.generateToken(user.getId(), user.getEmail(), user.getRole(), user.isEmailVerified());
+        String newRefreshToken = createRefreshToken(user.getId());
+
+        return new AuthTokens(accessToken, newRefreshToken);
     }
 
     @Override
@@ -256,5 +283,29 @@ public class UserService implements CreateUserUseCase, AuthenticateUserUseCase,
 
         refreshTokenRepository.save(refreshToken);
         return refreshToken.getToken();
+    }
+
+    private boolean isLocked(User user) {
+        return user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now());
+    }
+
+    private void registerFailedAttempt(User user) {
+        if (lockoutMaxAttempts <= 0) {
+            return;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        int attempts = user.getFailedLoginAttempts();
+        // A lock that already expired — start a fresh count.
+        if (user.getLockedUntil() != null && user.getLockedUntil().isBefore(now)) {
+            attempts = 0;
+            user.setLockedUntil(null);
+        }
+        attempts++;
+        user.setFailedLoginAttempts(attempts);
+        if (attempts >= lockoutMaxAttempts) {
+            user.setLockedUntil(now.plusMinutes(lockoutDurationMinutes));
+        }
+        user.setUpdatedAt(now);
+        userRepository.save(user);
     }
 }

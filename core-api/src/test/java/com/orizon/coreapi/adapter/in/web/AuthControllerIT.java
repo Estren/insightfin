@@ -222,4 +222,71 @@ class AuthControllerIT {
                 .then()
                 .statusCode(401);
     }
+
+    // A12
+    @Test
+    void refresh_rotatesRefreshToken() {
+        String email = uniqueEmail();
+        register(email);
+
+        String oldRefresh = given()
+                .contentType(ContentType.JSON)
+                .body("""
+                        {"email":"%s","password":"password123"}
+                        """.formatted(email))
+                .when()
+                .post("/api/auth/login")
+                .then()
+                .extract().jsonPath().getString("refreshToken");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body("""
+                        {"refreshToken":"%s"}
+                        """.formatted(oldRefresh))
+                .when()
+                .post("/api/auth/refresh")
+                .then()
+                .statusCode(200)
+                .body("refreshToken", not(equalTo(oldRefresh)));
+    }
+
+    // A13
+    @Test
+    void refresh_reusingRevokedToken_returns400() {
+        String email = uniqueEmail();
+        register(email);
+
+        String refreshToken = given()
+                .contentType(ContentType.JSON)
+                .body("""
+                        {"email":"%s","password":"password123"}
+                        """.formatted(email))
+                .when()
+                .post("/api/auth/login")
+                .then()
+                .extract().jsonPath().getString("refreshToken");
+
+        // First refresh rotates and revokes the original token.
+        given()
+                .contentType(ContentType.JSON)
+                .body("""
+                        {"refreshToken":"%s"}
+                        """.formatted(refreshToken))
+                .when()
+                .post("/api/auth/refresh")
+                .then()
+                .statusCode(200);
+
+        // Reusing the now-revoked token must be rejected.
+        given()
+                .contentType(ContentType.JSON)
+                .body("""
+                        {"refreshToken":"%s"}
+                        """.formatted(refreshToken))
+                .when()
+                .post("/api/auth/refresh")
+                .then()
+                .statusCode(400);
+    }
 }

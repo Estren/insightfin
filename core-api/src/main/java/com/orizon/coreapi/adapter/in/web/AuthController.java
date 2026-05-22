@@ -92,8 +92,8 @@ public class AuthController {
     @POST
     @Path("/refresh")
     public AuthResponse refresh(@Valid RefreshTokenRequest request) {
-        var newAccessToken = refreshTokenUseCase.execute(request.refreshToken());
-        return new AuthResponse(newAccessToken, request.refreshToken());
+        var tokens = refreshTokenUseCase.execute(request.refreshToken());
+        return new AuthResponse(tokens.getAccessToken(), tokens.getRefreshToken());
     }
 
     @POST

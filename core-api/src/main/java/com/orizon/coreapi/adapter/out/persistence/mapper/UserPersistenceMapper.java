@@ -18,6 +18,8 @@ public class UserPersistenceMapper {
         entity.setEmailVerified(user.isEmailVerified());
         entity.setEmailVerifiedAt(user.getEmailVerifiedAt());
         entity.setGoogleSub(user.getGoogleSub());
+        entity.setFailedLoginAttempts(user.getFailedLoginAttempts());
+        entity.setLockedUntil(user.getLockedUntil());
         entity.setCreatedAt(user.getCreatedAt());
         entity.setUpdatedAt(user.getUpdatedAt());
         return entity;
@@ -37,6 +39,8 @@ public class UserPersistenceMapper {
         user.setEmailVerified(entity.isEmailVerified());
         user.setEmailVerifiedAt(entity.getEmailVerifiedAt());
         user.setGoogleSub(entity.getGoogleSub());
+        user.setFailedLoginAttempts(entity.getFailedLoginAttempts());
+        user.setLockedUntil(entity.getLockedUntil());
         return user;
     }
 }

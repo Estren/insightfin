@@ -46,7 +46,7 @@ class UserServiceTest {
     void setUp() {
         service = new UserService(userRepository, passwordEncoder, tokenProvider,
                 refreshTokenRepository, avatarStoragePort, googleTokenVerifier,
-                requestEmailVerificationUseCase, true);
+                requestEmailVerificationUseCase, true, 5, 15);
     }
 
     // --- U1 ---
@@ -205,6 +205,25 @@ class UserServiceTest {
     }
 
     // --- fixtures ---
+
+    // --- Account lockout ---
+    @Test
+    void authenticate_locksAccountAfterMaxFailedAttempts() {
+        User user = buildUser(UUID.randomUUID(), "John", "john@example.com", "hashed");
+        when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrong", "hashed")).thenReturn(false);
+
+        for (int i = 0; i < 5; i++) {
+            assertThatThrownBy(() -> service.execute("john@example.com", "wrong"))
+                    .isInstanceOf(DomainException.class)
+                    .hasMessageContaining("Invalid email or password");
+        }
+
+        // The account is now locked — even the correct password is rejected.
+        assertThatThrownBy(() -> service.execute("john@example.com", "secret"))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("locked");
+    }
 
     private User buildUser(UUID id, String name, String email, String passwordHash) {
         User u = new User();

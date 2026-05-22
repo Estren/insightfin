@@ -26,6 +26,12 @@ public class BeanConfig {
     @ConfigProperty(name = "app.email-verification.pin-max-attempts", defaultValue = "5")
     int emailVerificationPinMaxAttempts;
 
+    @ConfigProperty(name = "app.account-lockout.max-attempts", defaultValue = "5")
+    int accountLockoutMaxAttempts;
+
+    @ConfigProperty(name = "app.account-lockout.duration-minutes", defaultValue = "15")
+    int accountLockoutDurationMinutes;
+
     @Produces
     @ApplicationScoped
     public UserService userService(UserRepository userRepository,
@@ -37,7 +43,8 @@ public class BeanConfig {
                                    EmailVerificationService emailVerificationService) {
         return new UserService(userRepository, passwordEncoder, tokenProvider,
                 refreshTokenRepository, avatarStoragePort, googleTokenVerifier,
-                emailVerificationService, emailVerificationRequired);
+                emailVerificationService, emailVerificationRequired,
+                accountLockoutMaxAttempts, accountLockoutDurationMinutes);
     }
 
     @Produces
