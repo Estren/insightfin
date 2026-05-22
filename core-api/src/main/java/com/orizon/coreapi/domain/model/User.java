@@ -14,6 +14,8 @@ public class User {
     private boolean emailVerified;
     private LocalDateTime emailVerifiedAt;
     private String googleSub;
+    private int failedLoginAttempts;
+    private LocalDateTime lockedUntil;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -62,4 +64,10 @@ public class User {
 
     public String getGoogleSub() { return googleSub; }
     public void setGoogleSub(String googleSub) { this.googleSub = googleSub; }
+
+    public int getFailedLoginAttempts() { return failedLoginAttempts; }
+    public void setFailedLoginAttempts(int failedLoginAttempts) { this.failedLoginAttempts = failedLoginAttempts; }
+
+    public LocalDateTime getLockedUntil() { return lockedUntil; }
+    public void setLockedUntil(LocalDateTime lockedUntil) { this.lockedUntil = lockedUntil; }
 }

@@ -35,4 +35,10 @@ public class RefreshTokenRepositoryAdapter implements RefreshTokenRepository {
     public void revokeAllByUserId(UUID userId) {
         jpaRefreshTokenRepository.revokeAllByUserId(userId);
     }
+
+    @Override
+    @Transactional
+    public void revokeByToken(String token) {
+        jpaRefreshTokenRepository.revokeByToken(token);
+    }
 }

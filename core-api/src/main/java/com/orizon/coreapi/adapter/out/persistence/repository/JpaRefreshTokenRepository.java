@@ -17,4 +17,8 @@ public class JpaRefreshTokenRepository implements PanacheRepositoryBase<RefreshT
     public int revokeAllByUserId(UUID userId) {
         return update("revoked = true where userId = ?1 and revoked = false", userId);
     }
+
+    public int revokeByToken(String token) {
+        return update("revoked = true where token = ?1", token);
+    }
 }

@@ -33,6 +33,8 @@ public class UserRepositoryAdapter implements UserRepository {
             managed.setEmailVerified(user.isEmailVerified());
             managed.setEmailVerifiedAt(user.getEmailVerifiedAt());
             managed.setGoogleSub(user.getGoogleSub());
+            managed.setFailedLoginAttempts(user.getFailedLoginAttempts());
+            managed.setLockedUntil(user.getLockedUntil());
             managed.setUpdatedAt(user.getUpdatedAt());
             return UserPersistenceMapper.toDomain(managed);
         }
