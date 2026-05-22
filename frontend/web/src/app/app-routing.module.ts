@@ -1,12 +1,18 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { onboardingGuard } from './core/guards/onboarding.guard';
 import { verifiedEmailGuard } from './core/guards/verified-email.guard';
 
 const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('./modules/layout/layout.module').then((m) => m.LayoutModule),
+    canActivate: [authGuard, verifiedEmailGuard, onboardingGuard],
+  },
+  {
+    path: 'onboarding',
+    loadChildren: () => import('./modules/onboarding/onboarding.module').then((m) => m.OnboardingModule),
     canActivate: [authGuard, verifiedEmailGuard],
   },
   {
