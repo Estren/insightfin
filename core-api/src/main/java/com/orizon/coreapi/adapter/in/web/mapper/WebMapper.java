@@ -72,6 +72,13 @@ public class WebMapper {
                 feedback.isRead(), feedback.getCreatedAt());
     }
 
+    public static BudgetAlertResponse toResponse(BudgetAlert alert) {
+        return new BudgetAlertResponse(
+                alert.getId(), alert.getBudgetId(), alert.getThresholdPercentage(),
+                alert.getAmountSpent(), alert.getBudgetAmount(),
+                alert.getTriggeredAt(), alert.isRead(), alert.getCreatedAt());
+    }
+
     public static DashboardResponse toResponse(DashboardSummary summary, Map<UUID, String> categoryNames) {
         return new DashboardResponse(
                 summary.getTotalIncome(),
