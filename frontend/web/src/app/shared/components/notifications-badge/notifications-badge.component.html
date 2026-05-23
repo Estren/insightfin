@@ -1,9 +1,9 @@
 <a
-  routerLink="/feedbacks"
+  routerLink="/notifications"
   class="text-muted-foreground hover:bg-card hover:text-foreground relative inline-flex items-center justify-center rounded-md p-2 transition-colors"
-  [attr.aria-label]="'nav.unreadInsights' | translate: { count: (feedbackStore.unreadCount$ | async) ?? 0 }">
+  [attr.aria-label]="'nav.unreadNotifications' | translate: { count: (totalUnread$ | async) ?? 0 }">
   <svg-icon src="assets/icons/heroicons/outline/bell.svg" [svgClass]="'h-5 w-5'"></svg-icon>
-  @if (feedbackStore.unreadCount$ | async; as count) {
+  @if (totalUnread$ | async; as count) {
     <span
       aria-hidden="true"
       class="absolute -top-0.5 -right-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">

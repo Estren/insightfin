@@ -40,6 +40,11 @@ const routes: Routes = [
     loadChildren: () => import('../feedbacks/feedbacks.module').then((m) => m.FeedbacksModule),
   },
   {
+    path: 'notifications',
+    component: LayoutComponent,
+    loadChildren: () => import('../notifications/notifications.module').then((m) => m.NotificationsModule),
+  },
+  {
     path: 'reports',
     component: LayoutComponent,
     loadChildren: () => import('../reports/reports.module').then((m) => m.ReportsModule),

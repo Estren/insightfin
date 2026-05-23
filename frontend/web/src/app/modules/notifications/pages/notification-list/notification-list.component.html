@@ -1,0 +1,19 @@
+<app-page-header [title]="'notifications.title' | translate" [subtitle]="'notifications.subtitle' | translate" />
+
+<app-card>
+  @if (store.loading$ | async) {
+    <app-loading />
+  } @else if (store.notifications$ | async; as items) {
+    @if (items.length === 0) {
+      <app-empty-state
+        [title]="'notifications.empty' | translate"
+        [description]="'notifications.emptyDesc' | translate" />
+    } @else {
+      <div class="space-y-2">
+        @for (n of items; track n.id) {
+          <app-notification-card [notification]="n" />
+        }
+      </div>
+    }
+  }
+</app-card>

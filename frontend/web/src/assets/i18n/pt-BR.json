@@ -38,7 +38,20 @@
     "recurring": "Recorrentes",
     "reports": "Relatórios",
     "profile": "Perfil",
-    "unreadInsights": "Insights não lidos: {{count}}"
+    "unreadInsights": "Insights não lidos: {{count}}",
+    "unreadNotifications": "Notificações não lidas: {{count}}"
+  },
+  "notifications": {
+    "title": "Notificações",
+    "subtitle": "Insights de IA e alertas de orçamento",
+    "empty": "Tudo em dia",
+    "emptyDesc": "Sem novidades por enquanto. Avisaremos quando houver algo para olhar.",
+    "kinds": {
+      "budgetAlert": "Alerta de orçamento"
+    },
+    "budgetAlert": {
+      "message": "{{category}} atingiu {{percentage}}% do orçamento do mês"
+    }
   },
   "reports": {
     "title": "Relatórios",
@@ -424,6 +437,9 @@
     },
     "aiFeedback": {
       "loadError": "Falha ao carregar insights de IA."
+    },
+    "notifications": {
+      "loadError": "Falha ao carregar notificações."
     },
     "dashboard": {
       "loadError": "Falha ao carregar dados do painel."

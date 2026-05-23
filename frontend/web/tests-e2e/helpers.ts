@@ -50,6 +50,29 @@ export interface E2ETransaction {
   date: string;
 }
 
+export interface E2ENotification {
+  id: string;
+  kind: 'AI_FEEDBACK' | 'BUDGET_ALERT';
+  read: boolean;
+  createdAt: string;
+  aiFeedbackType: string | null;
+  title: string | null;
+  content: string | null;
+  referenceMonth: string | null;
+  budgetId: string | null;
+  categoryName: string | null;
+  thresholdPercentage: number | null;
+  amountSpent: number | null;
+  budgetAmount: number | null;
+  triggeredAt: string | null;
+}
+
+export interface E2EUnreadCount {
+  aiFeedbacks: number;
+  budgetAlerts: number;
+  total: number;
+}
+
 const CATEGORY = { id: 'cat-1', name: 'Alimentação', type: 'EXPENSE', color: '#E11D48', icon: '🍔' };
 
 const EMPTY_DASHBOARD = {
@@ -75,8 +98,17 @@ const USER_PROFILE = {
  * Intercepts every /api/** call and serves deterministic fixtures, so the E2E
  * suite runs with no backend. Mutating endpoints echo their input back.
  */
-export async function mockApi(page: Page, options: { transactions?: E2ETransaction[] } = {}): Promise<void> {
+export async function mockApi(
+  page: Page,
+  options: {
+    transactions?: E2ETransaction[];
+    notifications?: E2ENotification[];
+    unreadCount?: E2EUnreadCount;
+  } = {},
+): Promise<void> {
   const transactions = options.transactions ?? [];
+  const notifications = options.notifications ?? [];
+  const unreadCount = options.unreadCount ?? { aiFeedbacks: 0, budgetAlerts: 0, total: 0 };
 
   await page.route('**/api/**', async (route) => {
     const request = route.request();
@@ -117,7 +149,16 @@ export async function mockApi(page: Page, options: { transactions?: E2ETransacti
     if (path.startsWith('/users')) {
       return json(200, USER_PROFILE);
     }
-    // Everything else (feedbacks badge, budgets, goals, ...) → empty list.
+    if (path === '/notifications' && method === 'GET') {
+      return json(200, notifications);
+    }
+    if (path === '/notifications/unread-count' && method === 'GET') {
+      return json(200, unreadCount);
+    }
+    if (path.match(/^\/(budget-alerts|feedbacks)\/[^/]+\/read$/) && method === 'PATCH') {
+      return route.fulfill({ status: 204, body: '' });
+    }
+    // Everything else (budgets, goals, ...) → empty list.
     return json(200, []);
   });
 }
