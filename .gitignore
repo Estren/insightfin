@@ -51,6 +51,12 @@ core-api/target/
 # Maven wrapper (downloaded binaries)
 core-api/.mvn/maven/
 
+# Python (ai-service)
+__pycache__/
+*.pyc
+ai/.venv/
+ai/.pytest_cache/
+
 # Secrets
 /src/environments/environment.ts
 /src/plugins-config/plugins-config.ts
