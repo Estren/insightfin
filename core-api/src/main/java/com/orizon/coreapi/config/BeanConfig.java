@@ -115,6 +115,14 @@ public class BeanConfig {
 
     @Produces
     @ApplicationScoped
+    public BudgetAlertService budgetAlertService(BudgetAlertRepository budgetAlertRepository,
+                                                 BudgetRepository budgetRepository,
+                                                 TransactionRepository transactionRepository) {
+        return new BudgetAlertService(budgetAlertRepository, budgetRepository, transactionRepository);
+    }
+
+    @Produces
+    @ApplicationScoped
     public PasswordResetService passwordResetService(UserRepository userRepository,
                                                      PasswordResetTokenRepository tokenRepository,
                                                      PasswordEncoder passwordEncoder,
