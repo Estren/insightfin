@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { MenuService } from '../../services/menu.service';
-import { FeedbackBadgeComponent } from '../../../../shared/components/feedback-badge/feedback-badge.component';
+import { NotificationsBadgeComponent } from '../../../../shared/components/notifications-badge/notifications-badge.component';
 import { NavbarMenuComponent } from './navbar-menu/navbar-menu.component';
 import { NavbarMobileComponent } from './navbar-mobile/navbar-mobilecomponent';
 import { ProfileMenuComponent } from './profile-menu/profile-menu.component';
@@ -15,7 +15,7 @@ import { ProfileMenuComponent } from './profile-menu/profile-menu.component';
     NavbarMenuComponent,
     ProfileMenuComponent,
     NavbarMobileComponent,
-    FeedbackBadgeComponent,
+    NotificationsBadgeComponent,
   ],
 })
 export class NavbarComponent implements OnInit {

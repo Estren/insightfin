@@ -1,0 +1,46 @@
+<div class="bg-muted/30 hover:bg-muted/60 cursor-pointer rounded-md p-3 transition-colors" (click)="toggle()">
+  <div class="flex items-start gap-3">
+    <div class="min-w-0 flex-1">
+      <div class="mb-1 flex items-center gap-2">
+        <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium" [ngClass]="badgeClass">
+          {{ labelKey | translate }}
+        </span>
+        @if (!notification().read) {
+          <span class="h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" aria-hidden="true"></span>
+        }
+        <span class="text-muted-foreground ml-auto text-xs">
+          {{ notification().createdAt | date: 'shortDate' }}
+        </span>
+      </div>
+
+      @if (notification().kind === 'AI_FEEDBACK') {
+        <p class="text-foreground truncate text-sm font-medium">{{ notification().title }}</p>
+        @if (notification().referenceMonth) {
+          <p class="text-muted-foreground mt-0.5 text-xs">{{ notification().referenceMonth }}</p>
+        }
+      } @else {
+        <p class="text-foreground text-sm font-medium">
+          {{
+            'notifications.budgetAlert.message'
+              | translate
+                : {
+                    category: notification().categoryName,
+                    percentage: notification().thresholdPercentage,
+                  }
+          }}
+        </p>
+        <p class="text-muted-foreground mt-0.5 text-xs">
+          {{ notification().amountSpent | currency: 'BRL' }}
+          /
+          {{ notification().budgetAmount | currency: 'BRL' }}
+        </p>
+      }
+    </div>
+  </div>
+
+  @if (expanded() && notification().kind === 'AI_FEEDBACK') {
+    <p class="text-muted-foreground mt-3 whitespace-pre-line border-t pt-3 text-sm">
+      {{ notification().content }}
+    </p>
+  }
+</div>

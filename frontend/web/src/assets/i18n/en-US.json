@@ -38,7 +38,20 @@
     "recurring": "Recurring",
     "reports": "Reports",
     "profile": "Profile",
-    "unreadInsights": "Unread insights: {{count}}"
+    "unreadInsights": "Unread insights: {{count}}",
+    "unreadNotifications": "Unread notifications: {{count}}"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "AI insights and budget alerts",
+    "empty": "You're all caught up",
+    "emptyDesc": "Nothing new for now. We'll let you know when there's something to look at.",
+    "kinds": {
+      "budgetAlert": "Budget alert"
+    },
+    "budgetAlert": {
+      "message": "{{category}} has reached {{percentage}}% of the monthly budget"
+    }
   },
   "reports": {
     "title": "Reports",
@@ -424,6 +437,9 @@
     },
     "aiFeedback": {
       "loadError": "Failed to load AI insights."
+    },
+    "notifications": {
+      "loadError": "Failed to load notifications."
     },
     "dashboard": {
       "loadError": "Failed to load dashboard data."
