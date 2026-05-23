@@ -8,9 +8,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
+// Mirrors the UNIQUE constraint in V16 so Hibernate's drop-and-create (used in tests)
+// reproduces production's schema and exercises the idempotency invariant.
 @Entity
-@Table(name = "budget_alerts")
+@Table(name = "budget_alerts", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"budget_id", "threshold_percentage"})
+})
 public class BudgetAlertEntity {
 
     @Id

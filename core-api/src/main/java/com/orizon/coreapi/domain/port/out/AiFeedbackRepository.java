@@ -11,4 +11,5 @@ public interface AiFeedbackRepository {
     Optional<AiFeedback> findById(UUID id);
     List<AiFeedback> findByUserId(UUID userId);
     List<AiFeedback> findByUserIdAndReferenceMonth(UUID userId, String referenceMonth);
+    int countUnreadByUserId(UUID userId);
 }

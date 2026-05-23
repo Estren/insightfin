@@ -123,6 +123,16 @@ public class BeanConfig {
 
     @Produces
     @ApplicationScoped
+    public NotificationService notificationService(AiFeedbackRepository aiFeedbackRepository,
+                                                   BudgetAlertRepository budgetAlertRepository,
+                                                   BudgetRepository budgetRepository,
+                                                   CategoryRepository categoryRepository) {
+        return new NotificationService(aiFeedbackRepository, budgetAlertRepository,
+                budgetRepository, categoryRepository);
+    }
+
+    @Produces
+    @ApplicationScoped
     public PasswordResetService passwordResetService(UserRepository userRepository,
                                                      PasswordResetTokenRepository tokenRepository,
                                                      PasswordEncoder passwordEncoder,

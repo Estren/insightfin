@@ -17,4 +17,8 @@ public class JpaAiFeedbackRepository implements PanacheRepositoryBase<AiFeedback
     public List<AiFeedbackEntity> findByUserIdAndReferenceMonth(UUID userId, String referenceMonth) {
         return list("userId = ?1 and referenceMonth = ?2 order by createdAt desc", userId, referenceMonth);
     }
+
+    public long countUnreadByUserId(UUID userId) {
+        return count("userId = ?1 and read = false", userId);
+    }
 }

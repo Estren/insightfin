@@ -79,6 +79,30 @@ public class WebMapper {
                 alert.getTriggeredAt(), alert.isRead(), alert.getCreatedAt());
     }
 
+    public static NotificationResponse toResponse(Notification notification) {
+        if (notification instanceof AiFeedbackNotification n) {
+            AiFeedback f = n.feedback();
+            return new NotificationResponse(
+                    f.getId(), n.kind(), f.isRead(), f.getCreatedAt(),
+                    f.getType(), f.getTitle(), f.getContent(), f.getReferenceMonth(),
+                    null, null, null, null, null, null);
+        }
+        if (notification instanceof BudgetAlertNotification n) {
+            BudgetAlert a = n.alert();
+            return new NotificationResponse(
+                    a.getId(), n.kind(), a.isRead(), a.getCreatedAt(),
+                    null, null, null, null,
+                    a.getBudgetId(), n.categoryName(), a.getThresholdPercentage(),
+                    a.getAmountSpent(), a.getBudgetAmount(), a.getTriggeredAt());
+        }
+        // Notification is sealed — adding a new permits requires extending this method.
+        throw new IllegalStateException("Unknown notification kind: " + notification);
+    }
+
+    public static UnreadCountResponse toResponse(UnreadCounts counts) {
+        return new UnreadCountResponse(counts.aiFeedbacks(), counts.budgetAlerts(), counts.total());
+    }
+
     public static DashboardResponse toResponse(DashboardSummary summary, Map<UUID, String> categoryNames) {
         return new DashboardResponse(
                 summary.getTotalIncome(),
