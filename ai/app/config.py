@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     analysis_batch_size: int = 10
     llm_timeout_seconds: int = 30
 
+    # Observability — Sentry is off when the DSN is empty.
+    sentry_dsn: str = ""
+    sentry_environment: str = "production"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 
