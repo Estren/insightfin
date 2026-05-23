@@ -17,4 +17,8 @@ public class JpaBudgetAlertRepository implements PanacheRepositoryBase<BudgetAle
     public boolean existsByBudgetIdAndThreshold(UUID budgetId, int thresholdPercentage) {
         return count("budgetId = ?1 and thresholdPercentage = ?2", budgetId, thresholdPercentage) > 0;
     }
+
+    public long countUnreadByUserId(UUID userId) {
+        return count("userId = ?1 and read = false", userId);
+    }
 }

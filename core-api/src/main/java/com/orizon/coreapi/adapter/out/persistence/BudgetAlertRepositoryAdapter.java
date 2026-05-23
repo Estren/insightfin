@@ -44,4 +44,9 @@ public class BudgetAlertRepositoryAdapter implements BudgetAlertRepository {
     public boolean existsForBudgetAtThreshold(UUID budgetId, int thresholdPercentage) {
         return jpaBudgetAlertRepository.existsByBudgetIdAndThreshold(budgetId, thresholdPercentage);
     }
+
+    @Override
+    public int countUnreadByUserId(UUID userId) {
+        return (int) jpaBudgetAlertRepository.countUnreadByUserId(userId);
+    }
 }

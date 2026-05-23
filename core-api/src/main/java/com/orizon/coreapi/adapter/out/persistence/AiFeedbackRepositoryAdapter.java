@@ -46,4 +46,9 @@ public class AiFeedbackRepositoryAdapter implements AiFeedbackRepository {
                 .map(AiFeedbackPersistenceMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public int countUnreadByUserId(UUID userId) {
+        return (int) jpaAiFeedbackRepository.countUnreadByUserId(userId);
+    }
 }

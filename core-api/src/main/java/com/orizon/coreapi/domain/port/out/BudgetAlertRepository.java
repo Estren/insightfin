@@ -11,4 +11,5 @@ public interface BudgetAlertRepository {
     Optional<BudgetAlert> findById(UUID id);
     List<BudgetAlert> findByUserId(UUID userId);
     boolean existsForBudgetAtThreshold(UUID budgetId, int thresholdPercentage);
+    int countUnreadByUserId(UUID userId);
 }
