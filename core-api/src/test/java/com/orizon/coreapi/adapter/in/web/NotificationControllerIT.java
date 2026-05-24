@@ -22,6 +22,8 @@ import java.util.UUID;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 
 @QuarkusTest
 class NotificationControllerIT {
@@ -78,14 +80,16 @@ class NotificationControllerIT {
 
     // --- F3 ---
     @Test
-    void list_authenticatedNoNotifications_returnsEmptyArray() {
+    void list_authenticatedNoNotifications_returnsEmptyEnvelope() {
         String token = registerAndLogin(uniqueEmail());
 
         given()
                 .header("Authorization", "Bearer " + token)
                 .when().get("/api/notifications")
                 .then().statusCode(200)
-                .body("$", hasSize(0));
+                .body("items", hasSize(0))
+                .body("hasMore", equalTo(false))
+                .body("nextCursor", nullValue());
     }
 
     // --- F4 ---
@@ -123,14 +127,109 @@ class NotificationControllerIT {
                 .header("Authorization", "Bearer " + token)
                 .when().get("/api/notifications")
                 .then().statusCode(200)
-                .body("$", hasSize(3))
-                .body("[0].kind", equalTo("BUDGET_ALERT"))
-                .body("[0].categoryName", equalTo("Food"))
-                .body("[0].thresholdPercentage", equalTo(100))
-                .body("[1].kind", equalTo("AI_FEEDBACK"))
-                .body("[1].title", equalTo("Monthly report"))
-                .body("[2].kind", equalTo("BUDGET_ALERT"))
-                .body("[2].thresholdPercentage", equalTo(80));
+                .body("items", hasSize(3))
+                .body("hasMore", equalTo(false))
+                .body("nextCursor", nullValue())
+                .body("items[0].kind", equalTo("BUDGET_ALERT"))
+                .body("items[0].categoryName", equalTo("Food"))
+                .body("items[0].thresholdPercentage", equalTo(100))
+                .body("items[1].kind", equalTo("AI_FEEDBACK"))
+                .body("items[1].title", equalTo("Monthly report"))
+                .body("items[2].kind", equalTo("BUDGET_ALERT"))
+                .body("items[2].thresholdPercentage", equalTo(80));
+    }
+
+    // --- F7: limit smaller than total → first page has cursor + hasMore=true ---
+    @Test
+    void list_withLimitSmallerThanTotal_returnsCursorAndHasMore() {
+        String token = registerAndLogin(uniqueEmail());
+        UUID userId = currentUserId(token);
+
+        // 4 notifications spread out so the order is deterministic.
+        LocalDateTime base = LocalDateTime.now().withNano(0);
+        persistFeedback(userId, base.minusMinutes(1));
+        persistFeedback(userId, base.minusMinutes(2));
+        persistFeedback(userId, base.minusMinutes(3));
+        persistFeedback(userId, base.minusMinutes(4));
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when().get("/api/notifications?limit=2")
+                .then().statusCode(200)
+                .body("items", hasSize(2))
+                .body("hasMore", equalTo(true))
+                .body("nextCursor", notNullValue());
+    }
+
+    // --- F8: paging via cursor returns the remainder without overlap and ends with hasMore=false ---
+    @Test
+    void list_followingCursor_returnsRemainderWithoutOverlap() {
+        String token = registerAndLogin(uniqueEmail());
+        UUID userId = currentUserId(token);
+
+        LocalDateTime base = LocalDateTime.now().withNano(0);
+        persistFeedback(userId, base.minusMinutes(1));  // newest
+        persistFeedback(userId, base.minusMinutes(2));
+        persistFeedback(userId, base.minusMinutes(3));
+        persistFeedback(userId, base.minusMinutes(4));  // oldest
+
+        String firstId = given()
+                .header("Authorization", "Bearer " + token)
+                .when().get("/api/notifications?limit=2")
+                .then().statusCode(200)
+                .extract().jsonPath().getString("items[0].id");
+        String secondId = given()
+                .header("Authorization", "Bearer " + token)
+                .when().get("/api/notifications?limit=2")
+                .then().extract().jsonPath().getString("items[1].id");
+        String cursor = given()
+                .header("Authorization", "Bearer " + token)
+                .when().get("/api/notifications?limit=2")
+                .then().extract().jsonPath().getString("nextCursor");
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when().get("/api/notifications?limit=2&cursor=" + cursor)
+                .then().statusCode(200)
+                .body("items", hasSize(2))
+                .body("hasMore", equalTo(false))
+                .body("nextCursor", nullValue())
+                .body("items[0].id", org.hamcrest.Matchers.not(equalTo(firstId)))
+                .body("items[0].id", org.hamcrest.Matchers.not(equalTo(secondId)))
+                .body("items[1].id", org.hamcrest.Matchers.not(equalTo(firstId)))
+                .body("items[1].id", org.hamcrest.Matchers.not(equalTo(secondId)));
+    }
+
+    // --- F9: malformed cursor → 400 ---
+    @Test
+    void list_invalidCursor_returns400() {
+        String token = registerAndLogin(uniqueEmail());
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when().get("/api/notifications?cursor=garbage")
+                .then().statusCode(400);
+    }
+
+    // --- F10: limit out of range → 400 (both ends) ---
+    @Test
+    void list_limitBelowMin_returns400() {
+        String token = registerAndLogin(uniqueEmail());
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when().get("/api/notifications?limit=0")
+                .then().statusCode(400);
+    }
+
+    @Test
+    void list_limitAboveMax_returns400() {
+        String token = registerAndLogin(uniqueEmail());
+
+        given()
+                .header("Authorization", "Bearer " + token)
+                .when().get("/api/notifications?limit=101")
+                .then().statusCode(400);
     }
 
     // --- F6: unread count sums the two sources, ignores read items ---

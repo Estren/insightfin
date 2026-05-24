@@ -28,3 +28,9 @@ export interface UnreadCountResponse {
   budgetAlerts: number;
   total: number;
 }
+
+export interface NotificationPage {
+  items: NotificationResponse[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}

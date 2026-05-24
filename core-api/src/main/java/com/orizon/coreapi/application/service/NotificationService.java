@@ -1,5 +1,8 @@
 package com.orizon.coreapi.application.service;
 
+import com.orizon.coreapi.application.pagination.Cursor;
+import com.orizon.coreapi.application.pagination.Page;
+import com.orizon.coreapi.application.pagination.PaginationParams;
 import com.orizon.coreapi.domain.model.AiFeedback;
 import com.orizon.coreapi.domain.model.AiFeedbackNotification;
 import com.orizon.coreapi.domain.model.BudgetAlert;
@@ -13,6 +16,7 @@ import com.orizon.coreapi.domain.port.out.BudgetAlertRepository;
 import com.orizon.coreapi.domain.port.out.BudgetRepository;
 import com.orizon.coreapi.domain.port.out.CategoryRepository;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -38,18 +42,31 @@ public class NotificationService implements ListNotificationsUseCase, GetUnreadC
     }
 
     @Override
-    public List<Notification> list(UUID userId) {
-        List<AiFeedback> feedbacks = aiFeedbackRepository.findByUserId(userId);
-        List<BudgetAlert> alerts = budgetAlertRepository.findByUserId(userId);
+    public Page<Notification> list(UUID userId, PaginationParams params) {
+        // Push the cursor into each repo so the DB seeks instead of scanning.
+        // Each side fetches up to limit+1 of its own table — the merge needs at
+        // most 2*(limit+1) candidates to be guaranteed to contain the global top
+        // limit+1. We then sort, take limit+1, and let Page handle the hasMore trick.
+        LocalDateTime cursorAt = params.cursor() == null ? null : params.cursor().createdAt();
+        UUID cursorId = params.cursor() == null ? null : params.cursor().id();
+        int fetchSize = params.limit() + 1;
+
+        List<AiFeedback> feedbacks = aiFeedbackRepository.findPage(userId, cursorAt, cursorId, fetchSize);
+        List<BudgetAlert> alerts = budgetAlertRepository.findPage(userId, cursorAt, cursorId, fetchSize);
 
         Map<UUID, String> categoryNames = resolveCategoryNames(alerts);
 
-        return Stream.concat(
+        List<Notification> merged = Stream.concat(
                         feedbacks.stream().map(f -> (Notification) new AiFeedbackNotification(f)),
                         alerts.stream().map(a -> (Notification) new BudgetAlertNotification(
                                 a, categoryNames.getOrDefault(a.getBudgetId(), "Unknown"))))
-                .sorted(Comparator.comparing(Notification::createdAt).reversed())
+                .sorted(Comparator.comparing(Notification::createdAt).reversed()
+                        .thenComparing(Notification::id, Comparator.reverseOrder()))
+                .limit(fetchSize)
                 .toList();
+
+        return Page.fromOversizedList(merged, params.limit(),
+                n -> new Cursor(n.createdAt(), n.id()));
     }
 
     @Override

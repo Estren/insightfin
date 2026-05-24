@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { NotificationResponse, UnreadCountResponse } from '../models/notification.model';
+import { NotificationPage, UnreadCountResponse } from '../models/notification.model';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
@@ -10,8 +10,12 @@ export class NotificationService {
 
   constructor(private readonly http: HttpClient) {}
 
-  list(): Observable<NotificationResponse[]> {
-    return this.http.get<NotificationResponse[]>(`${this.apiUrl}/notifications`);
+  list(limit: number, cursor: string | null): Observable<NotificationPage> {
+    let params = new HttpParams().set('limit', String(limit));
+    if (cursor) {
+      params = params.set('cursor', cursor);
+    }
+    return this.http.get<NotificationPage>(`${this.apiUrl}/notifications`, { params });
   }
 
   unreadCount(): Observable<UnreadCountResponse> {

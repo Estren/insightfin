@@ -46,6 +46,7 @@
     "subtitle": "Insights de IA e alertas de orçamento",
     "empty": "Tudo em dia",
     "emptyDesc": "Sem novidades por enquanto. Avisaremos quando houver algo para olhar.",
+    "loadMore": "Carregar mais",
     "kinds": {
       "budgetAlert": "Alerta de orçamento"
     },

@@ -150,7 +150,20 @@ export async function mockApi(
       return json(200, USER_PROFILE);
     }
     if (path === '/notifications' && method === 'GET') {
-      return json(200, notifications);
+      // Simulate cursor pagination so the frontend "Load more" code path is
+      // exercised exactly as in prod. Cursor is just the next index as a
+      // string — opaque to the client, simple here.
+      const url = new URL(request.url());
+      const limit = Number(url.searchParams.get('limit') ?? '20');
+      const cursor = url.searchParams.get('cursor');
+      const start = cursor ? Number(cursor) : 0;
+      const slice = notifications.slice(start, start + limit);
+      const hasMore = start + limit < notifications.length;
+      return json(200, {
+        items: slice,
+        nextCursor: hasMore ? String(start + limit) : null,
+        hasMore,
+      });
     }
     if (path === '/notifications/unread-count' && method === 'GET') {
       return json(200, unreadCount);
