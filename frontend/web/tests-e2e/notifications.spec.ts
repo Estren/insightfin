@@ -89,4 +89,31 @@ test.describe('Notifications', () => {
     // Badge zeroes out → element no longer rendered (template hides span when count is 0).
     await expect(badge).toHaveCount(0);
   });
+
+  test('Carregar mais appends the next page and hides the button on the last one', async ({ page }) => {
+    // 25 items > PAGE_SIZE (20) → first page shows 20 with a Load more button;
+    // after clicking, the remaining 5 append and the button disappears.
+    const many: E2ENotification[] = Array.from({ length: 25 }, (_, i) => ({
+      ...AI_FEEDBACK,
+      id: `fb-${i}`,
+      title: `Item ${i}`,
+      // Timestamps strictly descending so the mock pagination order is deterministic.
+      createdAt: new Date(Date.parse('2026-05-23T10:00:00Z') - i * 60_000).toISOString(),
+    }));
+
+    await seedAuthSession(page);
+    await mockApi(page, { notifications: many });
+
+    await page.goto('/notifications');
+
+    const cards = page.locator('app-notification-card');
+    await expect(cards).toHaveCount(20);
+
+    const loadMore = page.getByRole('button', { name: 'Carregar mais' });
+    await expect(loadMore).toBeVisible();
+    await loadMore.click();
+
+    await expect(cards).toHaveCount(25);
+    await expect(loadMore).toHaveCount(0);
+  });
 });

@@ -46,6 +46,7 @@
     "subtitle": "AI insights and budget alerts",
     "empty": "You're all caught up",
     "emptyDesc": "Nothing new for now. We'll let you know when there's something to look at.",
+    "loadMore": "Load more",
     "kinds": {
       "budgetAlert": "Budget alert"
     },

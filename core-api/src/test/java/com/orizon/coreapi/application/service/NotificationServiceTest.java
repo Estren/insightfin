@@ -1,7 +1,9 @@
 package com.orizon.coreapi.application.service;
 
+import com.orizon.coreapi.application.pagination.Cursor;
+import com.orizon.coreapi.application.pagination.Page;
+import com.orizon.coreapi.application.pagination.PaginationParams;
 import com.orizon.coreapi.domain.model.AiFeedback;
-import com.orizon.coreapi.domain.model.AiFeedbackNotification;
 import com.orizon.coreapi.domain.model.AiFeedbackType;
 import com.orizon.coreapi.domain.model.Budget;
 import com.orizon.coreapi.domain.model.BudgetAlert;
@@ -26,8 +28,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,11 +58,15 @@ class NotificationServiceTest {
 
     // --- N1: empty when both sources are empty ---
     @Test
-    void list_bothSourcesEmpty_returnsEmpty() {
-        when(aiFeedbackRepository.findByUserId(userId)).thenReturn(List.of());
-        when(budgetAlertRepository.findByUserId(userId)).thenReturn(List.of());
+    void list_bothSourcesEmpty_returnsEmptyPage() {
+        when(aiFeedbackRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of());
+        when(budgetAlertRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of());
 
-        assertThat(service.list(userId)).isEmpty();
+        Page<Notification> page = service.list(userId, firstPage(20));
+
+        assertThat(page.items()).isEmpty();
+        assertThat(page.hasMore()).isFalse();
+        assertThat(page.nextCursor()).isNull();
     }
 
     // --- N2: combines feedbacks + alerts, sorted by createdAt desc ---
@@ -70,15 +80,17 @@ class NotificationServiceTest {
         BudgetAlert older = buildAlert(t0);
         BudgetAlert newer = buildAlert(t2);
 
-        when(aiFeedbackRepository.findByUserId(userId)).thenReturn(List.of(feedback));
-        when(budgetAlertRepository.findByUserId(userId)).thenReturn(List.of(older, newer));
+        when(aiFeedbackRepository.findPage(eq(userId), any(), any(), anyInt()))
+                .thenReturn(List.of(feedback));
+        when(budgetAlertRepository.findPage(eq(userId), any(), any(), anyInt()))
+                .thenReturn(List.of(newer, older));
         givenBudgetWithCategory(older.getBudgetId(), "Food");
         givenBudgetWithCategory(newer.getBudgetId(), "Food");
 
-        List<Notification> result = service.list(userId);
+        Page<Notification> page = service.list(userId, firstPage(20));
 
-        assertThat(result).extracting(Notification::createdAt).containsExactly(t2, t1, t0);
-        assertThat(result).extracting(Notification::kind).containsExactly(
+        assertThat(page.items()).extracting(Notification::createdAt).containsExactly(t2, t1, t0);
+        assertThat(page.items()).extracting(Notification::kind).containsExactly(
                 NotificationKind.BUDGET_ALERT, NotificationKind.AI_FEEDBACK, NotificationKind.BUDGET_ALERT);
     }
 
@@ -86,28 +98,28 @@ class NotificationServiceTest {
     @Test
     void list_budgetAlert_includesCategoryName() {
         BudgetAlert alert = buildAlert(LocalDateTime.now());
-        when(aiFeedbackRepository.findByUserId(userId)).thenReturn(List.of());
-        when(budgetAlertRepository.findByUserId(userId)).thenReturn(List.of(alert));
+        when(aiFeedbackRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of());
+        when(budgetAlertRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of(alert));
         givenBudgetWithCategory(alert.getBudgetId(), "Transport");
 
-        List<Notification> result = service.list(userId);
+        Page<Notification> page = service.list(userId, firstPage(20));
 
-        assertThat(result).hasSize(1);
-        BudgetAlertNotification n = (BudgetAlertNotification) result.get(0);
+        assertThat(page.items()).hasSize(1);
+        BudgetAlertNotification n = (BudgetAlertNotification) page.items().get(0);
         assertThat(n.categoryName()).isEqualTo("Transport");
     }
 
-    // --- N4: missing budget → "Unknown" fallback (alert outlives the budget) ---
+    // --- N4: missing budget → "Unknown" fallback ---
     @Test
     void list_budgetMissing_fallsBackToUnknown() {
         BudgetAlert alert = buildAlert(LocalDateTime.now());
-        when(aiFeedbackRepository.findByUserId(userId)).thenReturn(List.of());
-        when(budgetAlertRepository.findByUserId(userId)).thenReturn(List.of(alert));
+        when(aiFeedbackRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of());
+        when(budgetAlertRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of(alert));
         when(budgetRepository.findById(alert.getBudgetId())).thenReturn(Optional.empty());
 
-        List<Notification> result = service.list(userId);
+        Page<Notification> page = service.list(userId, firstPage(20));
 
-        BudgetAlertNotification n = (BudgetAlertNotification) result.get(0);
+        BudgetAlertNotification n = (BudgetAlertNotification) page.items().get(0);
         assertThat(n.categoryName()).isEqualTo("Unknown");
     }
 
@@ -115,15 +127,16 @@ class NotificationServiceTest {
     @Test
     void list_repeatedBudgetAcrossAlerts_isFetchedOnce() {
         UUID sharedBudgetId = UUID.randomUUID();
-        BudgetAlert at50 = buildAlertForBudget(sharedBudgetId, 50, LocalDateTime.now().minusHours(2));
-        BudgetAlert at80 = buildAlertForBudget(sharedBudgetId, 80, LocalDateTime.now().minusHours(1));
         BudgetAlert at100 = buildAlertForBudget(sharedBudgetId, 100, LocalDateTime.now());
+        BudgetAlert at80 = buildAlertForBudget(sharedBudgetId, 80, LocalDateTime.now().minusHours(1));
+        BudgetAlert at50 = buildAlertForBudget(sharedBudgetId, 50, LocalDateTime.now().minusHours(2));
 
-        when(aiFeedbackRepository.findByUserId(userId)).thenReturn(List.of());
-        when(budgetAlertRepository.findByUserId(userId)).thenReturn(List.of(at50, at80, at100));
+        when(aiFeedbackRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of());
+        when(budgetAlertRepository.findPage(eq(userId), any(), any(), anyInt()))
+                .thenReturn(List.of(at100, at80, at50));
         givenBudgetWithCategory(sharedBudgetId, "Food");
 
-        service.list(userId);
+        service.list(userId, firstPage(20));
 
         verify(budgetRepository, times(1)).findById(sharedBudgetId);
     }
@@ -141,7 +154,61 @@ class NotificationServiceTest {
         assertThat(result.total()).isEqualTo(5);
     }
 
+    // --- N7: cursor in params flows to both repos as the same (createdAt, id) tuple ---
+    @Test
+    void list_cursorParam_isPassedToBothRepos() {
+        LocalDateTime cursorAt = LocalDateTime.of(2026, 5, 23, 14, 0);
+        UUID cursorId = UUID.randomUUID();
+        Cursor cursor = new Cursor(cursorAt, cursorId);
+
+        when(aiFeedbackRepository.findPage(userId, cursorAt, cursorId, 21)).thenReturn(List.of());
+        when(budgetAlertRepository.findPage(userId, cursorAt, cursorId, 21)).thenReturn(List.of());
+
+        service.list(userId, new PaginationParams(20, cursor));
+
+        verify(aiFeedbackRepository).findPage(userId, cursorAt, cursorId, 21);
+        verify(budgetAlertRepository).findPage(userId, cursorAt, cursorId, 21);
+    }
+
+    // --- N8: first page with no cursor passes (null, null) to repos with limit+1 ---
+    @Test
+    void list_firstPage_callsReposWithNullCursorAndLimitPlusOne() {
+        when(aiFeedbackRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of());
+        when(budgetAlertRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of());
+
+        service.list(userId, firstPage(20));
+
+        verify(aiFeedbackRepository).findPage(userId, null, null, 21);
+        verify(budgetAlertRepository).findPage(userId, null, null, 21);
+    }
+
+    // --- N9: more results than limit → hasMore=true + nextCursor pointing at last returned item ---
+    @Test
+    void list_resultsExceedLimit_marksHasMoreAndCursorsLastReturned() {
+        // 25 feedbacks with descending timestamps → only top 21 reach the merge,
+        // top 20 are returned, cursor points to the 20th.
+        List<AiFeedback> feedbacks = IntStream.range(0, 25)
+                .mapToObj(i -> buildFeedback(LocalDateTime.of(2026, 5, 23, 12, 0).minusMinutes(i)))
+                .toList();
+        when(aiFeedbackRepository.findPage(eq(userId), any(), any(), anyInt()))
+                .thenReturn(feedbacks.subList(0, 21));  // repo respects the limit+1
+        when(budgetAlertRepository.findPage(eq(userId), any(), any(), anyInt())).thenReturn(List.of());
+
+        Page<Notification> page = service.list(userId, firstPage(20));
+
+        assertThat(page.items()).hasSize(20);
+        assertThat(page.hasMore()).isTrue();
+        assertThat(page.nextCursor()).isNotNull();
+        Cursor decoded = Cursor.decode(page.nextCursor());
+        assertThat(decoded.createdAt()).isEqualTo(feedbacks.get(19).getCreatedAt());
+        assertThat(decoded.id()).isEqualTo(feedbacks.get(19).getId());
+    }
+
     // ---------- helpers ----------
+
+    private static PaginationParams firstPage(int limit) {
+        return new PaginationParams(limit, null);
+    }
 
     private AiFeedback buildFeedback(LocalDateTime createdAt) {
         return new AiFeedback(UUID.randomUUID(), userId, AiFeedbackType.MONTHLY_REPORT,

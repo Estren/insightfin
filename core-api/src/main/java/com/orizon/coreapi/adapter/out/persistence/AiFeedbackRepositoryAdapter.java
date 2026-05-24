@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -50,5 +51,13 @@ public class AiFeedbackRepositoryAdapter implements AiFeedbackRepository {
     @Override
     public int countUnreadByUserId(UUID userId) {
         return (int) jpaAiFeedbackRepository.countUnreadByUserId(userId);
+    }
+
+    @Override
+    public List<AiFeedback> findPage(UUID userId, LocalDateTime cursorCreatedAt, UUID cursorId, int limit) {
+        return jpaAiFeedbackRepository.findPage(userId, cursorCreatedAt, cursorId, limit)
+                .stream()
+                .map(AiFeedbackPersistenceMapper::toDomain)
+                .toList();
     }
 }
