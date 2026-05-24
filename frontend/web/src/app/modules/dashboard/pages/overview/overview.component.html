@@ -28,8 +28,25 @@
     }
   }
 
+  <app-card class="mb-6 block" [title]="'dashboard.healthScore.title' | translate">
+    @if (feedbackStore.loading$ | async) {
+      <app-loading />
+    } @else if (feedbackStore.feedbacks$ | async; as feedbacks) {
+      @let scoreData = healthScore(feedbacks);
+      @if (scoreData) {
+        <app-health-score-gauge [data]="scoreData" />
+      } @else {
+        <app-empty-state
+          [title]="'dashboard.healthScore.empty' | translate"
+          [description]="'dashboard.healthScore.emptyDesc' | translate" />
+      }
+    }
+  </app-card>
+
   <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-    <app-stat-card [label]="'dashboard.income' | translate" [value]="summary.totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
+    <app-stat-card
+      [label]="'dashboard.income' | translate"
+      [value]="summary.totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
     <app-stat-card
       [label]="'dashboard.expenses' | translate"
       tone="negative"
@@ -91,8 +108,7 @@
                     'bg-amber-500': b.percentageUsed >= 70 && b.percentageUsed < 90,
                     'bg-red-500': b.percentageUsed >= 90,
                   }"
-                  [style.width.%]="b.percentageUsed > 100 ? 100 : b.percentageUsed">
-                </div>
+                  [style.width.%]="b.percentageUsed > 100 ? 100 : b.percentageUsed"></div>
               </div>
             </div>
           }
@@ -104,7 +120,9 @@
   <div class="mt-6">
     <app-card [title]="'dashboard.activeGoals' | translate">
       @if (summary.activeGoals.length === 0) {
-        <app-empty-state [title]="'dashboard.noActiveGoals' | translate" [description]="'dashboard.noActiveGoalsDesc' | translate" />
+        <app-empty-state
+          [title]="'dashboard.noActiveGoals' | translate"
+          [description]="'dashboard.noActiveGoalsDesc' | translate" />
       } @else {
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           @for (g of summary.activeGoals; track g.id) {
@@ -117,8 +135,7 @@
               <div class="bg-muted mt-2 h-2 w-full overflow-hidden rounded-full">
                 <div
                   class="bg-primary h-full rounded-full transition-all"
-                  [style.width.%]="g.targetAmount > 0 ? (g.currentAmount / g.targetAmount) * 100 : 0">
-                </div>
+                  [style.width.%]="g.targetAmount > 0 ? (g.currentAmount / g.targetAmount) * 100 : 0"></div>
               </div>
               @if (g.deadline) {
                 <p class="text-muted-foreground mt-1 text-xs">
