@@ -7,18 +7,23 @@ import { ToastService } from '../services/toast.service';
 
 const EMPTY_COUNTS: UnreadCountResponse = { aiFeedbacks: 0, budgetAlerts: 0, total: 0 };
 const PAGE_SIZE = 20;
+const PREVIEW_SIZE = 5;
 
 @Injectable({ providedIn: 'root' })
 export class NotificationStore {
   private readonly _notifications$ = new BehaviorSubject<NotificationResponse[]>([]);
+  private readonly _preview$ = new BehaviorSubject<NotificationResponse[]>([]);
   private readonly _loading$ = new BehaviorSubject<boolean>(false);
+  private readonly _previewLoading$ = new BehaviorSubject<boolean>(false);
   private readonly _error$ = new BehaviorSubject<string>('');
   private readonly _counts$ = new BehaviorSubject<UnreadCountResponse>(EMPTY_COUNTS);
   private readonly _nextCursor$ = new BehaviorSubject<string | null>(null);
   private readonly _hasMore$ = new BehaviorSubject<boolean>(false);
 
   readonly notifications$ = this._notifications$.asObservable();
+  readonly preview$ = this._preview$.asObservable();
   readonly loading$ = this._loading$.asObservable();
+  readonly previewLoading$ = this._previewLoading$.asObservable();
   readonly error$ = this._error$.asObservable();
   readonly counts$ = this._counts$.asObservable();
   readonly hasMore$ = this._hasMore$.asObservable();
@@ -70,6 +75,18 @@ export class NotificationStore {
     });
   }
 
+  /** Fetches the top {@link PREVIEW_SIZE} items for the navbar bell dropdown. */
+  loadPreview(): void {
+    this._previewLoading$.next(true);
+    this.notificationService.list(PREVIEW_SIZE, null).subscribe({
+      next: (page) => {
+        this._preview$.next(page.items);
+        this._previewLoading$.next(false);
+      },
+      error: () => this._previewLoading$.next(false),
+    });
+  }
+
   loadUnreadCount(): void {
     this.notificationService.unreadCount().subscribe({
       next: (counts) => this._counts$.next(counts),
@@ -81,11 +98,14 @@ export class NotificationStore {
     if (notification.read) return;
 
     const previousList = this._notifications$.value;
+    const previousPreview = this._preview$.value;
     const previousCounts = this._counts$.value;
 
-    // Optimistic update — flip read=true on the matching item and decrement the
-    // right counter. Server failure rolls both back.
-    this._notifications$.next(previousList.map((n) => (n.id === notification.id ? { ...n, read: true } : n)));
+    // Optimistic update — flip read=true on the matching item across both
+    // visible lists (page + preview can overlap) and decrement the right
+    // counter. Server failure rolls everything back.
+    this._notifications$.next(flipRead(previousList, notification.id));
+    this._preview$.next(flipRead(previousPreview, notification.id));
     this._counts$.next(this.decrementCount(previousCounts, notification.kind));
 
     const request$ =
@@ -97,6 +117,7 @@ export class NotificationStore {
       next: () => this.analytics.capture('notification_marked_read', { kind: notification.kind }),
       error: () => {
         this._notifications$.next(previousList);
+        this._preview$.next(previousPreview);
         this._counts$.next(previousCounts);
       },
     });
@@ -111,4 +132,8 @@ export class NotificationStore {
     }
     return counts;
   }
+}
+
+function flipRead(list: NotificationResponse[], id: string): NotificationResponse[] {
+  return list.map((n) => (n.id === id ? { ...n, read: true } : n));
 }
