@@ -22,8 +22,8 @@ public class AiFeedbackRepositoryAdapter implements AiFeedbackRepository {
     @Transactional
     public AiFeedback save(AiFeedback feedback) {
         var entity = AiFeedbackPersistenceMapper.toEntity(feedback);
-        jpaAiFeedbackRepository.persist(entity);
-        return AiFeedbackPersistenceMapper.toDomain(entity);
+        var managed = jpaAiFeedbackRepository.getEntityManager().merge(entity);
+        return AiFeedbackPersistenceMapper.toDomain(managed);
     }
 
     @Override
