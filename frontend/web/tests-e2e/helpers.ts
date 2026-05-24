@@ -73,6 +73,17 @@ export interface E2EUnreadCount {
   total: number;
 }
 
+export interface E2EAiFeedback {
+  id: string;
+  type: 'MONTHLY_REPORT' | 'ALERT' | 'GOAL_PROJECTION' | 'HEALTH_SCORE';
+  title: string;
+  content: string;
+  metadata: string | null;
+  referenceMonth: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
 const CATEGORY = { id: 'cat-1', name: 'Alimentação', type: 'EXPENSE', color: '#E11D48', icon: '🍔' };
 
 const EMPTY_DASHBOARD = {
@@ -104,11 +115,13 @@ export async function mockApi(
     transactions?: E2ETransaction[];
     notifications?: E2ENotification[];
     unreadCount?: E2EUnreadCount;
+    feedbacks?: E2EAiFeedback[];
   } = {},
 ): Promise<void> {
   const transactions = options.transactions ?? [];
   const notifications = options.notifications ?? [];
   const unreadCount = options.unreadCount ?? { aiFeedbacks: 0, budgetAlerts: 0, total: 0 };
+  const feedbacks = options.feedbacks ?? [];
 
   await page.route('**/api/**', async (route) => {
     const request = route.request();
@@ -170,6 +183,11 @@ export async function mockApi(
     }
     if (path.match(/^\/(budget-alerts|feedbacks)\/[^/]+\/read$/) && method === 'PATCH') {
       return route.fulfill({ status: 204, body: '' });
+    }
+    if (path === '/feedbacks' && method === 'GET') {
+      const month = new URL(request.url()).searchParams.get('month');
+      const filtered = month ? feedbacks.filter((f) => f.referenceMonth === month) : feedbacks;
+      return json(200, filtered);
     }
     // Everything else (budgets, goals, ...) → empty list.
     return json(200, []);

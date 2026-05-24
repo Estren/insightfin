@@ -266,6 +266,18 @@
       "healthScore": "Financial Health",
       "alert": "Alert",
       "goalProjection": "Goal Projection"
+    },
+    "healthScore": {
+      "title": "Financial Health Score",
+      "empty": "No score yet",
+      "emptyDesc": "Your score will be generated on the next monthly cycle.",
+      "bandLow": "Needs attention",
+      "bandMedium": "Doing okay",
+      "bandHigh": "Healthy",
+      "savingsRate": "Savings rate",
+      "budgetAdherence": "Budget adherence",
+      "goalProgress": "Goal progress",
+      "expenseConsistency": "Expense consistency"
     }
   },
   "feedbacks": {

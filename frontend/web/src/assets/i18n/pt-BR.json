@@ -266,6 +266,18 @@
       "healthScore": "Saúde Financeira",
       "alert": "Alerta",
       "goalProjection": "Projeção de Meta"
+    },
+    "healthScore": {
+      "title": "Score de Saúde Financeira",
+      "empty": "Score ainda não gerado",
+      "emptyDesc": "Seu score será calculado no próximo ciclo mensal.",
+      "bandLow": "Precisa de atenção",
+      "bandMedium": "Indo bem",
+      "bandHigh": "Saudável",
+      "savingsRate": "Taxa de poupança",
+      "budgetAdherence": "Aderência ao orçamento",
+      "goalProgress": "Progresso de metas",
+      "expenseConsistency": "Consistência de gastos"
     }
   },
   "feedbacks": {
