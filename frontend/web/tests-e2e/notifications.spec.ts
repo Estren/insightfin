@@ -116,4 +116,89 @@ test.describe('Notifications', () => {
     await expect(cards).toHaveCount(25);
     await expect(loadMore).toHaveCount(0);
   });
+
+  test.describe('bell dropdown', () => {
+    test('clicking the bell opens a popover with the preview', async ({ page }) => {
+      await seedAuthSession(page);
+      await mockApi(page, {
+        notifications: [BUDGET_ALERT, AI_FEEDBACK],
+        unreadCount: { aiFeedbacks: 1, budgetAlerts: 1, total: 2 },
+      });
+      await page.goto('/dashboard');
+
+      const dropdown = page.getByRole('dialog');
+      await expect(dropdown).toHaveCount(0);
+
+      await page.locator('app-notifications-badge button').click();
+
+      await expect(dropdown).toBeVisible();
+      await expect(dropdown.locator('app-notification-card')).toHaveCount(2);
+      await expect(dropdown.getByRole('link', { name: 'Ver todas as notificações' })).toBeVisible();
+    });
+
+    test('clicking an item marks it read, keeps the dropdown open and decrements the badge', async ({ page }) => {
+      await seedAuthSession(page);
+      await mockApi(page, {
+        notifications: [BUDGET_ALERT],
+        unreadCount: { aiFeedbacks: 0, budgetAlerts: 1, total: 1 },
+      });
+      await page.goto('/dashboard');
+
+      await page.locator('app-notifications-badge button').click();
+      const dropdown = page.getByRole('dialog');
+      await expect(dropdown).toBeVisible();
+
+      const patchRequest = page.waitForRequest(
+        (req) => req.url().includes('/api/budget-alerts/alert-1/read') && req.method() === 'PATCH',
+      );
+      await dropdown.locator('app-notification-card').first().click();
+      await patchRequest;
+
+      // Dropdown stays open (per spec) and the badge zeroes out optimistically.
+      await expect(dropdown).toBeVisible();
+      await expect(page.locator('app-notifications-badge span[aria-hidden="true"]')).toHaveCount(0);
+    });
+
+    test('"Ver todas" navigates to /notifications and closes the dropdown', async ({ page }) => {
+      await seedAuthSession(page);
+      await mockApi(page, {
+        notifications: [BUDGET_ALERT],
+        unreadCount: { aiFeedbacks: 0, budgetAlerts: 1, total: 1 },
+      });
+      await page.goto('/dashboard');
+
+      await page.locator('app-notifications-badge button').click();
+      await page.getByRole('link', { name: 'Ver todas as notificações' }).click();
+
+      await expect(page).toHaveURL(/\/notifications$/);
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+    });
+
+    test('clicking outside the dropdown closes it', async ({ page }) => {
+      await seedAuthSession(page);
+      await mockApi(page);
+      await page.goto('/dashboard');
+
+      await page.locator('app-notifications-badge button').click();
+      await expect(page.getByRole('dialog')).toBeVisible();
+
+      // Click somewhere outside the badge — the page header is a safe target.
+      await page.locator('app-page-header').first().click();
+
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+    });
+
+    test('pressing Escape closes the dropdown', async ({ page }) => {
+      await seedAuthSession(page);
+      await mockApi(page);
+      await page.goto('/dashboard');
+
+      await page.locator('app-notifications-badge button').click();
+      await expect(page.getByRole('dialog')).toBeVisible();
+
+      await page.keyboard.press('Escape');
+
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+    });
+  });
 });

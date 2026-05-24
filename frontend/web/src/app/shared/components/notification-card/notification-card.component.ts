@@ -30,6 +30,8 @@ export class NotificationCardComponent {
   private readonly store = inject(NotificationStore);
 
   notification = input.required<NotificationResponse>();
+  /** Compact mode disables the inline expand of AI content — used in the navbar popover where space is tight. */
+  compact = input<boolean>(false);
 
   readonly expanded = signal(false);
 
@@ -49,7 +51,8 @@ export class NotificationCardComponent {
 
   toggle(): void {
     // Budget alerts have no extra content to reveal — clicking only marks them read.
-    if (this.notification().kind === 'AI_FEEDBACK') {
+    // Compact mode also skips the expand (popover is too narrow for the AI content).
+    if (this.notification().kind === 'AI_FEEDBACK' && !this.compact()) {
       this.expanded.set(!this.expanded());
     }
     if (!this.notification().read) {

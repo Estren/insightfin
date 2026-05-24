@@ -47,6 +47,10 @@
     "empty": "Tudo em dia",
     "emptyDesc": "Sem novidades por enquanto. Avisaremos quando houver algo para olhar.",
     "loadMore": "Carregar mais",
+    "dropdown": {
+      "empty": "Nenhuma notificação para mostrar",
+      "seeAll": "Ver todas as notificações"
+    },
     "kinds": {
       "budgetAlert": "Alerta de orçamento"
     },

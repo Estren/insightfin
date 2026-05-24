@@ -1,13 +1,59 @@
-<a
-  routerLink="/notifications"
-  class="text-muted-foreground hover:bg-card hover:text-foreground relative inline-flex items-center justify-center rounded-md p-2 transition-colors"
-  [attr.aria-label]="'nav.unreadNotifications' | translate: { count: (totalUnread$ | async) ?? 0 }">
-  <svg-icon src="assets/icons/heroicons/outline/bell.svg" [svgClass]="'h-5 w-5'"></svg-icon>
-  @if (totalUnread$ | async; as count) {
-    <span
-      aria-hidden="true"
-      class="absolute -top-0.5 -right-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-      {{ count > 99 ? '99+' : count }}
-    </span>
+<div class="relative">
+  <button
+    type="button"
+    (click)="toggle()"
+    [attr.aria-label]="'nav.unreadNotifications' | translate: { count: (totalUnread$ | async) ?? 0 }"
+    [attr.aria-expanded]="open()"
+    aria-haspopup="true"
+    class="text-muted-foreground hover:bg-card hover:text-foreground relative inline-flex cursor-pointer items-center justify-center rounded-md p-2 transition-colors">
+    <svg-icon src="assets/icons/heroicons/outline/bell.svg" [svgClass]="'h-5 w-5'"></svg-icon>
+    @if (totalUnread$ | async; as count) {
+      <span
+        aria-hidden="true"
+        class="absolute -top-0.5 -right-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+        {{ count > 99 ? '99+' : count }}
+      </span>
+    }
+  </button>
+
+  @if (open()) {
+    <div
+      role="dialog"
+      [attr.aria-label]="'notifications.title' | translate"
+      class="border-border bg-background absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border shadow-lg">
+      <div class="border-border flex items-center justify-between border-b px-4 py-3">
+        <span class="text-foreground text-sm font-semibold">{{ 'notifications.title' | translate }}</span>
+        <span class="text-muted-foreground text-xs">
+          {{ 'nav.unreadNotifications' | translate: { count: (totalUnread$ | async) ?? 0 } }}
+        </span>
+      </div>
+
+      <div class="max-h-96 overflow-y-auto p-2">
+        @if ((store.previewLoading$ | async) && (store.preview$ | async)?.length === 0) {
+          <div class="text-muted-foreground py-6 text-center text-sm">
+            {{ 'common.loading' | translate }}
+          </div>
+        } @else if ((store.preview$ | async)?.length === 0) {
+          <div class="text-muted-foreground py-6 text-center text-sm">
+            {{ 'notifications.dropdown.empty' | translate }}
+          </div>
+        } @else {
+          <div class="space-y-1" (click)="$event.stopPropagation()">
+            @for (n of store.preview$ | async; track n.id) {
+              <div (click)="onItemClick(n)">
+                <app-notification-card [notification]="n" [compact]="true" />
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <a
+        routerLink="/notifications"
+        (click)="onSeeAllClick()"
+        class="border-border text-primary hover:bg-muted/40 block border-t px-4 py-3 text-center text-sm font-medium transition-colors">
+        {{ 'notifications.dropdown.seeAll' | translate }}
+      </a>
+    </div>
   }
-</a>
+</div>
