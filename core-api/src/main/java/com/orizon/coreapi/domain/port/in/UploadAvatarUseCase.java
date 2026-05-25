@@ -1,9 +1,0 @@
-package com.orizon.coreapi.domain.port.in;
-
-import com.orizon.coreapi.domain.model.User;
-
-import java.util.UUID;
-
-public interface UploadAvatarUseCase {
-    User uploadAvatar(UUID userId, String fileName, byte[] data, String contentType);
-}

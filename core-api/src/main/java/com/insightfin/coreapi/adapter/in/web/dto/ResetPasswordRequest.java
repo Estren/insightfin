@@ -1,0 +1,9 @@
+package com.insightfin.coreapi.adapter.in.web.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record ResetPasswordRequest(
+        @NotBlank String token,
+        @NotBlank @Size(min = 8, message = "Password must have at least 8 characters") String password
+) {}
