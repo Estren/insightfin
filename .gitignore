@@ -59,7 +59,6 @@ ai/.pytest_cache/
 
 # Secrets
 /src/environments/environment.ts
-frontend/web/src/environments/environment.ts
 /src/plugins-config/plugins-config.ts
 .env
 
