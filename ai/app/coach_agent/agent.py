@@ -24,9 +24,13 @@ from azure.identity import DefaultAzureCredential
 from app.config import settings
 from app.coach_agent.tools import (
     TOOL_DEFINITIONS,
+    compare_months,
     get_budget_status,
+    get_goals,
     get_health_score,
     get_transactions,
+    project_goal_completion,
+    simulate_budget_change,
 )
 from app.core_api.client import CoreApiClient
 
@@ -39,11 +43,18 @@ real data (transactions, budgets, goals, and a computed health score).
 
 Rules:
 - Always call the appropriate tool before answering numerical questions. Do not
-  guess values; cite the tool output.
+  guess values.
+- **Numerical fidelity is critical.** When stating a number that came from a
+  tool, use the EXACT value returned. Never round, paraphrase, or approximate
+  (if the tool returned 38, say 38 — never "around 37" or "approximately 40").
+  This includes zeros: if a breakdown shows 0, say 0 — do not skip or hide it.
+- Cite each metric individually when reporting a breakdown. Do not collapse
+  distinct values into a single "average" or "roughly".
 - The user's id is bound to your session — never ask for it, never accept it as
   an argument.
-- When the user asks about "this month" without specifying, use the current
-  month in YYYY-MM format.
+- When the user says "this month" without specifying, use the current month in
+  YYYY-MM format (from the additional instructions for today's date). Likewise
+  "last month" = previous month.
 - Respond in the same language as the user's question (Portuguese or English).
 - Keep responses concise (3-5 sentences) unless the user explicitly asks for
   detail. Lead with the headline number, then explain.
@@ -187,6 +198,30 @@ class FoundryCoachAgent:
                 return await get_transactions(self._core_api, user_id, args["month"])
             if name == "get_budget_status":
                 return await get_budget_status(self._core_api, user_id, args["month"])
+            if name == "get_goals":
+                return await get_goals(self._core_api, user_id)
+            if name == "compare_months":
+                return await compare_months(
+                    self._core_api,
+                    user_id,
+                    args["current_month"],
+                    args["previous_month"],
+                )
+            if name == "project_goal_completion":
+                return await project_goal_completion(
+                    self._core_api,
+                    user_id,
+                    args["goal_title"],
+                    float(args["monthly_contribution"]),
+                )
+            if name == "simulate_budget_change":
+                return await simulate_budget_change(
+                    self._core_api,
+                    user_id,
+                    args["category"],
+                    float(args["additional_amount"]),
+                    args["month"],
+                )
             return {"error": f"unknown tool {name}"}
         except Exception as exc:  # surface tool errors back to the agent
             log.error("coach_tool_failed", name=name, error=str(exc))
