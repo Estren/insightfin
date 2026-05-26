@@ -2,10 +2,17 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # Azure OpenAI
+    # Azure OpenAI (standalone resource — used by the batch orchestrator)
     azure_openai_endpoint: str = ""
     azure_openai_key: str = ""
     azure_openai_model: str = "gpt-4o-mini"
+
+    # Azure AI Foundry project (used by the Coach Agent)
+    azure_foundry_project_endpoint: str = ""
+    azure_foundry_api_key: str = ""
+    azure_foundry_model: str = "gpt-4.1-mini"
+    # Optional: if set, reuse this agent across runs. Otherwise create on demand.
+    azure_foundry_agent_id: str = ""
 
     # Core-API
     core_api_url: str = "http://core-api:8080"
@@ -27,7 +34,7 @@ class Settings(BaseSettings):
     sentry_dsn: str = ""
     sentry_environment: str = "production"
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
 settings = Settings()
