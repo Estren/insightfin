@@ -11,6 +11,8 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from app.api.routes import router
 from app.agent.llm_client import LLMClient
 from app.agent.orchestrator import Orchestrator
+from app.coach_agent.agent import FoundryCoachAgent, build_project_client
+from app.coach_agent.api.chat_routes import router as coach_router
 from app.config import settings
 from app.core_api.client import CoreApiClient, make_http_client
 from app.kafka.consumer import KafkaConsumer
@@ -69,14 +71,42 @@ async def lifespan(app: FastAPI):
 
     app.state.orchestrator = orchestrator
 
-    await kafka_consumer.start()
+    # Coach Agent is optional — if Foundry isn't configured, the rest of the
+    # service still starts and POST /coach/chat returns 503.
+    app.state.coach_agent = None
+    if settings.azure_foundry_project_endpoint:
+        try:
+            project_client = build_project_client()
+            coach_agent = FoundryCoachAgent(
+                project_client=project_client,
+                core_api=core_api,
+                model=settings.azure_foundry_model,
+                agent_id=settings.azure_foundry_agent_id or None,
+            )
+            app.state.coach_agent = coach_agent
+            log.info("coach_agent_ready", agent_id=coach_agent.agent_id)
+        except Exception as exc:
+            log.error("coach_agent_init_failed", error=str(exc))
+
+    # Kafka is best-effort: when the broker isn't reachable (e.g. running
+    # outside docker-compose for a quick coach-agent test), log and continue.
+    # Only the input pipeline for transaction.created / goal.contributed is
+    # lost — the rest of the service (cron, HTTP endpoints, coach) works.
+    kafka_started = False
+    try:
+        await kafka_consumer.start()
+        kafka_started = True
+    except Exception as exc:
+        log.error("kafka_consumer_start_failed", error=str(exc))
+
     scheduler.start()
 
     log.info("ai_service_started")
     yield
 
     scheduler.stop()
-    await kafka_consumer.stop()
+    if kafka_started:
+        await kafka_consumer.stop()
     await http_client.aclose()
     log.info("ai_service_stopped")
 
@@ -84,6 +114,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(title="insightfin AI Service", version="1.0.0", lifespan=lifespan)
     app.include_router(router)
+    app.include_router(coach_router)
     Instrumentator().instrument(app).expose(app, endpoint="/metrics")
     return app
 
