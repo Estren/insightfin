@@ -22,7 +22,12 @@ from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 
 from app.config import settings
-from app.coach_agent.tools import TOOL_DEFINITIONS, get_health_score
+from app.coach_agent.tools import (
+    TOOL_DEFINITIONS,
+    get_budget_status,
+    get_health_score,
+    get_transactions,
+)
 from app.core_api.client import CoreApiClient
 
 log = structlog.get_logger(__name__)
@@ -56,7 +61,11 @@ class FoundryCoachAgent:
         self._project_client = project_client
         self._core_api = core_api
         self._model = model
-        self._agent_id = agent_id or self._create_agent()
+        if agent_id:
+            self._agent_id = agent_id
+            self._sync_agent()
+        else:
+            self._agent_id = self._create_agent()
 
     @property
     def agent_id(self) -> str:
@@ -71,6 +80,25 @@ class FoundryCoachAgent:
         )
         log.info("coach_agent_created", agent_id=agent.id, model=self._model)
         return agent.id
+
+    def _sync_agent(self) -> None:
+        """Keep the deployed agent in sync with the code's tools and instructions.
+
+        Without this, adding or modifying a tool requires manually clearing
+        ``AZURE_FOUNDRY_AGENT_ID`` so a new agent gets provisioned. Running
+        ``update_agent`` on every startup is cheap and removes that footgun.
+        """
+        self._project_client.agents.update_agent(
+            agent_id=self._agent_id,
+            model=self._model,
+            instructions=COACH_INSTRUCTIONS,
+            tools=TOOL_DEFINITIONS,
+        )
+        log.info(
+            "coach_agent_synced",
+            agent_id=self._agent_id,
+            tool_count=len(TOOL_DEFINITIONS),
+        )
 
     async def ask(self, user_id: UUID, question: str) -> str:
         """Send `question` to the agent and return its final reply.
@@ -155,6 +183,10 @@ class FoundryCoachAgent:
         try:
             if name == "get_health_score":
                 return await get_health_score(self._core_api, user_id, args["month"])
+            if name == "get_transactions":
+                return await get_transactions(self._core_api, user_id, args["month"])
+            if name == "get_budget_status":
+                return await get_budget_status(self._core_api, user_id, args["month"])
             return {"error": f"unknown tool {name}"}
         except Exception as exc:  # surface tool errors back to the agent
             log.error("coach_tool_failed", name=name, error=str(exc))
