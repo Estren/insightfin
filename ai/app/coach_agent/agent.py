@@ -18,6 +18,11 @@ from typing import Any
 from uuid import UUID
 
 import structlog
+from azure.ai.agents.models import (
+    FileSearchToolDefinition,
+    FileSearchToolResource,
+    ToolResources,
+)
 from azure.ai.projects import AIProjectClient
 from azure.identity import DefaultAzureCredential
 
@@ -39,7 +44,8 @@ log = structlog.get_logger(__name__)
 COACH_INSTRUCTIONS = """\
 You are a financial coach embedded in InsightFin, a personal finance platform.
 You help the user understand and improve their finances by reasoning over their
-real data (transactions, budgets, goals, and a computed health score).
+real data (transactions, budgets, goals, and a computed health score), grounded
+in a small corpus of financial education material.
 
 Rules:
 - Always call the appropriate tool before answering numerical questions. Do not
@@ -50,6 +56,13 @@ Rules:
   This includes zeros: if a breakdown shows 0, say 0 — do not skip or hide it.
 - Cite each metric individually when reporting a breakdown. Do not collapse
   distinct values into a single "average" or "roughly".
+- **Grounding:** when the user asks about a financial concept (the 50/30/20
+  rule, emergency fund, savings rate, goal-setting frameworks, where to cut),
+  use the `file_search` tool to retrieve the relevant section from the corpus
+  and ground your advice. Briefly reference the source ("according to the
+  50/30/20 rule article"). When citations from `file_search` are available,
+  include the strongest one or two — they appear inline in your output and
+  the UI may render them as footnotes.
 - The user's id is bound to your session — never ask for it, never accept it as
   an argument.
 - When the user says "this month" without specifying, use the current month in
@@ -68,10 +81,12 @@ class FoundryCoachAgent:
         core_api: CoreApiClient,
         model: str,
         agent_id: str | None = None,
+        vector_store_id: str | None = None,
     ) -> None:
         self._project_client = project_client
         self._core_api = core_api
         self._model = model
+        self._vector_store_id = vector_store_id
         if agent_id:
             self._agent_id = agent_id
             self._sync_agent()
@@ -82,14 +97,49 @@ class FoundryCoachAgent:
     def agent_id(self) -> str:
         return self._agent_id
 
+    def _all_tools(self) -> list:
+        """Function tools + the built-in `file_search` when grounding is enabled.
+
+        The file_search tool must be a typed `FileSearchToolDefinition`; the
+        SDK validator does `isinstance(tool, FileSearchToolDefinition)` so a
+        plain ``{"type": "file_search"}`` dict fails the check.
+        """
+        tools: list = list(TOOL_DEFINITIONS)
+        if self._vector_store_id:
+            tools.append(FileSearchToolDefinition())
+        return tools
+
+    def _tool_resources(self) -> ToolResources | None:
+        """Return typed ToolResources only when grounding is configured.
+
+        Passing a literal ``None`` short-circuits the SDK validator
+        (``if tool_resources is None: return``). Passing an empty
+        ``ToolResources()`` does NOT work — internal sentinels make
+        ``tool_resources.file_search`` evaluate as non-None and the validator
+        then demands a file_search tool definition.
+        """
+        if not self._vector_store_id:
+            return None
+        return ToolResources(
+            file_search=FileSearchToolResource(
+                vector_store_ids=[self._vector_store_id]
+            )
+        )
+
     def _create_agent(self) -> str:
         agent = self._project_client.agents.create_agent(
             model=self._model,
             name="insightfin-financial-coach",
             instructions=COACH_INSTRUCTIONS,
-            tools=TOOL_DEFINITIONS,
+            tools=self._all_tools(),
+            tool_resources=self._tool_resources(),
         )
-        log.info("coach_agent_created", agent_id=agent.id, model=self._model)
+        log.info(
+            "coach_agent_created",
+            agent_id=agent.id,
+            model=self._model,
+            grounding=bool(self._vector_store_id),
+        )
         return agent.id
 
     def _sync_agent(self) -> None:
@@ -103,12 +153,14 @@ class FoundryCoachAgent:
             agent_id=self._agent_id,
             model=self._model,
             instructions=COACH_INSTRUCTIONS,
-            tools=TOOL_DEFINITIONS,
+            tools=self._all_tools(),
+            tool_resources=self._tool_resources(),
         )
         log.info(
             "coach_agent_synced",
             agent_id=self._agent_id,
             tool_count=len(TOOL_DEFINITIONS),
+            grounding=bool(self._vector_store_id),
         )
 
     async def ask(self, user_id: UUID, question: str) -> str:
@@ -177,9 +229,53 @@ class FoundryCoachAgent:
             if msg.role == "assistant" and msg.content:
                 first = msg.content[0]
                 if hasattr(first, "text") and hasattr(first.text, "value"):
-                    return first.text.value
+                    return self._format_with_citations(first.text)
                 return str(first)
         return ""
+
+    def _format_with_citations(self, text_payload: Any) -> str:
+        """Replace inline SDK citation placeholders with [n] markers + footer.
+
+        Raw assistant text has annotations like `【4:0†source】` embedded inline.
+        We map each unique file id to a sequential [n] marker and append a
+        ``Fontes:`` list at the end so a CLI/HTTP consumer sees readable
+        citations without needing to parse annotation objects.
+        """
+        raw = text_payload.value
+        annotations = getattr(text_payload, "annotations", None) or []
+        if not annotations:
+            return raw
+
+        agents = self._project_client.agents
+        file_to_marker: dict[str, int] = {}
+        markers: list[tuple[int, str]] = []
+
+        for ann in annotations:
+            file_citation = getattr(ann, "file_citation", None)
+            if file_citation is None:
+                continue
+            file_id = getattr(file_citation, "file_id", None)
+            placeholder = getattr(ann, "text", None)
+            if not file_id or not placeholder:
+                continue
+            if file_id not in file_to_marker:
+                file_to_marker[file_id] = len(file_to_marker) + 1
+                markers.append((file_to_marker[file_id], file_id))
+            raw = raw.replace(placeholder, f" [{file_to_marker[file_id]}]")
+
+        if not markers:
+            return raw
+
+        footer_lines = ["", "Fontes:"]
+        for idx, file_id in markers:
+            try:
+                file_info = agents.files.get(file_id)
+                name = getattr(file_info, "filename", file_id)
+            except Exception:
+                name = file_id
+            footer_lines.append(f"  [{idx}] {name}")
+
+        return raw + "\n" + "\n".join(footer_lines)
 
     async def _dispatch_tool(self, tool_call: Any, user_id: UUID) -> dict:
         name = tool_call.function.name

@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     azure_foundry_model: str = "gpt-4.1-mini"
     # Optional: if set, reuse this agent across runs. Otherwise create on demand.
     azure_foundry_agent_id: str = ""
+    # Optional: if set, the Coach Agent uses Foundry IQ (file_search) to ground
+    # answers in the financial education corpus. Empty disables grounding.
+    azure_foundry_vector_store_id: str = ""
 
     # Core-API
     core_api_url: str = "http://core-api:8080"

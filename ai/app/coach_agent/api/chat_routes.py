@@ -36,7 +36,12 @@ async def chat(body: CoachChatRequest, request: Request) -> CoachChatResponse:
     if coach_agent is None:
         raise HTTPException(
             status_code=503,
-            detail="Coach Agent is not configured (AZURE_FOUNDRY_PROJECT_ENDPOINT missing).",
+            detail=(
+                "Coach Agent is not available. Either the endpoint is not "
+                "configured (AZURE_FOUNDRY_PROJECT_ENDPOINT missing) or the "
+                "agent failed to initialize on startup — check server logs "
+                "for `coach_agent_init_failed`."
+            ),
         )
 
     try:
