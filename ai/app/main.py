@@ -82,11 +82,17 @@ async def lifespan(app: FastAPI):
                 core_api=core_api,
                 model=settings.azure_foundry_model,
                 agent_id=settings.azure_foundry_agent_id or None,
+                vector_store_id=settings.azure_foundry_vector_store_id or None,
             )
             app.state.coach_agent = coach_agent
             log.info("coach_agent_ready", agent_id=coach_agent.agent_id)
         except Exception as exc:
-            log.error("coach_agent_init_failed", error=str(exc))
+            import traceback
+            log.error(
+                "coach_agent_init_failed",
+                error=str(exc),
+                traceback=traceback.format_exc(),
+            )
 
     # Kafka is best-effort: when the broker isn't reachable (e.g. running
     # outside docker-compose for a quick coach-agent test), log and continue.
