@@ -76,6 +76,11 @@ services:
       AZURE_STORAGE_CONTAINER_NAME: avatars
       AZURE_STORAGE_PUBLIC_BASE_URL: http://localhost:10000/devstoreaccount1
       EMAIL_VERIFICATION_REQUIRED: "false"
+      # Points at AI service running on host (python main.py) because the
+      # AI service needs `az login` creds for Foundry auth and azd-cli isn't
+      # available inside the container. To use the docker ai service instead,
+      # override to http://ai:8081 and run `docker compose up ai`.
+      AI_SERVICE_URL: http://host.docker.internal:8081
 
   ai:
     build: ./ai
