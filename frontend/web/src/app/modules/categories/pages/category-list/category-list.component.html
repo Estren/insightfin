@@ -19,6 +19,7 @@
 
     @if (categories.length === 0) {
       <app-empty-state
+        [icon]="'assets/icons/heroicons/outline/bookmark.svg'"
         [title]="'categories.noCategories' | translate"
         [description]="'categories.noCategoriesDesc' | translate" />
     } @else {
@@ -66,7 +67,9 @@
 
 <!-- Create / Edit modal -->
 @if (showForm) {
-  <app-modal [title]="editingCategory ? ('categories.editModal' | translate) : ('categories.newModal' | translate)" (close)="cancelForm()">
+  <app-modal
+    [title]="editingCategory ? ('categories.editModal' | translate) : ('categories.newModal' | translate)"
+    (close)="cancelForm()">
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
       <div>
         <label class="text-foreground mb-1 block text-sm font-medium">{{ 'categories.name' | translate }}</label>
@@ -109,8 +112,7 @@
                     form.controls['color'].value === color
                       ? 'scale-110 ring-2 ring-offset-2 ring-foreground/50'
                       : 'hover:scale-105'
-                  ">
-                </button>
+                  "></button>
               }
             </div>
             <span class="text-muted-foreground text-xs">{{ 'categories.backgroundColor' | translate }}</span>

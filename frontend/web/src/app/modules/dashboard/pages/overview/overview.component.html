@@ -65,6 +65,7 @@
         <app-health-score-gauge [data]="scoreData" />
       } @else {
         <app-empty-state
+          [icon]="'assets/icons/heroicons/outline/chart-pie.svg'"
           [title]="'dashboard.healthScore.empty' | translate"
           [description]="'dashboard.healthScore.emptyDesc' | translate" />
       }
@@ -89,6 +90,7 @@
     <app-card [title]="'dashboard.recentTransactions' | translate">
       @if (summary.recentTransactions.length === 0) {
         <app-empty-state
+          [icon]="'assets/icons/heroicons/outline/view-grid.svg'"
           [title]="'dashboard.noTransactions' | translate"
           [description]="'dashboard.noTransactionsDesc' | translate" />
       } @else {
@@ -115,6 +117,7 @@
     <app-card [title]="'dashboard.budgets' | translate">
       @if (summary.budgetStatuses.length === 0) {
         <app-empty-state
+          [icon]="'assets/icons/heroicons/outline/shield-check.svg'"
           [title]="'dashboard.noBudgets' | translate"
           [description]="'dashboard.noBudgetsDesc' | translate" />
       } @else {
@@ -149,6 +152,7 @@
     <app-card [title]="'dashboard.activeGoals' | translate">
       @if (summary.activeGoals.length === 0) {
         <app-empty-state
+          [icon]="'assets/icons/heroicons/outline/arrow-sm-up.svg'"
           [title]="'dashboard.noActiveGoals' | translate"
           [description]="'dashboard.noActiveGoalsDesc' | translate" />
       } @else {
@@ -184,6 +188,7 @@
       } @else if (feedbackStore.feedbacks$ | async; as feedbacks) {
         @if (feedbacks.length === 0) {
           <app-empty-state
+            [icon]="'assets/icons/heroicons/outline/information-circle.svg'"
             [title]="'dashboard.noInsights' | translate"
             [description]="'dashboard.noInsightsDesc' | translate" />
         } @else {

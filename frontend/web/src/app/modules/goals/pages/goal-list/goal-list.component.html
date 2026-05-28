@@ -15,11 +15,15 @@
 } @else {
   <app-card [title]="'goals.active' | translate">
     @if ((goalStore.activeGoals$ | async)?.length === 0) {
-      <app-empty-state [title]="'goals.noActiveGoals' | translate" [description]="'goals.noActiveGoalsDesc' | translate" />
+      <app-empty-state
+        [icon]="'assets/icons/heroicons/outline/arrow-sm-up.svg'"
+        [title]="'goals.noActiveGoals' | translate"
+        [description]="'goals.noActiveGoalsDesc' | translate" />
     } @else {
       <div class="space-y-3">
         @for (g of goalStore.activeGoals$ | async; track g.id) {
-          <div class="bg-background border-border flex flex-col gap-3 rounded-lg border p-4 shadow-sm sm:flex-row sm:items-center sm:gap-4">
+          <div
+            class="bg-background border-border flex flex-col gap-3 rounded-lg border p-4 shadow-sm sm:flex-row sm:items-center sm:gap-4">
             <!-- Ring + Info -->
             <div class="flex min-w-0 flex-1 items-center gap-4">
               <app-progress-ring [percentage]="progressPercent(g)" [size]="64" />
@@ -64,7 +68,8 @@
     <app-card [title]="'goals.completed' | translate" class="mt-6">
       <div class="space-y-3">
         @for (g of goalStore.completedGoals$ | async; track g.id) {
-          <div class="bg-background border-border flex flex-col gap-3 rounded-lg border p-4 opacity-70 shadow-sm sm:flex-row sm:items-center sm:gap-4">
+          <div
+            class="bg-background border-border flex flex-col gap-3 rounded-lg border p-4 opacity-70 shadow-sm sm:flex-row sm:items-center sm:gap-4">
             <div class="flex min-w-0 flex-1 items-center gap-4">
               <app-progress-ring [percentage]="100" [size]="48" />
               <div class="min-w-0 flex-1">

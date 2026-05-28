@@ -6,6 +6,7 @@
   } @else if (store.notifications$ | async; as items) {
     @if (items.length === 0) {
       <app-empty-state
+        [icon]="'assets/icons/heroicons/outline/bell.svg'"
         [title]="'notifications.empty' | translate"
         [description]="'notifications.emptyDesc' | translate" />
     } @else {
