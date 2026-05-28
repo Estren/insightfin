@@ -28,6 +28,34 @@
     }
   }
 
+  @if (feedbackStore.feedbacks$ | async; as feedbacks) {
+    @let prompts = coachPrompts(summary, feedbacks);
+    @if (prompts.length > 0) {
+      <div class="mb-6 grid gap-3 sm:grid-cols-2">
+        @for (prompt of prompts; track prompt.messageKey) {
+          <button
+            type="button"
+            (click)="askCoach(prompt)"
+            class="flex cursor-pointer items-start gap-3 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-left transition hover:border-primary hover:bg-primary/10">
+            <svg-icon class="mt-0.5 shrink-0" [src]="prompt.icon" [svgClass]="'h-5 w-5 text-primary'"></svg-icon>
+            <span class="flex flex-col gap-0.5">
+              <span class="text-sm text-foreground">{{ prompt.messageKey | translate: prompt.messageParams }}</span>
+              <span class="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                {{ 'dashboard.coachPrompts.cta' | translate }}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5">
+                  <path
+                    fill-rule="evenodd"
+                    d="M3 10a.75.75 0 0 1 .75-.75h10.638L10.23 5.29a.75.75 0 1 1 1.04-1.08l5.5 5.25a.75.75 0 0 1 0 1.08l-5.5 5.25a.75.75 0 1 1-1.04-1.08l4.158-3.96H3.75A.75.75 0 0 1 3 10Z"
+                    clip-rule="evenodd" />
+                </svg>
+              </span>
+            </span>
+          </button>
+        }
+      </div>
+    }
+  }
+
   <app-card class="mb-6 block" [title]="'dashboard.healthScore.title' | translate">
     @if (feedbackStore.loading$ | async) {
       <app-loading />

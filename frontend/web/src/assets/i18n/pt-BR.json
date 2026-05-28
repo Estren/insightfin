@@ -279,6 +279,13 @@
       "budgetAdherence": "Aderência ao orçamento",
       "goalProgress": "Progresso de metas",
       "expenseConsistency": "Consistência de gastos"
+    },
+    "coachPrompts": {
+      "cta": "Pergunte ao Coach",
+      "budgetOver": "Seu orçamento de {{category}} está em {{percent}}% — passou do limite.",
+      "budgetOverQuestion": "Por que meu orçamento de {{category}} estourou esse mês e como posso ajustar?",
+      "lowScore": "Seu health score está em {{score}}, abaixo do saudável.",
+      "lowScoreQuestion": "Por que meu health score está baixo e o que posso fazer pra melhorar?"
     }
   },
   "feedbacks": {

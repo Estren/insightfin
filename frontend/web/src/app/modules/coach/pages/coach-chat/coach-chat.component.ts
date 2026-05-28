@@ -51,8 +51,18 @@ export class CoachChatComponent implements OnInit, AfterViewChecked {
     });
   }
 
-  ngOnInit(): void {
-    void this.store.loadThreads();
+  async ngOnInit(): Promise<void> {
+    await this.store.loadThreads();
+
+    // Deep-link from a dashboard "Pergunte ao Coach" card: start a fresh
+    // conversation with the pre-filled question. Clear the state afterwards
+    // so a page refresh doesn't re-send it.
+    const incoming = (history.state as { question?: unknown } | null)?.question;
+    if (typeof incoming === 'string' && incoming.trim()) {
+      history.replaceState({ ...history.state, question: null }, '');
+      this.store.newConversation();
+      void this.store.ask(incoming.trim());
+    }
   }
 
   toggleSidebar(): void {
