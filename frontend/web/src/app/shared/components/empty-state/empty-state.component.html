@@ -1,4 +1,9 @@
 <div class="rounded-lg p-10 text-center">
+  @if (icon()) {
+    <div class="mb-4 flex justify-center">
+      <svg-icon [src]="icon()" [svgClass]="'h-12 w-12 text-muted-foreground'"></svg-icon>
+    </div>
+  }
   <p class="text-foreground text-sm font-medium">{{ title() }}</p>
   @if (description()) {
     <p class="text-muted-foreground mt-1 text-xs">{{ description() }}</p>

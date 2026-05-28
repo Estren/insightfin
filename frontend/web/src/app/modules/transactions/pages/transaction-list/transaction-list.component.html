@@ -15,7 +15,8 @@
 } @else if (groupedTransactions$ | async; as groups) {
   <app-card>
     <!-- Tabs + month nav -->
-    <div class="border-border -mx-6 -mt-6 mb-6 flex flex-col gap-3 border-b px-6 pb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:pb-0">
+    <div
+      class="border-border -mx-6 -mt-6 mb-6 flex flex-col gap-3 border-b px-6 pb-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:pb-0">
       <app-tabs [tabs]="tabs" [active]="(activeTab$ | async)!" (tabChange)="setTab($event)" />
       <div class="flex items-center gap-1 sm:pb-2">
         <button
@@ -36,6 +37,7 @@
 
     @if (groups.length === 0) {
       <app-empty-state
+        [icon]="'assets/icons/heroicons/outline/view-grid.svg'"
         [title]="'transactions.noTransactionsMonth' | translate"
         [description]="'transactions.noTransactionsDesc' | translate" />
     } @else {
@@ -44,10 +46,18 @@
         <app-data-table>
           <thead>
             <tr>
-              <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">{{ 'transactions.category' | translate }}</th>
-              <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">{{ 'transactions.description' | translate }}</th>
-              <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">{{ 'transactions.amount' | translate }}</th>
-              <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">{{ 'common.actions' | translate }}</th>
+              <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">
+                {{ 'transactions.category' | translate }}
+              </th>
+              <th class="text-muted-foreground pb-3 text-left text-xs font-semibold uppercase">
+                {{ 'transactions.description' | translate }}
+              </th>
+              <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">
+                {{ 'transactions.amount' | translate }}
+              </th>
+              <th class="text-muted-foreground pb-3 text-right text-xs font-semibold uppercase">
+                {{ 'common.actions' | translate }}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -67,7 +77,8 @@
                           class="text-muted-foreground text-xs"
                           [attr.title]="'recurring.fromRecurring' | translate"
                           aria-label="recurring"
-                          >🔁</span>
+                          >🔁</span
+                        >
                       }
                     </span>
                   </td>
@@ -121,7 +132,8 @@
                             class="text-muted-foreground text-xs"
                             [attr.title]="'recurring.fromRecurring' | translate"
                             aria-label="recurring"
-                            >🔁</span>
+                            >🔁</span
+                          >
                         }
                       </p>
                       @if (t.description) {
