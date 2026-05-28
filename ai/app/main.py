@@ -11,7 +11,11 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from app.api.routes import router
 from app.agent.llm_client import LLMClient
 from app.agent.orchestrator import Orchestrator
-from app.coach_agent.agent import FoundryCoachAgent, build_project_client
+from app.coach_agent.agent import (
+    FoundryCoachAgent,
+    build_async_project_client,
+    build_project_client,
+)
 from app.coach_agent.api.chat_routes import router as coach_router
 from app.config import settings
 from app.core_api.client import CoreApiClient, make_http_client
@@ -77,8 +81,10 @@ async def lifespan(app: FastAPI):
     if settings.azure_foundry_project_endpoint:
         try:
             project_client = build_project_client()
+            async_project_client = build_async_project_client()
             coach_agent = FoundryCoachAgent(
                 project_client=project_client,
+                async_project_client=async_project_client,
                 core_api=core_api,
                 model=settings.azure_foundry_model,
                 agent_id=settings.azure_foundry_agent_id or None,
