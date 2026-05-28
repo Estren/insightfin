@@ -29,7 +29,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 # Default to localhost for local runs — `.env` has the docker hostname.
 os.environ.setdefault("CORE_API_URL", "http://localhost:8080")
 
-from app.coach_agent.agent import FoundryCoachAgent, build_project_client  # noqa: E402
+from app.coach_agent.agent import (  # noqa: E402
+    FoundryCoachAgent,
+    build_async_project_client,
+    build_project_client,
+)
 from app.config import settings  # noqa: E402
 from app.core_api.client import CoreApiClient, make_http_client  # noqa: E402
 
@@ -38,12 +42,15 @@ async def main(user_id: UUID, question: str) -> int:
     http = make_http_client()
     core_api = CoreApiClient(http)
     project_client = build_project_client()
+    async_project_client = build_async_project_client()
 
     agent = FoundryCoachAgent(
         project_client=project_client,
+        async_project_client=async_project_client,
         core_api=core_api,
         model=settings.azure_foundry_model,
         agent_id=settings.azure_foundry_agent_id or None,
+        vector_store_id=settings.azure_foundry_vector_store_id or None,
     )
 
     print(f"\n--- agent_id: {agent.agent_id}")

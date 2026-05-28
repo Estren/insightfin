@@ -1,23 +1,38 @@
-"""FastAPI route for the Coach Agent.
+"""FastAPI routes for the Coach Agent.
 
-Exposes a synchronous `POST /coach/chat`. The agent itself is a singleton
-provisioned in `app/main.py` lifespan and stashed in `app.state.coach_agent`.
-When the Foundry endpoint isn't configured, the route still mounts but
-returns 503 — this lets the rest of the service (batch orchestrator,
-metrics, health) keep working in environments without Foundry access.
+Two routes:
+- ``POST /coach/chat`` — synchronous, returns the full answer as JSON.
+  Kept for the standalone test script and for the (legacy) non-streaming
+  Quarkus proxy flow.
+- ``POST /coach/chat/stream`` — Server-Sent Events. The Quarkus core-api
+  proxies this to the authenticated frontend client.
+
+The agent itself is a singleton provisioned in `app/main.py` lifespan and
+stashed in `app.state.coach_agent`. When the Foundry endpoint isn't
+configured, both routes return 503 so the rest of the service (batch
+orchestrator, metrics, health) keeps working unaffected.
 """
 
 from __future__ import annotations
 
+import json
 from uuid import UUID
 
 import structlog
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 log = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/coach", tags=["coach"])
+
+SSE_HEADERS = {
+    "Cache-Control": "no-cache",
+    "Connection": "keep-alive",
+    # Disable any reverse-proxy buffering (nginx, Quarkus, etc.)
+    "X-Accel-Buffering": "no",
+}
 
 
 class CoachChatRequest(BaseModel):
@@ -30,8 +45,7 @@ class CoachChatResponse(BaseModel):
     answer: str
 
 
-@router.post("/chat", response_model=CoachChatResponse)
-async def chat(body: CoachChatRequest, request: Request) -> CoachChatResponse:
+def _require_coach_agent(request: Request):
     coach_agent = getattr(request.app.state, "coach_agent", None)
     if coach_agent is None:
         raise HTTPException(
@@ -43,7 +57,12 @@ async def chat(body: CoachChatRequest, request: Request) -> CoachChatResponse:
                 "for `coach_agent_init_failed`."
             ),
         )
+    return coach_agent
 
+
+@router.post("/chat", response_model=CoachChatResponse)
+async def chat(body: CoachChatRequest, request: Request) -> CoachChatResponse:
+    coach_agent = _require_coach_agent(request)
     try:
         answer = await coach_agent.ask(body.userId, body.question)
     except Exception as exc:
@@ -54,5 +73,44 @@ async def chat(body: CoachChatRequest, request: Request) -> CoachChatResponse:
             error=str(exc),
         )
         raise HTTPException(status_code=500, detail="Coach Agent failed to respond.")
-
     return CoachChatResponse(userId=body.userId, answer=answer)
+
+
+@router.post("/chat/stream")
+async def chat_stream(body: CoachChatRequest, request: Request) -> StreamingResponse:
+    """Stream the agent's response as Server-Sent Events.
+
+    Each event has the shape:
+        event: <type>
+        data: <json payload>
+
+    Types: ``token``, ``tool_call``, ``citation``, ``error``, ``done``.
+    A consumer that joins all ``token.data`` in order reconstructs the
+    final assistant message.
+    """
+    coach_agent = _require_coach_agent(request)
+
+    async def event_generator():
+        try:
+            async for event in coach_agent.ask_stream(body.userId, body.question):
+                payload = {k: v for k, v in event.items() if k != "type"}
+                yield (
+                    f"event: {event['type']}\n"
+                    f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
+                )
+        except Exception as exc:
+            log.error(
+                "coach_chat_stream_failed",
+                user_id=str(body.userId),
+                error=str(exc),
+            )
+            yield (
+                "event: error\n"
+                f"data: {json.dumps({'data': str(exc)}, ensure_ascii=False)}\n\n"
+            )
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers=SSE_HEADERS,
+    )

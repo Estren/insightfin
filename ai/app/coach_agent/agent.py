@@ -21,10 +21,13 @@ import structlog
 from azure.ai.agents.models import (
     FileSearchToolDefinition,
     FileSearchToolResource,
+    ToolOutput,
     ToolResources,
 )
 from azure.ai.projects import AIProjectClient
+from azure.ai.projects.aio import AIProjectClient as AsyncAIProjectClient
 from azure.identity import DefaultAzureCredential
+from azure.identity.aio import DefaultAzureCredential as AsyncDefaultAzureCredential
 
 from app.config import settings
 from app.coach_agent.tools import (
@@ -78,12 +81,14 @@ class FoundryCoachAgent:
     def __init__(
         self,
         project_client: AIProjectClient,
+        async_project_client: AsyncAIProjectClient,
         core_api: CoreApiClient,
         model: str,
         agent_id: str | None = None,
         vector_store_id: str | None = None,
     ) -> None:
         self._project_client = project_client
+        self._async_project_client = async_project_client
         self._core_api = core_api
         self._model = model
         self._vector_store_id = vector_store_id
@@ -233,6 +238,149 @@ class FoundryCoachAgent:
                 return str(first)
         return ""
 
+    async def ask_stream(
+        self, user_id: UUID, question: str
+    ):
+        """Stream the agent's reasoning as a sequence of structured events.
+
+        Yields dicts with a ``type`` field — the FastAPI route maps these to
+        SSE event names. Event types:
+
+        - ``token``   → ``{"data": "<text chunk>"}``: append to assistant bubble.
+        - ``tool_call`` → ``{"name": "get_health_score"}``: show "thinking" tag.
+        - ``citation`` → ``{"marker": 1, "filename": "regra-50-30-20.md"}``.
+        - ``error``   → ``{"data": "<message>"}``: render and stop.
+        - ``done``    → end of stream.
+
+        Tool dispatch is done in this method so ``user_id`` stays bound via
+        closure and never enters the LLM-visible tool schema.
+        """
+        agents = self._async_project_client.agents
+
+        thread = await agents.threads.create()
+        await agents.messages.create(
+            thread_id=thread.id, role="user", content=question
+        )
+
+        today = date.today()
+        additional_instructions = (
+            f"Today's date is {today.isoformat()}. "
+            f"The current month (YYYY-MM) is {today.strftime('%Y-%m')}. "
+            f"Use this when the user says 'this month', 'last month', etc."
+        )
+
+        file_to_marker: dict[str, int] = {}
+
+        async with await agents.runs.stream(
+            thread_id=thread.id,
+            agent_id=self._agent_id,
+            additional_instructions=additional_instructions,
+        ) as handler:
+            async for event_type, event_data, _ in handler:
+                event_name = str(event_type)
+
+                if event_name.endswith("message.delta"):
+                    delta = getattr(event_data, "delta", None)
+                    content = getattr(delta, "content", []) if delta else []
+                    for block in content:
+                        text = getattr(block, "text", None)
+                        if text is not None and getattr(text, "value", None):
+                            yield {"type": "token", "data": text.value}
+
+                elif event_name.endswith("requires_action") or (
+                    hasattr(event_data, "status")
+                    and getattr(event_data, "status", None) == "requires_action"
+                ):
+                    required_action = getattr(event_data, "required_action", None)
+                    if required_action is None:
+                        continue
+                    tool_calls = required_action.submit_tool_outputs.tool_calls
+                    outputs: list[ToolOutput] = []
+                    for call in tool_calls:
+                        yield {
+                            "type": "tool_call",
+                            "name": call.function.name,
+                        }
+                        result = await self._dispatch_tool(call, user_id)
+                        outputs.append(
+                            ToolOutput(
+                                tool_call_id=call.id,
+                                output=json.dumps(result),
+                            )
+                        )
+                    await agents.runs.submit_tool_outputs_stream(
+                        thread_id=thread.id,
+                        run_id=event_data.id,
+                        tool_outputs=outputs,
+                        event_handler=handler,
+                    )
+
+                elif event_name.endswith("message.completed"):
+                    content = getattr(event_data, "content", []) or []
+                    for block in content:
+                        text_obj = getattr(block, "text", None)
+                        if text_obj is None:
+                            continue
+                        annotations = getattr(text_obj, "annotations", None) or []
+                        for ann in annotations:
+                            file_citation = getattr(ann, "file_citation", None)
+                            if file_citation is None:
+                                continue
+                            file_id = getattr(file_citation, "file_id", None)
+                            if not file_id:
+                                continue
+                            if file_id not in file_to_marker:
+                                file_to_marker[file_id] = len(file_to_marker) + 1
+                                filename = await self._lookup_filename(file_id)
+                                yield {
+                                    "type": "citation",
+                                    "marker": file_to_marker[file_id],
+                                    "filename": filename,
+                                }
+
+                elif event_name.endswith("run.failed") or event_name.endswith(
+                    "run.cancelled"
+                ):
+                    last_error = getattr(event_data, "last_error", None)
+                    log.error(
+                        "coach_stream_failed",
+                        event=event_name,
+                        last_error=str(last_error) if last_error else None,
+                    )
+                    yield {
+                        "type": "error",
+                        "data": str(last_error) if last_error else event_name,
+                    }
+                    return
+
+                elif event_name == "error":
+                    log.error("coach_stream_error", payload=str(event_data))
+                    yield {"type": "error", "data": str(event_data)}
+                    return
+
+                elif event_name.endswith("run.completed"):
+                    # The run finished cleanly. `done` events that follow are
+                    # HTTP-chunk markers — they appear after each segment of a
+                    # multi-segment stream (e.g. one segment per submit_tool_-
+                    # outputs round trip), not at logical end of the reasoning.
+                    break
+
+                # `done` events are intentionally ignored here: they signal the
+                # end of an HTTP segment, not of the agent's reasoning. The
+                # next segment chains in via submit_tool_outputs_stream and
+                # async_chain on the handler's response iterator.
+
+        yield {"type": "done"}
+
+    async def _lookup_filename(self, file_id: str) -> str:
+        """Resolve a Foundry file id to its original filename for citations."""
+        try:
+            info = await self._async_project_client.agents.files.get(file_id)
+            return getattr(info, "filename", file_id)
+        except Exception as exc:
+            log.warning("coach_file_lookup_failed", file_id=file_id, error=str(exc))
+            return file_id
+
     def _format_with_citations(self, text_payload: Any) -> str:
         """Replace inline SDK citation placeholders with [n] markers + footer.
 
@@ -325,7 +473,7 @@ class FoundryCoachAgent:
 
 
 def build_project_client() -> AIProjectClient:
-    """Build the Foundry project client from settings.
+    """Build the sync Foundry project client (used for setup/update of the agent).
 
     Authenticates via `DefaultAzureCredential` — the SDK 1.0 does not accept
     API key credentials. Locally, this picks up `az login`. In Azure Container
@@ -337,4 +485,19 @@ def build_project_client() -> AIProjectClient:
     return AIProjectClient(
         endpoint=settings.azure_foundry_project_endpoint,
         credential=DefaultAzureCredential(),
+    )
+
+
+def build_async_project_client() -> AsyncAIProjectClient:
+    """Build the async Foundry project client (used for streaming runs).
+
+    Streaming uses async iteration over server-sent events from Foundry;
+    a separate async client + async credential keeps the asyncio loop clean.
+    """
+    if not settings.azure_foundry_project_endpoint:
+        raise RuntimeError("AZURE_FOUNDRY_PROJECT_ENDPOINT is not set")
+
+    return AsyncAIProjectClient(
+        endpoint=settings.azure_foundry_project_endpoint,
+        credential=AsyncDefaultAzureCredential(),
     )
