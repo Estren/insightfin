@@ -2,7 +2,7 @@
   <app-page-header [title]="'coach.title' | translate" [subtitle]="'coach.subtitle' | translate"></app-page-header>
 
   <div class="flex flex-1 flex-col rounded-2xl border border-border bg-card shadow-sm">
-    @if (messages().length > 0) {
+    @if (store.messages().length > 0) {
       <div class="flex items-center justify-end border-b border-border px-4 py-2 sm:px-8">
         <button
           type="button"
@@ -23,7 +23,7 @@
     }
 
     <div #scrollContainer class="flex-1 space-y-4 overflow-y-auto px-4 py-6 sm:px-8" [class.min-h-0]="true">
-      @if (messages().length === 0) {
+      @if (store.messages().length === 0) {
         <div class="flex flex-col items-center justify-center py-10 text-center">
           <div class="mb-4 rounded-full bg-primary/10 p-4">
             <svg
@@ -50,7 +50,7 @@
               <button
                 type="button"
                 (click)="applySuggestion(suggestion)"
-                [disabled]="streaming()"
+                [disabled]="store.streaming()"
                 class="rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition hover:border-primary hover:bg-primary/10 hover:text-primary disabled:cursor-not-allowed disabled:opacity-50">
                 {{ suggestion.labelKey | translate }}
               </button>
@@ -59,7 +59,7 @@
         </div>
       }
 
-      @for (message of messages(); track trackById($index, message)) {
+      @for (message of store.messages(); track trackById($index, message)) {
         <div [ngClass]="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
           <div
             [ngClass]="
@@ -68,12 +68,15 @@
                 : 'max-w-[80%] rounded-2xl rounded-bl-md border border-border bg-background px-4 py-3 text-foreground shadow-sm'
             ">
             @if (
-              message.role === 'assistant' && message.toolCalls.length > 0 && message.isStreaming && currentToolCall()
+              message.role === 'assistant' &&
+              message.toolCalls.length > 0 &&
+              message.isStreaming &&
+              store.currentToolCall()
             ) {
               <div
                 class="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                 <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-primary"></span>
-                {{ 'coach.thinking' | translate: { tool: currentToolCall() } }}
+                {{ 'coach.thinking' | translate: { tool: store.currentToolCall() } }}
               </div>
             }
 
@@ -111,15 +114,15 @@
     <div class="border-t border-border px-4 py-4 sm:px-8">
       <form (submit)="$event.preventDefault(); submitDraft()" class="flex items-end gap-3">
         <textarea
-          [value]="draft()"
+          [value]="store.draft()"
           (input)="onInput($event)"
           (keydown)="onKeyDown($event)"
           rows="2"
-          [disabled]="streaming()"
+          [disabled]="store.streaming()"
           [placeholder]="'coach.inputPlaceholder' | translate"
           class="flex-1 resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"></textarea>
 
-        @if (streaming()) {
+        @if (store.streaming()) {
           <button
             type="button"
             (click)="cancel()"
@@ -129,7 +132,7 @@
         } @else {
           <button
             type="submit"
-            [disabled]="!draft().trim()"
+            [disabled]="!store.draft().trim()"
             class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
             {{ 'coach.send' | translate }}
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
