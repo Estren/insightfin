@@ -3,6 +3,8 @@ package com.insightfin.coreapi.adapter.in.web;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.insightfin.coreapi.adapter.in.web.dto.CoachChatRequest;
 import com.insightfin.coreapi.config.security.AuthenticatedUser;
+import com.insightfin.coreapi.domain.model.CoachThread;
+import com.insightfin.coreapi.domain.port.in.CoachThreadUseCases;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -49,6 +51,9 @@ public class CoachController {
     @Inject
     ObjectMapper objectMapper;
 
+    @Inject
+    CoachThreadUseCases coachThreads;
+
     @ConfigProperty(name = "ai.service.url", defaultValue = "http://ai:8081")
     String aiServiceUrl;
 
@@ -67,16 +72,36 @@ public class CoachController {
     public Response chat(@Valid CoachChatRequest body) throws Exception {
         UUID userId = authenticatedUser.getUserId();
 
+        if (body.threadId() == null || body.threadId().isBlank()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity("{\"detail\":\"threadId is required — create a thread first via POST /api/coach/threads\"}")
+                    .build();
+        }
+
+        UUID threadId;
+        try {
+            threadId = UUID.fromString(body.threadId());
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity("{\"detail\":\"threadId is not a valid UUID\"}")
+                    .build();
+        }
+
+        // Resolve our thread id to the Foundry thread id, enforcing ownership
+        // (throws 404 if the thread doesn't belong to this user).
+        CoachThread thread = coachThreads.get(threadId, userId);
+        coachThreads.touch(threadId, userId);
+
         Map<String, Object> upstreamBody = new HashMap<>();
         upstreamBody.put("userId", userId.toString());
         upstreamBody.put("question", body.question());
-        if (body.threadId() != null && !body.threadId().isBlank()) {
-            upstreamBody.put("threadId", body.threadId());
-        }
+        upstreamBody.put("threadId", thread.getFoundryThreadId());
         String payload = objectMapper.writeValueAsString(upstreamBody);
 
-        LOG.infof("coach_chat_proxy upstream=%s userId=%s questionLength=%d payloadLength=%d",
-                aiServiceUrl, userId, body.question().length(), payload.length());
+        LOG.infof("coach_chat_proxy upstream=%s userId=%s threadId=%s questionLength=%d",
+                aiServiceUrl, userId, threadId, body.question().length());
 
         HttpRequest upstream = HttpRequest.newBuilder()
                 .uri(URI.create(aiServiceUrl + "/coach/chat/stream"))

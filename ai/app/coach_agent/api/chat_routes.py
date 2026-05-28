@@ -46,6 +46,10 @@ class CoachChatResponse(BaseModel):
     answer: str
 
 
+class CreateThreadResponse(BaseModel):
+    threadId: str
+
+
 def _require_coach_agent(request: Request):
     coach_agent = getattr(request.app.state, "coach_agent", None)
     if coach_agent is None:
@@ -59,6 +63,25 @@ def _require_coach_agent(request: Request):
             ),
         )
     return coach_agent
+
+
+@router.post("/threads", response_model=CreateThreadResponse, status_code=201)
+async def create_thread(request: Request) -> CreateThreadResponse:
+    """Create an empty Foundry thread. Core-api persists the returned id."""
+    coach_agent = _require_coach_agent(request)
+    thread_id = await coach_agent.create_thread()
+    return CreateThreadResponse(threadId=thread_id)
+
+
+@router.get("/threads/{thread_id}/messages")
+async def thread_messages(thread_id: str, request: Request) -> list[dict]:
+    """Hydrate a thread's full message history (chronological)."""
+    coach_agent = _require_coach_agent(request)
+    try:
+        return await coach_agent.list_messages(thread_id)
+    except Exception as exc:
+        log.error("coach_list_messages_failed", thread_id=thread_id, error=str(exc))
+        raise HTTPException(status_code=502, detail="Failed to load thread messages.")
 
 
 @router.post("/chat", response_model=CoachChatResponse)
