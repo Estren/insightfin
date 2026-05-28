@@ -1,22 +1,75 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CoachEvent } from '../models/coach.model';
+import { CoachEvent, CoachMessage, CoachThread } from '../models/coach.model';
 import { AuthStore } from '../stores/auth.store';
 
+interface ThreadMessageDto {
+  role: 'user' | 'assistant';
+  text: string;
+  citations: { marker: number; filename: string }[];
+  createdAt: string | null;
+}
+
 /**
- * Coach Agent client. Uses fetch + ReadableStream because EventSource
- * does not support POST or custom Authorization headers — both of which
- * we need to send the question and authenticate the request.
+ * Coach Agent client.
  *
- * The parser implements the minimal subset of SSE we emit on the server:
+ * Streaming (`streamChat`) uses fetch + ReadableStream because EventSource
+ * doesn't support POST or custom Authorization headers. The thread CRUD
+ * uses the regular HttpClient so the JWT interceptor applies automatically.
+ *
+ * The SSE parser implements the minimal subset we emit on the server:
  * lines starting with `event:` and `data:`, events separated by `\n\n`.
- * Each `data:` payload is JSON, parsed once before yielding.
  */
 @Injectable({ providedIn: 'root' })
 export class CoachService {
-  private readonly url = `${environment.apiUrl}/coach/chat`;
+  private readonly chatUrl = `${environment.apiUrl}/coach/chat`;
+  private readonly threadsUrl = `${environment.apiUrl}/coach/threads`;
 
-  constructor(private readonly auth: AuthStore) {}
+  constructor(
+    private readonly auth: AuthStore,
+    private readonly http: HttpClient,
+  ) {}
+
+  listThreads(): Observable<CoachThread[]> {
+    return this.http.get<CoachThread[]>(this.threadsUrl);
+  }
+
+  createThread(firstMessage: string): Observable<CoachThread> {
+    return this.http.post<CoachThread>(this.threadsUrl, { firstMessage });
+  }
+
+  renameThread(id: string, title: string): Observable<CoachThread> {
+    return this.http.patch<CoachThread>(`${this.threadsUrl}/${id}`, { title });
+  }
+
+  deleteThread(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.threadsUrl}/${id}`);
+  }
+
+  getThreadMessages(id: string): Observable<CoachMessage[]> {
+    return new Observable<CoachMessage[]>((subscriber) => {
+      const sub = this.http.get<ThreadMessageDto[]>(`${this.threadsUrl}/${id}/messages`).subscribe({
+        next: (dtos) => {
+          subscriber.next(dtos.map((d) => this.toMessage(d)));
+          subscriber.complete();
+        },
+        error: (err) => subscriber.error(err),
+      });
+      return () => sub.unsubscribe();
+    });
+  }
+
+  private toMessage(dto: ThreadMessageDto): CoachMessage {
+    return {
+      id: `${dto.createdAt ?? ''}-${Math.random().toString(36).slice(2, 8)}`,
+      role: dto.role,
+      text: dto.text,
+      toolCalls: [],
+      citations: dto.citations ?? [],
+    };
+  }
 
   async *streamChat(question: string, threadId: string | null, signal?: AbortSignal): AsyncGenerator<CoachEvent> {
     const token = this.auth.getAccessToken();
@@ -28,7 +81,7 @@ export class CoachService {
     const body: { question: string; threadId?: string } = { question };
     if (threadId) body.threadId = threadId;
 
-    const response = await fetch(this.url, {
+    const response = await fetch(this.chatUrl, {
       method: 'POST',
       signal,
       headers: {

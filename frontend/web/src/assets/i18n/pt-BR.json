@@ -524,8 +524,18 @@
     "send": "Enviar",
     "stop": "Parar",
     "newConversation": "Nova conversa",
+    "conversations": "Conversas",
+    "noConversations": "Nenhuma conversa ainda",
+    "loading": "Carregando...",
+    "rename": "Renomear",
     "thinking": "Consultando {{tool}}...",
     "sources": "Fontes",
+    "delete": {
+      "action": "Excluir",
+      "title": "Excluir conversa",
+      "message": "Tem certeza que deseja excluir \"{{title}}\"? Esta ação não pode ser desfeita.",
+      "confirm": "Excluir"
+    },
     "errors": {
       "network": "Falha de conexão. Verifique sua internet e tente novamente."
     }

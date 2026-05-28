@@ -1,10 +1,20 @@
 import { NgClass } from '@angular/common';
-import { AfterViewChecked, ChangeDetectionStrategy, Component, ElementRef, ViewChild, effect } from '@angular/core';
+import {
+  AfterViewChecked,
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  effect,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CoachMessage, CoachSuggestion } from '../../../../core/models/coach.model';
 import { CoachStore } from '../../../../core/stores/coach.store';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { CoachSidebarComponent } from '../../components/coach-sidebar/coach-sidebar.component';
 
 const SUGGESTIONS: CoachSuggestion[] = [
   { labelKey: 'coach.suggestions.healthScore.label', questionKey: 'coach.suggestions.healthScore.question' },
@@ -17,10 +27,13 @@ const SUGGESTIONS: CoachSuggestion[] = [
   selector: 'app-coach-chat',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './coach-chat.component.html',
-  imports: [NgClass, FormsModule, TranslateModule, PageHeaderComponent],
+  imports: [NgClass, FormsModule, TranslateModule, PageHeaderComponent, CoachSidebarComponent],
 })
-export class CoachChatComponent implements AfterViewChecked {
+export class CoachChatComponent implements OnInit, AfterViewChecked {
   readonly suggestions = SUGGESTIONS;
+
+  /** Mobile drawer state — sidebar overlays on small screens. */
+  readonly sidebarOpen = signal(false);
 
   private shouldScroll = true;
 
@@ -36,6 +49,18 @@ export class CoachChatComponent implements AfterViewChecked {
       void this.store.streaming();
       this.shouldScroll = true;
     });
+  }
+
+  ngOnInit(): void {
+    void this.store.loadThreads();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen.update((v) => !v);
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen.set(false);
   }
 
   ngAfterViewChecked(): void {
