@@ -17,6 +17,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -66,9 +67,13 @@ public class CoachController {
     public Response chat(@Valid CoachChatRequest body) throws Exception {
         UUID userId = authenticatedUser.getUserId();
 
-        String payload = objectMapper.writeValueAsString(
-                Map.of("userId", userId.toString(), "question", body.question())
-        );
+        Map<String, Object> upstreamBody = new HashMap<>();
+        upstreamBody.put("userId", userId.toString());
+        upstreamBody.put("question", body.question());
+        if (body.threadId() != null && !body.threadId().isBlank()) {
+            upstreamBody.put("threadId", body.threadId());
+        }
+        String payload = objectMapper.writeValueAsString(upstreamBody);
 
         LOG.infof("coach_chat_proxy upstream=%s userId=%s questionLength=%d payloadLength=%d",
                 aiServiceUrl, userId, body.question().length(), payload.length());

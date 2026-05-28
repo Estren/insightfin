@@ -14,6 +14,7 @@
  */
 
 export type CoachEvent =
+  | { type: 'thread'; id: string }
   | { type: 'token'; data: string }
   | { type: 'tool_call'; name: string }
   | { type: 'citation'; marker: number; filename: string }
