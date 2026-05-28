@@ -1,122 +1,78 @@
-# InsightFin
+# InsightFin — Financial Coach Agent
 
 [![Core API](https://github.com/Estren/insightfin/actions/workflows/core-api.yml/badge.svg)](https://github.com/Estren/insightfin/actions/workflows/core-api.yml)
 [![AI Service](https://github.com/Estren/insightfin/actions/workflows/ai-service.yml/badge.svg)](https://github.com/Estren/insightfin/actions/workflows/ai-service.yml)
 [![Frontend](https://github.com/Estren/insightfin/actions/workflows/frontend.yml/badge.svg)](https://github.com/Estren/insightfin/actions/workflows/frontend.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Personal financial management platform — simple, visual, and powered by AI.
+**InsightFin** is a personal finance platform in production at **[insightfin.app](https://insightfin.app)**. This repository is its submission to the **[Microsoft Agents League @ AI Skills Fest 2026](https://aka.ms/AgentsLeague/AISF)** — a conversational **Financial Coach Agent** built on **Microsoft Foundry Agent Service** and grounded with **Foundry IQ**.
 
-insightfin helps users track expenses, set financial goals, and receive personalized insights to improve their financial health.
-
----
-
-## 📦 Monorepo Structure
-
-| Directory          | Description                                                                                 | Stack                                                |
-| ------------------ | ------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `core-api/`        | 🔧 Main REST API — manages users, transactions, categories, goals, budgets, and AI feedback | Java 21, Quarkus 3.17, PostgreSQL                    |
-| `frontend/web/`    | 💻 Web client (admin dashboard)                                                             | Angular 21, Tailwind CSS 4, RxJS, ApexCharts         |
-| `frontend/mobile/` | 📱 Mobile client — reserved for future development                                          | TBD                                                  |
-| `ai/`              | 🧠 AI reasoning service — financial feedback and insights                                   | Python, FastAPI, Azure OpenAI, aiokafka, APScheduler |
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/) & Docker Compose
-- [Node.js](https://nodejs.org/) 22+ and npm (for web frontend development)
-- [Make](https://www.gnu.org/software/make/) (optional, for convenience commands)
-- [kubectl](https://kubernetes.io/docs/tasks/tools/) (optional, for Kubernetes commands)
-
-### Quick Start
-
-```bash
-# Start all backend services (dev mode with hot reload)
-make up
-
-# Install and run the web frontend locally
-make frontend-install
-make frontend-run
-```
-
-### Available Commands
-
-| Command                 | Description                                               |
-| ----------------------- | --------------------------------------------------------- |
-| `make up`               | 🟢 Start all services (dev mode with hot reload)          |
-| `make down`             | 🔴 Stop all services                                      |
-| `make up-db`            | 🗄️ Start only PostgreSQL                                  |
-| `make up-api`           | 🔧 Start core-api + PostgreSQL                            |
-| `make up-ai`            | 🧠 Start ai + core-api + PostgreSQL                       |
-| `make build`            | 🏗️ Rebuild all Docker images                              |
-| `make logs`             | 📋 Show logs from all services                            |
-| `make frontend-install` | 📥 Install Angular frontend dependencies                  |
-| `make frontend-run`     | 💻 Run Angular frontend locally (`ng serve`)              |
-| `make frontend-build`   | 📦 Build Angular frontend for production                  |
-| `make test-api`         | 🧪 Run core-api tests (Maven)                             |
-| `make clean`            | 🧹 Stop services and remove volumes                       |
-| `make help`             | ❓ Show all available commands                            |
-| `make k8s-deploy-api`   | ☸️ Rebuild core-api image and redeploy to local cluster   |
-| `make k8s-deploy-ai`    | ☸️ Rebuild ai-service image and redeploy to local cluster |
-| `make k8s-status`       | ☸️ Show pod status in insightfin namespace                |
-| `make k8s-logs`         | ☸️ Stream logs from core-api pods                         |
-
-## 🔗 Service URLs
-
-| Service      | URL                                     |
-| ------------ | --------------------------------------- |
-| Core API     | `http://localhost:8080`                 |
-| Swagger UI   | `http://localhost:8080/swagger-ui.html` |
-| Web Frontend | `http://localhost:4200`                 |
-| AI Service   | `http://localhost:8081`                 |
-| PostgreSQL   | `localhost:5432`                        |
-
-## ☸️ Kubernetes (Local Cluster)
-
-The k8s manifests in `k8s/` describe the full production-like setup (core-api, ai-service, PostgreSQL, Kafka, Ingress). Use this to validate behaviour that Docker Compose dev mode cannot replicate: rolling deploys, health probes, HPA, and Ingress routing.
-
-**Prerequisites:** Docker Desktop with Kubernetes enabled (or kind/kubeadm).
-
-### First-time setup
-
-```bash
-# Apply all manifests once
-kubectl apply -f k8s/namespace.yaml
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/secrets.yaml
-kubectl apply -f k8s/postgres/
-kubectl apply -f k8s/kafka/
-kubectl apply -f k8s/core-api/
-kubectl apply -f k8s/ai-service/
-kubectl apply -f k8s/ingress.yaml
-```
-
-### Deploy workflow (after code changes)
-
-```bash
-# 1. Rebuild image and redeploy
-make k8s-deploy-api     # core-api
-make k8s-deploy-ai      # ai-service
-
-# 2. Watch pods come up
-make k8s-status
-
-# 3. Validate
-curl http://localhost/q/health/live   # → {"status":"UP"}
-curl -X POST http://localhost/api/auth/register ...
-```
-
-### Service URLs (via Ingress)
-
-| Path                              | Service                  |
-| --------------------------------- | ------------------------ |
-| `http://localhost/api/...`        | core-api REST endpoints  |
-| `http://localhost/q/health/live`  | core-api liveness probe  |
-| `http://localhost/q/health/ready` | core-api readiness probe |
+> 🎥 **Demo video:** _coming soon_
+> 🌐 **Live app:** [insightfin.app](https://insightfin.app) · **API:** [coreapi.insightfin.app/swagger-ui.html](https://coreapi.insightfin.app/swagger-ui.html)
+> 🧠 **Track:** Reasoning Agents (Microsoft Foundry) · **Required IQ layer:** Foundry IQ
 
 ---
 
-## 🏛️ Architecture
+## 🤖 The Financial Coach Agent
+
+Most finance apps show you charts. The Coach reasons over your **real** data and answers like an advisor would — calling tools, citing sources, and holding a multi-turn conversation.
+
+It answers five anchor questions, each requiring multi-step tool calling plus synthesis:
+
+| Question | What the agent does |
+| --- | --- |
+| "Why did my health score drop this month?" | Pulls the score for this month and last, diffs the breakdown, points at the dimension that fell |
+| "Can I spend R$ 800 more on leisure?" | Simulates the budget change, answers yes/no with the projected percentage |
+| "Which goal should I prioritize?" | Lists goals with progress and the monthly contribution each needs to hit its deadline |
+| "Where can I cut to save R$ 500?" | Surfaces over-limit categories and where the slack is |
+| "How am I doing vs last month?" | Computes per-category deltas between the two months |
+
+**Key properties:**
+
+- **Real data, never hallucinated numbers.** Every figure comes from a tool call against the user's live financial data; the prompt forbids rounding or paraphrasing tool output.
+- **Grounded answers with citations.** Conceptual questions ("what is the 50/30/20 rule?") are answered from a curated financial-education corpus retrieved via **Foundry IQ**, with inline `[n]` source markers.
+- **Multi-turn.** Follow-ups like "and how do I fix it?" keep context across the conversation.
+- **Multi-conversation.** A ChatGPT-style sidebar of past conversations, persisted across devices.
+- **Proactive.** The dashboard detects a blown budget or a low score and offers a one-click "Ask the Coach" prompt that deep-links into a fresh conversation.
+
+The agent lives in `ai/app/coach_agent/`. It is a **new layer** on top of the existing batch-feedback pipeline (`ai/app/agent/`), which keeps running untouched.
+
+## 🧠 Microsoft Foundry integration
+
+The submission uses two layers of Microsoft Foundry:
+
+| Layer | Role in InsightFin |
+| --- | --- |
+| **Foundry Agent Service** | Hosts the agent (gpt-4.1-mini, region `eastus2`). Owns the reasoning loop, tool-call orchestration, and conversation threads. |
+| **Foundry IQ** (`file_search`) | Grounds answers in a financial-education corpus (50/30/20 rule, emergency funds, SMART goals, cutting expenses, savings rate). Returns cited, retrieved passages so advice is sourced rather than invented. |
+
+**Seven tools** wrap the platform's existing read endpoints — the agent never invents data, and `user_id` is bound to the agent session, never exposed as a tool argument (so a prompt-injected message can't read another user's data):
+
+`get_health_score` · `get_transactions` · `get_budget_status` · `get_goals` · `compare_months` · `project_goal_completion` · `simulate_budget_change`
+
+## 🏗️ Architecture
+
+The agent is reached through the existing platform, so it inherits its auth and data:
+
+```
+Angular /coach page
+  │  POST /api/coach/chat   (Bearer JWT)
+  ▼
+Quarkus core-api            ── validates JWT, resolves the user, proxies SSE
+  │  POST /coach/chat/stream (internal)
+  ▼
+FastAPI AI service          ── FoundryCoachAgent, tool dispatch, SSE
+  │
+  ├─► Microsoft Foundry Agent Service   (reasoning + tool calls)
+  ├─► Foundry IQ / file_search          (grounding + citations)
+  └─► core-api /internal/* endpoints    (the user's real financial data)
+```
+
+- Responses **stream** end to end via Server-Sent Events (token-by-token, tool-call progress, citations).
+- The AI service is **never public** — only the Quarkus core-api (which holds the JWT trust boundary) talks to it.
+- Conversation **metadata** lives in the platform DB (`coach_threads`); the **messages** live in Foundry threads — so no chat content is duplicated into our database.
+
+> 📐 Detailed architecture diagram: _coming soon_
 
 The `core-api` follows **Hexagonal Architecture (Ports & Adapters)**:
 
@@ -124,95 +80,84 @@ The `core-api` follows **Hexagonal Architecture (Ports & Adapters)**:
 Request → Adapter (in/web) → UseCase (application) → Domain → Port (out) → Adapter (out/persistence) → Database
 ```
 
-- **Domain layer** — Pure business logic, no framework dependencies
-- **Application layer** — Use cases and ports (input/output contracts)
-- **Adapter layer** — Web controllers, DTOs, JPA entities, persistence mappers
-- **Config layer** — Framework configuration, security, beans
+## 📦 Monorepo structure
 
-## 📊 Database Entities
+| Directory | Description | Stack |
+| --- | --- | --- |
+| `core-api/` | Main REST API + Coach SSE proxy — users, transactions, categories, goals, budgets, AI feedback, coach threads | Java 21, Quarkus 3.17, PostgreSQL |
+| `ai/` | AI service — batch feedback orchestrator **and** the Foundry Coach Agent | Python 3.12, FastAPI, Azure AI Foundry, azure-ai-projects |
+| `frontend/web/` | Web client + the `/coach` chat experience | Angular 21, Tailwind CSS 4, RxJS, ApexCharts |
+| `frontend/mobile/` | Reserved for future development | TBD |
+| `k8s/` | Kubernetes manifests for a production-like local cluster | — |
 
+## 🛠️ Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| Coach Agent | Microsoft Foundry Agent Service + Foundry IQ, `azure-ai-projects` 1.0 (gpt-4.1-mini), SSE streaming |
+| Backend | Java 21, Quarkus 3.17, Hibernate ORM + Panache, Quarkus REST, JWT (JJWT) |
+| Web | Angular 21, Tailwind CSS 4, RxJS, ApexCharts, Playwright (e2e) |
+| AI service | Python 3.12, FastAPI, aiohttp, aiokafka, APScheduler, structlog, Prometheus |
+| Database | PostgreSQL 16, Flyway migrations |
+| Auth | Email/password + Google Sign-In, refresh-token rotation, rate limiting, account lockout |
+| Observability | Sentry (frontend + both backends), PostHog product analytics, Prometheus metrics |
+| Infra / CI | Docker Compose, Azure Container Apps, Azure Static Web Apps, GitHub Actions (per-service path filters) |
+
+## 🚀 Getting started
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) & Docker Compose
+- [Node.js](https://nodejs.org/) 22+ and npm (web frontend)
+- Python 3.12 (AI service, to run the Coach Agent locally)
+- An Azure AI Foundry project with a `gpt-4.1-mini` deployment (for the Coach Agent)
+
+### Run the platform
+
+```bash
+make up                 # core-api + PostgreSQL + Kafka (+ ai) via Docker Compose
+make frontend-install
+make frontend-run       # Angular at http://localhost:4200
 ```
-User ──┬── Transaction ── Category
-       ├── Goal ── GoalContribution
-       ├── Budget ── Category
-       ├── AiFeedback
-       ├── RefreshToken
-       └── PasswordResetToken
+
+### Run the Coach Agent locally
+
+The agent authenticates to Foundry with `DefaultAzureCredential`, so the AI service runs on the host (where `az login` credentials live), not in the container.
+
+```bash
+cd ai
+python -m venv .venv && . .venv/Scripts/activate   # Windows; use bin/activate on *nix
+python -m pip install -r requirements.txt
+az login                                            # Foundry auth
+
+cp .env.example .env                                # fill AZURE_FOUNDRY_PROJECT_ENDPOINT + model
+python -m scripts.setup_foundry_iq                  # ingest the corpus → paste the vector store id into .env
+python -m scripts.seed_demo_data                    # optional: a demo user with 3 months of data
+python main.py                                      # AI service at http://localhost:8081
 ```
 
-## 🛠️ Tech Stack
+## 🔗 Service URLs (local)
 
-| Layer           | Technology                                                                                |
-| --------------- | ----------------------------------------------------------------------------------------- |
-| Backend         | Java 21, Quarkus 3.17, Hibernate ORM with Panache, RESTEasy Reactive, JWT (JJWT)          |
-| Web Frontend    | Angular 21, Tailwind CSS 4, RxJS, ApexCharts, Playwright (e2e)                            |
-| Mobile Frontend | Reserved for future development                                                           |
-| AI              | Python 3.12, FastAPI 0.115, Azure AI Foundry (GPT-4.1 mini), aiokafka, APScheduler, Prometheus |
-| Email           | Azure Communication Services (password reset)                                             |
-| Database        | PostgreSQL 16, Flyway migrations                                                          |
-| Build           | Maven (core-api), npm / Angular CLI (frontend)                                            |
-| Infra           | Docker, Docker Compose, Azure Container Apps                                              |
-| CI/CD           | GitHub Actions (per-service workflows with path filters)                                  |
-| Docs            | Swagger / OpenAPI 3                                                                       |
+| Service | URL |
+| --- | --- |
+| Web frontend | `http://localhost:4200` |
+| Core API | `http://localhost:8080` |
+| Swagger UI | `http://localhost:8080/swagger-ui.html` |
+| AI service | `http://localhost:8081` |
+| PostgreSQL | `localhost:5432` |
 
 ## 🧪 Testing
 
-### core-api
+- **core-api:** ~198 unit + integration tests (JUnit 5 + Mockito + REST-Assured + H2). Run with `make test-api` or `./mvnw test`.
+- **AI service:** pytest suite for the batch orchestrator (`cd ai && pytest`).
+- **Frontend:** `npm run build` in CI; Playwright e2e specs under `frontend/web/tests-e2e/`.
 
-The `core-api` has a suite of unit and integration tests covering business logic and HTTP contracts.
+CI runs one GitHub Actions workflow per service, scoped by path filter — PRs run the `test` job; pushes to `main` also `deploy`.
 
-**Unit tests (54)** — pure JUnit 5 + Mockito + AssertJ, no database, no Kafka, no Quarkus context:
+## 📝 A note on the name
 
-| Class                       | Tests | Coverage                                                                      |
-| --------------------------- | ----- | ----------------------------------------------------------------------------- |
-| `UserServiceTest`           | 8     | register, authenticate, refresh, logout, change password, update, delete      |
-| `TransactionServiceTest`    | 8     | create, list, update, delete — ownership checks + event publishing            |
-| `BudgetServiceTest`         | 8     | create, list, status (% calculation + division-by-zero guard), update, delete |
-| `GoalServiceTest`           | 8     | create, contribute (target completion + event), update, delete                |
-| `CategoryServiceTest`       | 6     | CRUD + ownership checks                                                       |
-| `PasswordResetServiceTest`  | 6     | request reset (silent no-op for unknown email), invalid/expired/used tokens   |
-| `AiFeedbackServiceTest`     | 5     | create, list, mark as read, type filtering                                    |
-| `DashboardServiceTest`      | 4     | empty month, totals calculation, recent-5 limit, completed goals excluded     |
-| `CoreApiApplicationTests`   | 1     | Application context smoke test                                                |
-
-**Integration tests (28)** — `@QuarkusTest` + REST-Assured + H2 in-memory database:
-
-| Class                     | Tests | Coverage                                                    |
-| ------------------------- | ----- | ----------------------------------------------------------- |
-| `AuthControllerIT`        | 11    | register, login, refresh, logout — happy path + 400/401/409 |
-| `TransactionControllerIT` | 9     | CRUD + 401 without token + cross-tenant 404                 |
-| `CategoryControllerIT`    | 8     | CRUD + 401 without token + cross-tenant 404                 |
-
-### CI (GitHub Actions)
-
-One workflow per service, each scoped by path filter. PRs run only the `test` job; pushes to `main` also run `deploy`.
-
-| Workflow                          | Trigger path        | Stages                                                                 |
-| --------------------------------- | ------------------- | ---------------------------------------------------------------------- |
-| `.github/workflows/core-api.yml`  | `core-api/**`       | `test` (Maven, 82 tests) → `deploy` (ACR build + Container App update) |
-| `.github/workflows/ai-service.yml` | `ai/**`            | `test` (pytest) → `deploy` (ACR build + Container App update)          |
-| `.github/workflows/frontend.yml`  | `frontend/web/**`   | `test` (`npm run build`) → `deploy` (Azure Static Web Apps)            |
-
-**Run via Make (from monorepo root):**
-
-```bash
-make test-api
-```
-
-**Run directly (from `core-api/`):**
-
-```bash
-# Windows
-mvnw.cmd test
-mvnw.cmd test -Dtest=TransactionServiceTest
-
-# Linux / macOS
-./mvnw test
-./mvnw test -Dtest=TransactionServiceTest
-```
-
----
+The codebase namespace was originally **Orizon**; the product was renamed to **InsightFin** when the domain became available, and the Java package was migrated to `com.insightfin.coreapi`. Any lingering "Orizon" reference is historical.
 
 ## 📄 License
 
-This project is private and not licensed for public use.
+[MIT](LICENSE) © 2026 Thiago Dias
