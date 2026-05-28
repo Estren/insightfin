@@ -34,6 +34,7 @@
     "categories": "Categories",
     "budgets": "Budgets",
     "goals": "Goals",
+    "coach": "Coach",
     "feedbacks": "Insights",
     "recurring": "Recurring",
     "reports": "Reports",
@@ -492,6 +493,40 @@
     },
     "generic": {
       "error": "An unexpected error occurred."
+    }
+  },
+  "coach": {
+    "title": "Financial coach",
+    "subtitle": "Chat with an agent that reads your data and cites its sources.",
+    "empty": {
+      "title": "Where to start?",
+      "description": "I can see your transactions, budgets and goals. Try a question below or write your own."
+    },
+    "suggestions": {
+      "healthScore": {
+        "label": "Why did my score drop?",
+        "question": "Why did my health score drop this month?"
+      },
+      "compareMonths": {
+        "label": "This month vs last",
+        "question": "How am I doing this month compared to last month?"
+      },
+      "canSpend": {
+        "label": "Can I spend more on leisure?",
+        "question": "Can I spend an extra R$ 200 on leisure this month?"
+      },
+      "goalPriority": {
+        "label": "Which goal first?",
+        "question": "Which goal should I prioritize right now?"
+      }
+    },
+    "inputPlaceholder": "Ask about your finances...",
+    "send": "Send",
+    "stop": "Stop",
+    "thinking": "Consulting {{tool}}...",
+    "sources": "Sources",
+    "errors": {
+      "network": "Connection failed. Check your network and try again."
     }
   }
 }

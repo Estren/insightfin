@@ -34,6 +34,7 @@
     "categories": "Categorias",
     "budgets": "Orçamentos",
     "goals": "Metas",
+    "coach": "Coach",
     "feedbacks": "Insights",
     "recurring": "Recorrentes",
     "reports": "Relatórios",
@@ -492,6 +493,40 @@
     },
     "generic": {
       "error": "Ocorreu um erro inesperado."
+    }
+  },
+  "coach": {
+    "title": "Coach financeiro",
+    "subtitle": "Converse com um agente que entende seus dados e responde com referências.",
+    "empty": {
+      "title": "Por onde começar?",
+      "description": "Eu enxergo suas transações, orçamentos e metas. Pergunte algo abaixo ou escreva sua própria pergunta."
+    },
+    "suggestions": {
+      "healthScore": {
+        "label": "Por que meu score caiu?",
+        "question": "Por que meu health score caiu esse mês?"
+      },
+      "compareMonths": {
+        "label": "Como estou vs mês passado",
+        "question": "Como estou esse mês comparado ao mês passado?"
+      },
+      "canSpend": {
+        "label": "Posso gastar mais em lazer?",
+        "question": "Posso gastar mais R$ 200 em lazer esse mês?"
+      },
+      "goalPriority": {
+        "label": "Qual meta priorizar?",
+        "question": "Qual meta devo priorizar agora?"
+      }
+    },
+    "inputPlaceholder": "Pergunte sobre suas finanças...",
+    "send": "Enviar",
+    "stop": "Parar",
+    "thinking": "Consultando {{tool}}...",
+    "sources": "Fontes",
+    "errors": {
+      "network": "Falha de conexão. Verifique sua internet e tente novamente."
     }
   }
 }
