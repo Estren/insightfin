@@ -35,3 +35,11 @@ export interface CoachSuggestion {
   labelKey: string;
   questionKey: string;
 }
+
+/** A persisted conversation shown in the sidebar. */
+export interface CoachThread {
+  id: string;
+  title: string;
+  createdAt: string;
+  lastMessageAt: string;
+}

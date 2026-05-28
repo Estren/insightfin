@@ -524,8 +524,18 @@
     "send": "Send",
     "stop": "Stop",
     "newConversation": "New conversation",
+    "conversations": "Conversations",
+    "noConversations": "No conversations yet",
+    "loading": "Loading...",
+    "rename": "Rename",
     "thinking": "Consulting {{tool}}...",
     "sources": "Sources",
+    "delete": {
+      "action": "Delete",
+      "title": "Delete conversation",
+      "message": "Are you sure you want to delete \"{{title}}\"? This cannot be undone.",
+      "confirm": "Delete"
+    },
     "errors": {
       "network": "Connection failed. Check your network and try again."
     }
