@@ -2,7 +2,7 @@
   <button
     type="button"
     (click)="newConversation()"
-    class="m-3 inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:border-primary hover:bg-primary/10 hover:text-primary">
+    class="m-3 inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm font-medium text-foreground transition hover:border-primary hover:bg-primary/10 hover:text-primary">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
@@ -45,7 +45,7 @@
           <button
             type="button"
             (click)="toggleMenu($event, thread.id)"
-            class="opacity-0 transition group-hover:opacity-100"
+            class="cursor-pointer opacity-0 transition group-hover:opacity-100"
             [class.opacity-100]="menuOpenId() === thread.id">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -63,13 +63,13 @@
               <button
                 type="button"
                 (click)="startRename($event, thread)"
-                class="block w-full px-3 py-2 text-left text-xs text-foreground hover:bg-muted">
+                class="block w-full cursor-pointer px-3 py-2 text-left text-xs text-foreground hover:bg-muted">
                 {{ 'coach.rename' | translate }}
               </button>
               <button
                 type="button"
                 (click)="remove($event, thread)"
-                class="block w-full px-3 py-2 text-left text-xs text-destructive hover:bg-destructive/10">
+                class="block w-full cursor-pointer px-3 py-2 text-left text-xs text-destructive hover:bg-destructive/10">
                 {{ 'coach.delete.action' | translate }}
               </button>
             </div>
