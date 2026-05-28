@@ -38,6 +38,7 @@ SSE_HEADERS = {
 class CoachChatRequest(BaseModel):
     userId: UUID
     question: str = Field(min_length=1, max_length=1000)
+    threadId: str | None = None
 
 
 class CoachChatResponse(BaseModel):
@@ -92,7 +93,9 @@ async def chat_stream(body: CoachChatRequest, request: Request) -> StreamingResp
 
     async def event_generator():
         try:
-            async for event in coach_agent.ask_stream(body.userId, body.question):
+            async for event in coach_agent.ask_stream(
+                body.userId, body.question, thread_id=body.threadId
+            ):
                 payload = {k: v for k, v in event.items() if k != "type"}
                 yield (
                     f"event: {event['type']}\n"

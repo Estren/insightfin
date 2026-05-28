@@ -2,6 +2,26 @@
   <app-page-header [title]="'coach.title' | translate" [subtitle]="'coach.subtitle' | translate"></app-page-header>
 
   <div class="flex flex-1 flex-col rounded-2xl border border-border bg-card shadow-sm">
+    @if (messages().length > 0) {
+      <div class="flex items-center justify-end border-b border-border px-4 py-2 sm:px-8">
+        <button
+          type="button"
+          (click)="newConversation()"
+          class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium text-muted-foreground transition hover:bg-primary/10 hover:text-primary">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.8"
+            stroke="currentColor"
+            class="h-3.5 w-3.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          {{ 'coach.newConversation' | translate }}
+        </button>
+      </div>
+    }
+
     <div #scrollContainer class="flex-1 space-y-4 overflow-y-auto px-4 py-6 sm:px-8" [class.min-h-0]="true">
       @if (messages().length === 0) {
         <div class="flex flex-col items-center justify-center py-10 text-center">

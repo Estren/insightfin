@@ -4,5 +4,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record CoachChatRequest(
-        @NotBlank @Size(min = 1, max = 1000) String question
+        @NotBlank @Size(min = 1, max = 1000) String question,
+        String threadId
 ) {}

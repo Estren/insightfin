@@ -523,6 +523,7 @@
     "inputPlaceholder": "Pergunte sobre suas finanças...",
     "send": "Enviar",
     "stop": "Parar",
+    "newConversation": "Nova conversa",
     "thinking": "Consultando {{tool}}...",
     "sources": "Fontes",
     "errors": {

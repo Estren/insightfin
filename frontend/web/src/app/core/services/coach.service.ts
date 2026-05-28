@@ -18,12 +18,15 @@ export class CoachService {
 
   constructor(private readonly auth: AuthStore) {}
 
-  async *streamChat(question: string, signal?: AbortSignal): AsyncGenerator<CoachEvent> {
+  async *streamChat(question: string, threadId: string | null, signal?: AbortSignal): AsyncGenerator<CoachEvent> {
     const token = this.auth.getAccessToken();
     if (!token) {
       yield { type: 'error', data: 'Sessão expirada. Faça login novamente.' };
       return;
     }
+
+    const body: { question: string; threadId?: string } = { question };
+    if (threadId) body.threadId = threadId;
 
     const response = await fetch(this.url, {
       method: 'POST',
@@ -33,7 +36,7 @@ export class CoachService {
         'Content-Type': 'application/json',
         Accept: 'text/event-stream',
       },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -99,6 +102,8 @@ export class CoachService {
     }
 
     switch (eventName) {
+      case 'thread':
+        return { type: 'thread', id: String(payload['id'] ?? '') };
       case 'token':
         return { type: 'token', data: String(payload['data'] ?? '') };
       case 'tool_call':

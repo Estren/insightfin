@@ -34,6 +34,7 @@ export class CoachChatComponent implements AfterViewChecked, OnDestroy {
   readonly streaming = signal(false);
   readonly draft = signal('');
   readonly currentToolCall = signal<string | null>(null);
+  readonly threadId = signal<string | null>(null);
 
   private abortController: AbortController | null = null;
   private shouldScroll = false;
@@ -89,6 +90,14 @@ export class CoachChatComponent implements AfterViewChecked, OnDestroy {
     this.abortController?.abort();
   }
 
+  newConversation(): void {
+    if (this.streaming()) this.abortController?.abort();
+    this.messages.set([]);
+    this.threadId.set(null);
+    this.draft.set('');
+    this.currentToolCall.set(null);
+  }
+
   private async ask(question: string): Promise<void> {
     const userMsg: CoachMessage = {
       id: this.makeId(),
@@ -113,8 +122,11 @@ export class CoachChatComponent implements AfterViewChecked, OnDestroy {
     this.abortController = new AbortController();
 
     try {
-      for await (const event of this.coach.streamChat(question, this.abortController.signal)) {
+      for await (const event of this.coach.streamChat(question, this.threadId(), this.abortController.signal)) {
         switch (event.type) {
+          case 'thread':
+            if (event.id) this.threadId.set(event.id);
+            break;
           case 'token':
             this.appendToken(assistantMsg.id, event.data);
             break;

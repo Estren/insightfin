@@ -239,25 +239,37 @@ class FoundryCoachAgent:
         return ""
 
     async def ask_stream(
-        self, user_id: UUID, question: str
+        self, user_id: UUID, question: str, thread_id: str | None = None
     ):
         """Stream the agent's reasoning as a sequence of structured events.
 
         Yields dicts with a ``type`` field — the FastAPI route maps these to
         SSE event names. Event types:
 
+        - ``thread`` → ``{"id": "thread_..."}``: emitted once per stream so the
+          client can keep the same thread across follow-up requests (multi-turn).
         - ``token``   → ``{"data": "<text chunk>"}``: append to assistant bubble.
         - ``tool_call`` → ``{"name": "get_health_score"}``: show "thinking" tag.
         - ``citation`` → ``{"marker": 1, "filename": "regra-50-30-20.md"}``.
         - ``error``   → ``{"data": "<message>"}``: render and stop.
         - ``done``    → end of stream.
 
+        When ``thread_id`` is provided the existing Foundry thread is reused —
+        previous user/assistant turns stay in context, so follow-up questions
+        like "e por quê?" work. When omitted, a brand new thread is created
+        and its id is sent in the very first event for the client to capture.
+
         Tool dispatch is done in this method so ``user_id`` stays bound via
         closure and never enters the LLM-visible tool schema.
         """
         agents = self._async_project_client.agents
 
-        thread = await agents.threads.create()
+        if thread_id:
+            thread = await agents.threads.get(thread_id)
+        else:
+            thread = await agents.threads.create()
+        yield {"type": "thread", "id": thread.id}
+
         await agents.messages.create(
             thread_id=thread.id, role="user", content=question
         )
