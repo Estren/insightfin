@@ -35,6 +35,11 @@ const routes: Routes = [
       import('../recurring-transactions/recurring-transactions.module').then((m) => m.RecurringTransactionsModule),
   },
   {
+    path: 'coach',
+    component: LayoutComponent,
+    loadChildren: () => import('../coach/coach.module').then((m) => m.CoachModule),
+  },
+  {
     path: 'feedbacks',
     component: LayoutComponent,
     loadChildren: () => import('../feedbacks/feedbacks.module').then((m) => m.FeedbacksModule),
