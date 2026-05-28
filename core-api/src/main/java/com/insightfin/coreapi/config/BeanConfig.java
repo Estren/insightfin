@@ -133,6 +133,13 @@ public class BeanConfig {
 
     @Produces
     @ApplicationScoped
+    public CoachThreadService coachThreadService(CoachThreadRepository coachThreadRepository,
+                                                 CoachAgentGateway coachAgentGateway) {
+        return new CoachThreadService(coachThreadRepository, coachAgentGateway);
+    }
+
+    @Produces
+    @ApplicationScoped
     public PasswordResetService passwordResetService(UserRepository userRepository,
                                                      PasswordResetTokenRepository tokenRepository,
                                                      PasswordEncoder passwordEncoder,

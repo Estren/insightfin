@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 from uuid import UUID
 
@@ -237,6 +237,83 @@ class FoundryCoachAgent:
                     return self._format_with_citations(first.text)
                 return str(first)
         return ""
+
+    async def create_thread(self) -> str:
+        """Create an empty Foundry thread and return its id.
+
+        Used by the sidebar's lazy thread creation: core-api calls this when
+        the user starts a new conversation, persists the returned id, and only
+        then streams the first message into it.
+        """
+        thread = await self._async_project_client.agents.threads.create()
+        log.info("coach_thread_created", thread_id=thread.id)
+        return thread.id
+
+    async def list_messages(self, thread_id: str) -> list[dict]:
+        """Return a thread's full history in chronological order for hydration.
+
+        Foundry returns messages newest-first; we sort ascending by created_at
+        so the UI renders top-to-bottom like a normal transcript. Citation
+        placeholders are rewritten to [n] markers the same way the live stream
+        does, with a per-message source list.
+        """
+        agents = self._async_project_client.agents
+        collected = []
+        async for msg in agents.messages.list(thread_id=thread_id):
+            collected.append(msg)
+        collected.sort(key=lambda m: getattr(m, "created_at", 0) or 0)
+
+        history: list[dict] = []
+        for msg in collected:
+            if not msg.content:
+                continue
+            first = msg.content[0]
+            text_obj = getattr(first, "text", None)
+            if text_obj is None:
+                continue
+
+            text = text_obj.value
+            citations: list[dict] = []
+            marker_map: dict[str, int] = {}
+            for ann in getattr(text_obj, "annotations", None) or []:
+                file_citation = getattr(ann, "file_citation", None)
+                if file_citation is None:
+                    continue
+                file_id = getattr(file_citation, "file_id", None)
+                placeholder = getattr(ann, "text", None)
+                if not file_id:
+                    continue
+                if file_id not in marker_map:
+                    marker_map[file_id] = len(marker_map) + 1
+                    filename = await self._lookup_filename(file_id)
+                    citations.append({"marker": marker_map[file_id], "filename": filename})
+                if placeholder:
+                    text = text.replace(placeholder, f" [{marker_map[file_id]}]")
+
+            history.append(
+                {
+                    "role": msg.role,
+                    "text": text,
+                    "citations": citations,
+                    "createdAt": self._iso_local(getattr(msg, "created_at", None)),
+                }
+            )
+        return history
+
+    @staticmethod
+    def _iso_local(created) -> str | None:
+        """Normalize Foundry's created_at (epoch int or datetime) to naive ISO.
+
+        Core-api parses this with LocalDateTime.parse, which rejects timezone
+        offsets — so we emit a naive local-time ISO string (or None).
+        """
+        if created is None:
+            return None
+        if isinstance(created, (int, float)):
+            return datetime.fromtimestamp(created).isoformat()
+        if hasattr(created, "isoformat"):
+            return created.replace(tzinfo=None).isoformat() if getattr(created, "tzinfo", None) else created.isoformat()
+        return None
 
     async def ask_stream(
         self, user_id: UUID, question: str, thread_id: str | None = None
