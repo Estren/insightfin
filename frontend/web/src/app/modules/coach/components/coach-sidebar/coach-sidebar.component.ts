@@ -11,6 +11,7 @@ import { CoachStore } from '../../../../core/stores/coach.store';
   selector: 'app-coach-sidebar',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './coach-sidebar.component.html',
+  host: { class: 'block h-full min-h-0' },
   imports: [NgClass, FormsModule, TranslateModule],
 })
 export class CoachSidebarComponent {
