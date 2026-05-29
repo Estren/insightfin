@@ -115,6 +115,10 @@
     "enUS": "English"
   },
   "auth": {
+    "hero": {
+      "title": "Suas finanças, sob controle.",
+      "description": "O InsightFin reúne receitas, despesas, metas e orçamentos em um só lugar — para que você tome decisões com clareza e construa o futuro financeiro que deseja."
+    },
     "helloAgain": "Olá Novamente",
     "enterCredentials": "Insira suas credenciais para acessar sua conta.",
     "loginWithGoogle": "Entrar com Google",

@@ -1,5 +1,6 @@
-import { AfterViewInit, Component, ElementRef, NgZone, ViewChild, output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, ViewChild, effect, output } from '@angular/core';
 import { environment } from '../../../../environments/environment';
+import { ThemeService } from '../../../core/services/theme.service';
 
 declare const google: {
   accounts: {
@@ -29,8 +30,20 @@ export class GoogleSignInButtonComponent implements AfterViewInit {
   readonly credential = output<GoogleCredentialEvent>();
 
   private nonce = '';
+  private ready = false;
 
-  constructor(private readonly zone: NgZone) {}
+  constructor(
+    private readonly zone: NgZone,
+    private readonly theme: ThemeService,
+  ) {
+    // Google's GIS button has no live theme support, so re-render it whenever
+    // the app theme flips — otherwise the light "outline" button stays bright
+    // on a dark background.
+    effect(() => {
+      this.theme.theme();
+      if (this.ready) this.renderButton();
+    });
+  }
 
   ngAfterViewInit(): void {
     this.initialize(0);
@@ -51,8 +64,16 @@ export class GoogleSignInButtonComponent implements AfterViewInit {
       callback: (response) =>
         this.zone.run(() => this.credential.emit({ credential: response.credential, nonce: this.nonce })),
     });
+    this.ready = true;
+    this.renderButton();
+  }
+
+  private renderButton(): void {
+    if (!this.ready) return;
+    // Clear first so a theme toggle re-renders instead of stacking buttons.
+    this.target.nativeElement.innerHTML = '';
     google.accounts.id.renderButton(this.target.nativeElement, {
-      theme: 'outline',
+      theme: this.theme.isDark ? 'filled_black' : 'outline',
       size: 'large',
       text: 'continue_with',
       width: 320,
