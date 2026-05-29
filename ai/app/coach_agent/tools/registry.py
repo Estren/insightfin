@@ -196,4 +196,158 @@ TOOL_DEFINITIONS: list[dict] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "propose_create_budget",
+            "description": (
+                "PROPOSE creating a monthly budget for a category. This does NOT "
+                "create anything — it surfaces a confirmation card the user must "
+                "approve before it takes effect. Use it when the user asks you to "
+                "set/create a budget, or clearly agrees to a budget you suggested "
+                "(e.g. 'pode criar', 'sim, defina R$500'). The budget applies to "
+                "the current month. After calling it, ask the user to confirm in "
+                "ONE short sentence; NEVER say the budget was created."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "type": "string",
+                        "description": "Name of an existing category to budget (e.g. 'Alimentação').",
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Monthly budget limit in BRL. Must be positive.",
+                    },
+                },
+                "required": ["category", "amount"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "propose_contribute_goal",
+            "description": (
+                "PROPOSE contributing an amount to one of the user's savings "
+                "goals. This does NOT move any money — it surfaces a confirmation "
+                "card the user must approve. Use it when the user asks to "
+                "add/contribute to a goal, or clearly agrees to a contribution "
+                "you suggested. After calling it, ask the user to confirm in ONE "
+                "short sentence; NEVER say the contribution was made."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "goal_title": {
+                        "type": "string",
+                        "description": "Full or partial title of an existing goal (matched case-insensitively).",
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Amount in BRL to contribute. Must be positive.",
+                    },
+                },
+                "required": ["goal_title", "amount"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "propose_create_goal",
+            "description": (
+                "PROPOSE creating a savings goal. This does NOT create anything — "
+                "it surfaces a confirmation card the user must approve. Use it "
+                "when the user asks to set/create a goal, or agrees to one you "
+                "suggested. After calling it, ask the user to confirm in ONE "
+                "short sentence; NEVER say the goal was created."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Goal title (e.g. 'Reserva de emergência').",
+                    },
+                    "target_amount": {
+                        "type": "number",
+                        "description": "Target amount in BRL. Must be positive.",
+                    },
+                    "deadline": {
+                        "type": "string",
+                        "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+                        "description": "Optional deadline as YYYY-MM-DD. Omit if the user gave none.",
+                    },
+                },
+                "required": ["title", "target_amount"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "propose_adjust_budget",
+            "description": (
+                "PROPOSE changing the monthly limit of an EXISTING budget for a "
+                "category (current month). Does NOT change anything — shows a "
+                "confirmation card. Use it when the user wants to raise/lower a "
+                "budget they already have (for a brand-new budget use "
+                "propose_create_budget). After calling it, ask the user to "
+                "confirm in ONE short sentence; NEVER say it was changed."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "type": "string",
+                        "description": "Name of the budgeted category to adjust (e.g. 'Alimentação').",
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "New monthly budget limit in BRL. Must be positive.",
+                    },
+                },
+                "required": ["category", "amount"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "propose_log_transaction",
+            "description": (
+                "PROPOSE logging an income or expense transaction for today. Does "
+                "NOT record anything — shows a confirmation card. Use it when the "
+                "user wants to register something they earned or spent (e.g. "
+                "'registra R$80 que gastei no mercado'). After calling it, ask "
+                "the user to confirm in ONE short sentence; NEVER say it was "
+                "recorded."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["INCOME", "EXPENSE"],
+                        "description": "Whether the money came in (INCOME) or went out (EXPENSE).",
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Name of an existing category of the matching type.",
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Amount in BRL. Must be positive.",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Optional short note (e.g. 'mercado').",
+                    },
+                },
+                "required": ["type", "category", "amount"],
+            },
+        },
+    },
 ]

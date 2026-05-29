@@ -546,6 +546,14 @@
     "rename": "Rename",
     "thinking": "Consulting {{tool}}...",
     "sources": "Sources",
+    "action": {
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "executing": "Running…",
+      "done": "Done",
+      "failed": "Couldn't complete",
+      "cancelled": "Cancelled"
+    },
     "delete": {
       "action": "Delete",
       "title": "Delete conversation",

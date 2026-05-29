@@ -126,6 +126,50 @@
                   </div>
                 </div>
               }
+
+              @if (message.proposal; as proposal) {
+                <div class="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                  <p class="text-sm text-foreground">{{ proposal.summary }}</p>
+                  @switch (proposal.status) {
+                    @case ('pending') {
+                      <div class="mt-2 flex gap-2">
+                        <button
+                          type="button"
+                          (click)="store.confirmAction(message.id)"
+                          class="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition hover:bg-primary/90">
+                          {{ 'coach.action.confirm' | translate }}
+                        </button>
+                        <button
+                          type="button"
+                          (click)="store.cancelAction(message.id)"
+                          class="cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground">
+                          {{ 'coach.action.cancel' | translate }}
+                        </button>
+                      </div>
+                    }
+                    @case ('executing') {
+                      <p class="mt-2 text-xs font-medium text-muted-foreground">
+                        {{ 'coach.action.executing' | translate }}
+                      </p>
+                    }
+                    @case ('done') {
+                      <p class="mt-2 text-xs font-medium text-primary">
+                        ✓ {{ proposal.resultMessage || ('coach.action.done' | translate) }}
+                      </p>
+                    }
+                    @case ('error') {
+                      <p class="mt-2 text-xs font-medium text-muted-foreground">
+                        ⚠️ {{ proposal.resultMessage || ('coach.action.failed' | translate) }}
+                      </p>
+                    }
+                    @case ('cancelled') {
+                      <p class="mt-2 text-xs font-medium text-muted-foreground">
+                        {{ 'coach.action.cancelled' | translate }}
+                      </p>
+                    }
+                  }
+                </div>
+              }
             </div>
           </div>
         }

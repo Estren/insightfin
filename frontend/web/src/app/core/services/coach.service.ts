@@ -26,6 +26,7 @@ interface ThreadMessageDto {
 export class CoachService {
   private readonly chatUrl = `${environment.apiUrl}/coach/chat`;
   private readonly threadsUrl = `${environment.apiUrl}/coach/threads`;
+  private readonly actionsUrl = `${environment.apiUrl}/coach/actions`;
 
   constructor(
     private readonly auth: AuthStore,
@@ -46,6 +47,11 @@ export class CoachService {
 
   deleteThread(id: string): Observable<void> {
     return this.http.delete<void>(`${this.threadsUrl}/${id}`);
+  }
+
+  /** Execute a Coach-proposed write action the user confirmed. Deterministic, server-side. */
+  executeAction(action: string, params: Record<string, unknown>): Observable<{ status: string; summary?: string }> {
+    return this.http.post<{ status: string; summary?: string }>(`${this.actionsUrl}/execute`, { action, params });
   }
 
   getThreadMessages(id: string): Observable<CoachMessage[]> {
@@ -161,6 +167,13 @@ export class CoachService {
         return { type: 'token', data: String(payload['data'] ?? '') };
       case 'tool_call':
         return { type: 'tool_call', name: String(payload['name'] ?? '') };
+      case 'action_proposal':
+        return {
+          type: 'action_proposal',
+          action: String(payload['action'] ?? ''),
+          params: (payload['params'] as Record<string, unknown>) ?? {},
+          summary: String(payload['summary'] ?? ''),
+        };
       case 'citation':
         return {
           type: 'citation',

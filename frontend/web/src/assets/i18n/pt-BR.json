@@ -546,6 +546,14 @@
     "rename": "Renomear",
     "thinking": "Consultando {{tool}}...",
     "sources": "Fontes",
+    "action": {
+      "confirm": "Confirmar",
+      "cancel": "Cancelar",
+      "executing": "Executando…",
+      "done": "Feito",
+      "failed": "Não foi possível concluir",
+      "cancelled": "Cancelado"
+    },
     "delete": {
       "action": "Excluir",
       "title": "Excluir conversa",
