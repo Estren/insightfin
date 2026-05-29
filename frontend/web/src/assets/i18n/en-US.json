@@ -115,6 +115,10 @@
     "enUS": "English"
   },
   "auth": {
+    "hero": {
+      "title": "Your finances, under control.",
+      "description": "InsightFin brings income, expenses, goals and budgets together in one place — so you can make decisions with clarity and build the financial future you want."
+    },
     "helloAgain": "Hello Again",
     "enterCredentials": "Enter your credentials to access your account.",
     "loginWithGoogle": "Log in with Google",
