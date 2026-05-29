@@ -4,13 +4,19 @@ export class Menu {
   public static pages: MenuItem[] = [
     {
       group: 'nav.overview',
-      separator: false,
+      separator: true,
       items: [
         {
-          icon: 'assets/icons/heroicons/outline/chart-pie.svg',
+          icon: 'assets/icons/heroicons/outline/home.svg',
           label: 'nav.dashboard',
           route: '/dashboard',
         },
+      ],
+    },
+    {
+      group: 'nav.assistant',
+      separator: true,
+      items: [
         {
           icon: 'assets/icons/heroicons/outline/chat-bubble.svg',
           label: 'nav.coach',
@@ -25,12 +31,22 @@ export class Menu {
     },
     {
       group: 'nav.finances',
-      separator: true,
+      separator: false,
       items: [
         {
           icon: 'assets/icons/heroicons/outline/view-grid.svg',
           label: 'nav.transactions',
-          route: '/transactions',
+          route: null,
+          children: [
+            {
+              label: 'nav.transactionsList',
+              route: '/transactions',
+            },
+            {
+              label: 'nav.recurring',
+              route: '/recurring',
+            },
+          ],
         },
         {
           icon: 'assets/icons/heroicons/outline/bookmark.svg',
@@ -43,14 +59,9 @@ export class Menu {
           route: '/budgets',
         },
         {
-          icon: 'assets/icons/heroicons/outline/arrow-sm-up.svg',
+          icon: 'assets/icons/heroicons/outline/flag.svg',
           label: 'nav.goals',
           route: '/goals',
-        },
-        {
-          icon: 'assets/icons/heroicons/outline/refresh.svg',
-          label: 'nav.recurring',
-          route: '/recurring',
         },
         {
           icon: 'assets/icons/heroicons/outline/chart-pie.svg',
