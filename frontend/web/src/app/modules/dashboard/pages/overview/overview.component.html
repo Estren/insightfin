@@ -1,5 +1,22 @@
 @if (dashboardStore.loading$ | async) {
-  <app-loading />
+  <div class="space-y-3">
+    <app-skeleton variant="text" class="h-8 w-48" />
+    <app-skeleton variant="text" class="h-4 w-72" />
+  </div>
+  <div class="mt-6 mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+    <app-skeleton class="h-24" />
+    <app-skeleton class="h-24" />
+    <app-skeleton class="h-24" />
+  </div>
+  <app-skeleton class="mb-6 h-64" />
+  <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <app-skeleton class="h-80" />
+    <app-skeleton class="h-80" />
+  </div>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <app-skeleton class="h-64" />
+    <app-skeleton class="h-64" />
+  </div>
 } @else if (dashboardStore.error$ | async; as error) {
   <app-card>
     <p class="text-center text-sm text-red-600 dark:text-red-400">{{ error }}</p>

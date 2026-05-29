@@ -1,5 +1,5 @@
-import { Component, effect, Inject, LOCALE_ID, OnInit, signal } from '@angular/core';
 import { AsyncPipe, CurrencyPipe, DatePipe, DOCUMENT, NgClass } from '@angular/common';
+import { Component, effect, Inject, LOCALE_ID, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AngularSvgIconModule } from 'angular-svg-icon';
@@ -15,15 +15,23 @@ import {
   ApexYAxis,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-import { DashboardStore } from '../../../../core/stores/dashboard.store';
-import { AiFeedbackStore } from '../../../../core/stores/ai-feedback.store';
 import { AiFeedbackResponse } from '../../../../core/models/ai-feedback.model';
 import { BudgetStatusResponse } from '../../../../core/models/budget.model';
 import { DashboardResponse } from '../../../../core/models/dashboard.model';
-import { TransactionResponse } from '../../../../core/models/transaction.model';
-import { TransactionService } from '../../../../core/services/transaction.service';
-import { ThemeService } from '../../../../core/services/theme.service';
 import { extractLatestHealthScore, HealthScoreMetadata } from '../../../../core/models/health-score.model';
+import { TransactionResponse } from '../../../../core/models/transaction.model';
+import { ThemeService } from '../../../../core/services/theme.service';
+import { TransactionService } from '../../../../core/services/transaction.service';
+import { AiFeedbackStore } from '../../../../core/stores/ai-feedback.store';
+import { DashboardStore } from '../../../../core/stores/dashboard.store';
+import { CardComponent } from '../../../../shared/components/card/card.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
+import { FeedbackCardComponent } from '../../../../shared/components/feedback-card/feedback-card.component';
+import { HealthScoreGaugeComponent } from '../../../../shared/components/health-score-gauge/health-score-gauge.component';
+import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
+import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
+import { StatCardComponent } from '../../../../shared/components/stat-card/stat-card.component';
 
 /** A proactive Coach suggestion shown on the dashboard. The `message*` keys
  *  render the card text (reactive to language); the `question*` keys are
@@ -35,13 +43,6 @@ interface CoachPrompt {
   questionKey: string;
   questionParams?: Record<string, string | number>;
 }
-import { CardComponent } from '../../../../shared/components/card/card.component';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
-import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { FeedbackCardComponent } from '../../../../shared/components/feedback-card/feedback-card.component';
-import { HealthScoreGaugeComponent } from '../../../../shared/components/health-score-gauge/health-score-gauge.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
-import { StatCardComponent } from '../../../../shared/components/stat-card/stat-card.component';
 
 @Component({
   selector: 'app-overview',
@@ -61,6 +62,7 @@ import { StatCardComponent } from '../../../../shared/components/stat-card/stat-
     FeedbackCardComponent,
     HealthScoreGaugeComponent,
     LoadingComponent,
+    SkeletonComponent,
     StatCardComponent,
   ],
 })
