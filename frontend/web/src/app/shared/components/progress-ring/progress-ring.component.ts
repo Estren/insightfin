@@ -18,16 +18,11 @@ export class ProgressRingComponent {
     return this.circumference() * (1 - clamped / 100);
   });
 
-  protected readonly strokeColor = computed((): string => {
-    const pct = this.percentage();
-    if (pct >= 90) return '#ef4444';
-    if (pct >= 70) return '#f59e0b';
-    return '#22c55e';
-  });
+  // Always the theme primary; as a CSS var it resolves live, so the ring
+  // tracks theme changes without any JS.
+  protected readonly strokeColor = 'var(--primary)';
 
-  protected readonly transform = computed(
-    () => `rotate(-90 ${this.center()} ${this.center()})`,
-  );
+  protected readonly transform = computed(() => `rotate(-90 ${this.center()} ${this.center()})`);
 
   protected readonly fontSize = computed((): string => {
     const s = this.size();

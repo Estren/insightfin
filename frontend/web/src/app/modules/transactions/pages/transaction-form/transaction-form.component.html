@@ -8,7 +8,7 @@
       class="flex-1 cursor-pointer rounded-md px-3 py-2 text-sm font-medium transition-colors"
       [ngClass]="
         form.controls['type'].value === 'EXPENSE'
-          ? 'bg-red-500 text-white'
+          ? 'bg-primary text-white'
           : 'bg-muted text-muted-foreground hover:bg-muted/80'
       ">
       {{ 'transactions.expense' | translate }}
@@ -19,7 +19,7 @@
       class="flex-1 cursor-pointer rounded-md px-3 py-2 text-sm font-medium transition-colors"
       [ngClass]="
         form.controls['type'].value === 'INCOME'
-          ? 'bg-green-500 text-white'
+          ? 'bg-primary text-white'
           : 'bg-muted text-muted-foreground hover:bg-muted/80'
       ">
       {{ 'transactions.income' | translate }}
@@ -55,7 +55,8 @@
 <!-- Description -->
 <div>
   <label class="text-foreground mb-1 block text-sm font-medium">
-    {{ 'transactions.description' | translate }} <span class="text-muted-foreground">{{ 'common.optional' | translate }}</span>
+    {{ 'transactions.description' | translate }}
+    <span class="text-muted-foreground">{{ 'common.optional' | translate }}</span>
   </label>
   <input
     formControlName="description"

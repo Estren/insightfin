@@ -14,17 +14,14 @@
       [attr.cy]="center()"
       [attr.r]="radius()"
       fill="none"
-      [attr.stroke]="strokeColor()"
+      [style.stroke]="strokeColor"
       [attr.stroke-width]="strokeWidth()"
       stroke-linecap="round"
       [attr.stroke-dasharray]="circumference()"
       [attr.stroke-dashoffset]="dashOffset()"
       [attr.transform]="transform()" />
   </svg>
-  <span
-    class="absolute font-bold leading-none"
-    [style.font-size]="fontSize()"
-    [style.color]="strokeColor()">
+  <span class="absolute font-bold leading-none" [style.font-size]="fontSize()" [style.color]="strokeColor">
     {{ label() }}
   </span>
 </div>

@@ -39,7 +39,7 @@
         @for (s of statuses; track s.budgetId) {
           <div
             class="bg-background flex flex-col gap-3 rounded-lg p-4 transition-colors sm:flex-row sm:items-center sm:gap-4"
-            [ngClass]="isCritical(s.percentageUsed) ? 'border-red-500/40 ring-1 ring-red-500/20' : 'border-border'">
+            [ngClass]="isCritical(s.percentageUsed) ? 'border-primary/40 ring-1 ring-primary/20' : 'border-border'">
             <!-- Ring + Info -->
             <div class="flex min-w-0 flex-1 items-center gap-4">
               <app-progress-ring [percentage]="s.percentageUsed" />
@@ -69,7 +69,7 @@
               </button>
               <button
                 (click)="onDelete(s)"
-                class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
+                class="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground">
                 {{ 'common.delete' | translate }}
               </button>
             </div>

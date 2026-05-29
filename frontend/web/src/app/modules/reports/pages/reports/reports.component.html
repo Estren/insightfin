@@ -38,7 +38,7 @@
           [stroke]="trendStroke"
           [dataLabels]="trendDataLabels"
           [tooltip]="trendTooltip"
-          [colors]="trendColors" />
+          [colors]="trendColors()" />
       </app-chart-card>
 
       <app-chart-card [title]="'reports.expensesByCategory' | translate">
@@ -48,7 +48,7 @@
             [chart]="donutChart"
             [labels]="categoryLabels"
             [legend]="donutLegend"
-            [colors]="donutColors"
+            [theme]="donutTheme()"
             [tooltip]="donutTooltip" />
         } @else {
           <p class="text-muted-foreground py-12 text-center text-sm">

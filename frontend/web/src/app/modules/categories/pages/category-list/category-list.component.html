@@ -40,7 +40,7 @@
                   <p class="text-foreground text-sm font-semibold">{{ cat.name }}</p>
                   <span
                     class="text-xs font-medium"
-                    [ngClass]="cat.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+                    [ngClass]="cat.type === 'INCOME' ? 'text-primary' : 'text-foreground'">
                     {{ cat.type === 'INCOME' ? ('categories.income' | translate) : ('categories.expense' | translate) }}
                   </span>
                 </div>
@@ -53,7 +53,7 @@
                 </button>
                 <button
                   (click)="onDelete(cat)"
-                  class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
+                  class="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground">
                   {{ 'common.delete' | translate }}
                 </button>
               </div>
@@ -106,6 +106,7 @@
                 <button
                   type="button"
                   (click)="selectColor(color)"
+                  [attr.aria-label]="color"
                   class="h-7 w-7 cursor-pointer rounded-full transition-transform"
                   [style.backgroundColor]="color"
                   [ngClass]="

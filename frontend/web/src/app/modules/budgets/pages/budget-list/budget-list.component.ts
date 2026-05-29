@@ -71,9 +71,9 @@ export class BudgetListComponent implements OnInit {
   }
 
   statusClass(pct: number): string {
-    if (pct >= 90) return 'bg-red-500/15 text-red-600 dark:text-red-400';
-    if (pct >= 70) return 'bg-amber-500/15 text-amber-600 dark:text-amber-400';
-    return 'bg-green-500/15 text-green-600 dark:text-green-400';
+    if (pct >= 90) return 'bg-primary/20 text-primary';
+    if (pct >= 70) return 'bg-primary/10 text-primary';
+    return 'bg-muted text-muted-foreground';
   }
 
   isCritical(pct: number): boolean {
