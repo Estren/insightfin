@@ -23,10 +23,12 @@ export class MenuService implements OnDestroy {
         this._pagesMenu().forEach((menu) => {
           let activeGroup = false;
           menu.items.forEach((subMenu) => {
-            const active = this.isActive(subMenu.route);
-            subMenu.expanded = active;
-            subMenu.active = active;
-            if (active) activeGroup = true;
+            const active = subMenu.route ? this.isActive(subMenu.route) : false;
+            // Keep a parent expanded/highlighted while any of its children is the active route.
+            const childActive = subMenu.children?.some((child) => !!child.route && this.isActive(child.route)) ?? false;
+            subMenu.expanded = active || childActive;
+            subMenu.active = active || childActive;
+            if (active || childActive) activeGroup = true;
             if (subMenu.children) {
               this.expand(subMenu.children);
             }
