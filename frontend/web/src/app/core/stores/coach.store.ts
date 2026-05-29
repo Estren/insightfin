@@ -1,7 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { CoachMessage, CoachThread } from '../models/coach.model';
+import { CoachActionStatus, CoachMessage, CoachThread } from '../models/coach.model';
 import { CoachService } from '../services/coach.service';
 
 /**
@@ -123,6 +123,9 @@ export class CoachStore {
             this.currentToolCall.set(event.name);
             this.recordToolCall(assistantId, event.name);
             break;
+          case 'action_proposal':
+            this.attachProposal(assistantId, event.action, event.params, event.summary);
+            break;
           case 'citation':
             this.recordCitation(assistantId, event.marker, event.filename);
             break;
@@ -150,6 +153,28 @@ export class CoachStore {
 
   cancel(): void {
     this.abortController?.abort();
+  }
+
+  /** User confirmed a proposed action: execute it deterministically via core-api. */
+  async confirmAction(messageId: string): Promise<void> {
+    const msg = this.messages().find((m) => m.id === messageId);
+    if (!msg?.proposal || msg.proposal.status !== 'pending') return;
+
+    const { action, params } = msg.proposal;
+    this.setProposalStatus(messageId, 'executing');
+    try {
+      const res = await firstValueFrom(this.coachService.executeAction(action, params));
+      this.setProposalStatus(messageId, 'done', res?.summary);
+    } catch (err: unknown) {
+      this.setProposalStatus(messageId, 'error', this.extractError(err));
+    }
+  }
+
+  /** User dismissed a proposed action — nothing was executed. */
+  cancelAction(messageId: string): void {
+    const msg = this.messages().find((m) => m.id === messageId);
+    if (!msg?.proposal || msg.proposal.status !== 'pending') return;
+    this.setProposalStatus(messageId, 'cancelled');
   }
 
   async deleteThread(id: string): Promise<void> {
@@ -207,6 +232,27 @@ export class CoachStore {
 
   private recordToolCall(id: string, name: string): void {
     this.messages.update((prev) => prev.map((m) => (m.id === id ? { ...m, toolCalls: [...m.toolCalls, name] } : m)));
+  }
+
+  private attachProposal(id: string, action: string, params: Record<string, unknown>, summary: string): void {
+    this.messages.update((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, proposal: { action, params, summary, status: 'pending' as const } } : m)),
+    );
+  }
+
+  private setProposalStatus(id: string, status: CoachActionStatus, resultMessage?: string): void {
+    this.messages.update((prev) =>
+      prev.map((m) =>
+        m.id === id && m.proposal
+          ? { ...m, proposal: { ...m.proposal, status, resultMessage: resultMessage ?? m.proposal.resultMessage } }
+          : m,
+      ),
+    );
+  }
+
+  private extractError(err: unknown): string {
+    const e = err as { error?: { message?: string } };
+    return e?.error?.message ?? this.translate.instant('coach.errors.network');
   }
 
   private recordCitation(id: string, marker: number, filename: string): void {

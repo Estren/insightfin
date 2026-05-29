@@ -17,9 +17,21 @@ export type CoachEvent =
   | { type: 'thread'; id: string }
   | { type: 'token'; data: string }
   | { type: 'tool_call'; name: string }
+  | { type: 'action_proposal'; action: string; params: Record<string, unknown>; summary: string }
   | { type: 'citation'; marker: number; filename: string }
   | { type: 'error'; data: string }
   | { type: 'done' };
+
+export type CoachActionStatus = 'pending' | 'executing' | 'done' | 'error' | 'cancelled';
+
+/** A write action the agent proposed; executed by core-api only after the user confirms. */
+export interface CoachActionProposal {
+  action: string;
+  params: Record<string, unknown>;
+  summary: string;
+  status: CoachActionStatus;
+  resultMessage?: string;
+}
 
 export interface CoachMessage {
   id: string;
@@ -29,6 +41,7 @@ export interface CoachMessage {
   citations: { marker: number; filename: string }[];
   isStreaming?: boolean;
   errored?: boolean;
+  proposal?: CoachActionProposal;
 }
 
 export interface CoachSuggestion {

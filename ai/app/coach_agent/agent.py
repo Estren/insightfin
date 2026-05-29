@@ -38,6 +38,11 @@ from app.coach_agent.tools import (
     get_health_score,
     get_transactions,
     project_goal_completion,
+    propose_adjust_budget,
+    propose_contribute_goal,
+    propose_create_budget,
+    propose_create_goal,
+    propose_log_transaction,
     simulate_budget_change,
 )
 from app.core_api.client import CoreApiClient
@@ -66,6 +71,13 @@ Rules:
   50/30/20 rule article"). When citations from `file_search` are available,
   include the strongest one or two — they appear inline in your output and
   the UI may render them as footnotes.
+- You can PROPOSE actions that change the user's data via the `propose_*` tools
+  (create a budget, adjust a budget, create a goal, contribute to a goal, log a
+  transaction). They never execute directly — they show the user a confirmation
+  card. After calling a `propose_*` tool, ask the
+  user to confirm in ONE short sentence (e.g. "Quer que eu crie esse orçamento?").
+  NEVER say the action was done — it only happens after the user confirms on the
+  card. Only propose when the user asks for it or clearly agrees to a suggestion.
 - The user's id is bound to your session — never ask for it, never accept it as
   an argument.
 - When the user says "this month" without specifying, use the current month in
@@ -327,6 +339,8 @@ class FoundryCoachAgent:
           client can keep the same thread across follow-up requests (multi-turn).
         - ``token``   → ``{"data": "<text chunk>"}``: append to assistant bubble.
         - ``tool_call`` → ``{"name": "get_health_score"}``: show "thinking" tag.
+        - ``action_proposal`` → ``{"action", "params", "summary"}``: render a
+          confirmation card; the user approves before core-api executes.
         - ``citation`` → ``{"marker": 1, "filename": "regra-50-30-20.md"}``.
         - ``error``   → ``{"data": "<message>"}``: render and stop.
         - ``done``    → end of stream.
@@ -391,6 +405,16 @@ class FoundryCoachAgent:
                             "name": call.function.name,
                         }
                         result = await self._dispatch_tool(call, user_id)
+                        # A successful proposal (no "error") is surfaced to the
+                        # client as a confirmation card; the user must approve it
+                        # before core-api executes anything.
+                        if result.get("action") and "error" not in result:
+                            yield {
+                                "type": "action_proposal",
+                                "action": result["action"],
+                                "params": result.get("params", {}),
+                                "summary": result.get("summary", ""),
+                            }
                         outputs.append(
                             ToolOutput(
                                 tool_call_id=call.id,
@@ -554,6 +578,23 @@ class FoundryCoachAgent:
                     args["category"],
                     float(args["additional_amount"]),
                     args["month"],
+                )
+            if name == "propose_create_budget":
+                # Proposal only — never mutates. The streaming loop turns this
+                # into an `action_proposal` event; execution happens in core-api
+                # after the user confirms.
+                return propose_create_budget(args["category"], float(args["amount"]))
+            if name == "propose_contribute_goal":
+                return propose_contribute_goal(args["goal_title"], float(args["amount"]))
+            if name == "propose_create_goal":
+                return propose_create_goal(
+                    args["title"], float(args["target_amount"]), args.get("deadline")
+                )
+            if name == "propose_adjust_budget":
+                return propose_adjust_budget(args["category"], float(args["amount"]))
+            if name == "propose_log_transaction":
+                return propose_log_transaction(
+                    args["type"], args["category"], float(args["amount"]), args.get("description")
                 )
             return {"error": f"unknown tool {name}"}
         except Exception as exc:  # surface tool errors back to the agent
