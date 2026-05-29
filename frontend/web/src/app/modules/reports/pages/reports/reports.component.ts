@@ -1,5 +1,5 @@
-import { CurrencyPipe } from '@angular/common';
-import { Component, Inject, LOCALE_ID, OnInit } from '@angular/core';
+import { CurrencyPipe, DOCUMENT } from '@angular/common';
+import { Component, effect, Inject, LOCALE_ID, OnInit, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   ApexAxisChartSeries,
@@ -7,6 +7,7 @@ import {
   ApexDataLabels,
   ApexLegend,
   ApexStroke,
+  ApexTheme,
   ApexTooltip,
   ApexXAxis,
   ApexYAxis,
@@ -14,6 +15,7 @@ import {
 } from 'ng-apexcharts';
 import { TransactionResponse } from '../../../../core/models/transaction.model';
 import { TransactionService } from '../../../../core/services/transaction.service';
+import { ThemeService } from '../../../../core/services/theme.service';
 import { ChartCardComponent } from '../../../../shared/components/chart-card/chart-card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
@@ -57,7 +59,8 @@ export class ReportsComponent implements OnInit {
   };
   readonly trendStroke: ApexStroke = { curve: 'smooth', width: 2 };
   readonly trendDataLabels: ApexDataLabels = { enabled: false };
-  readonly trendColors = ['#22c55e', '#ef4444'];
+  // Income = --primary, expense = --muted-foreground; updated on theme change.
+  readonly trendColors = signal<string[]>([]);
   readonly trendYaxis: ApexYAxis;
   readonly trendTooltip: ApexTooltip;
 
@@ -71,13 +74,16 @@ export class ReportsComponent implements OnInit {
     foreColor: '#8a8f98',
   };
   readonly donutLegend: ApexLegend = { position: 'bottom' };
-  readonly donutColors = ['#e11d48', '#6e56cf', '#2490ff', '#ea580c', '#facc15', '#22c55e', '#0ea5e9'];
+  // Monochrome ramp of --primary instead of a rainbow palette; theme-reactive.
+  readonly donutTheme = signal<ApexTheme>({});
   readonly donutTooltip: ApexTooltip;
 
   constructor(
     private readonly transactionService: TransactionService,
     private readonly translate: TranslateService,
+    private readonly themeService: ThemeService,
     @Inject(LOCALE_ID) locale: string,
+    @Inject(DOCUMENT) private readonly document: Document,
   ) {
     // Currency formatter for chart axes/tooltips — Angular pipes can't be used
     // inside ApexCharts callbacks, and bare numbers there would break the
@@ -87,6 +93,26 @@ export class ReportsComponent implements OnInit {
     this.trendYaxis = { labels: { formatter } };
     this.trendTooltip = { y: { formatter } };
     this.donutTooltip = { y: { formatter } };
+
+    // Re-derive chart colors from the theme palette on every theme change,
+    // deferred so the read runs after ThemeService applies it to <html>.
+    this.applyChartColors();
+    effect(() => {
+      this.themeService.theme();
+      queueMicrotask(() => this.applyChartColors());
+    });
+  }
+
+  private applyChartColors(): void {
+    const root = this.document.documentElement;
+    const styles = getComputedStyle(root);
+    const primary = styles.getPropertyValue('--primary').trim() || '#2490FF';
+    const muted = styles.getPropertyValue('--muted-foreground').trim() || '#64748B';
+    const isDark = root.classList.contains('dark');
+    this.trendColors.set([primary, muted]);
+    this.donutTheme.set({
+      monochrome: { enabled: true, color: primary, shadeTo: isDark ? 'light' : 'dark', shadeIntensity: 0.6 },
+    });
   }
 
   ngOnInit(): void {

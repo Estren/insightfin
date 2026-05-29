@@ -12,14 +12,8 @@ const AI_LABEL_KEYS: Record<AiFeedbackType, string> = {
   GOAL_PROJECTION: 'dashboard.feedbackTypes.goalProjection',
 };
 
-const AI_BADGE_CLASSES: Record<AiFeedbackType, string> = {
-  MONTHLY_REPORT: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  HEALTH_SCORE: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  ALERT: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-  GOAL_PROJECTION: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-};
-
-const BUDGET_BADGE_CLASS = 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+// All notification kinds share one palette badge; the label text distinguishes them.
+const BADGE_CLASS = 'bg-primary/10 text-primary';
 
 @Component({
   selector: 'app-notification-card',
@@ -36,10 +30,7 @@ export class NotificationCardComponent {
   readonly expanded = signal(false);
 
   get badgeClass(): string {
-    if (this.notification().kind === 'AI_FEEDBACK' && this.notification().aiFeedbackType) {
-      return AI_BADGE_CLASSES[this.notification().aiFeedbackType as AiFeedbackType];
-    }
-    return BUDGET_BADGE_CLASS;
+    return BADGE_CLASS;
   }
 
   get labelKey(): string {

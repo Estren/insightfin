@@ -88,7 +88,7 @@
                   <td class="py-3 pr-4 text-right">
                     <span
                       class="text-sm font-semibold"
-                      [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+                      [ngClass]="t.type === 'INCOME' ? 'text-primary' : 'text-foreground'">
                       {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
                     </span>
                   </td>
@@ -101,7 +101,7 @@
                       </button>
                       <button
                         (click)="onDelete(t)"
-                        class="cursor-pointer text-sm text-red-500 transition-colors hover:text-red-700">
+                        class="cursor-pointer text-sm text-muted-foreground transition-colors hover:text-foreground">
                         {{ 'common.delete' | translate }}
                       </button>
                     </div>
@@ -142,7 +142,7 @@
                     </div>
                     <span
                       class="shrink-0 text-sm font-semibold whitespace-nowrap"
-                      [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+                      [ngClass]="t.type === 'INCOME' ? 'text-primary' : 'text-foreground'">
                       {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
                     </span>
                   </div>
@@ -154,7 +154,7 @@
                     </button>
                     <button
                       (click)="onDelete(t)"
-                      class="cursor-pointer text-red-500 transition-colors hover:text-red-700">
+                      class="cursor-pointer text-muted-foreground transition-colors hover:text-foreground">
                       {{ 'common.delete' | translate }}
                     </button>
                   </div>

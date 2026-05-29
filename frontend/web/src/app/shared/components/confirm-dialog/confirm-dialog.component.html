@@ -7,9 +7,7 @@
     <div class="bg-background relative z-10 w-full max-w-sm overflow-hidden rounded-lg shadow-xl">
       <div class="px-6 py-6">
         <div class="flex items-start gap-4">
-          <div
-            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
-            [class]="iconClass()">
+          <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full" [class]="iconClass">
             <svg-icon [src]="iconSrc()" [svgClass]="'h-5 w-5'"></svg-icon>
           </div>
           <div class="flex-1">
@@ -25,14 +23,14 @@
           type="button"
           (click)="cancel()"
           class="bg-background hover:bg-muted text-foreground border-border cursor-pointer rounded-md border px-4 py-2 text-sm font-medium transition-colors">
-          {{ (s.cancelLabel || 'common.cancel') | translate }}
+          {{ s.cancelLabel || 'common.cancel' | translate }}
         </button>
         <button
           type="button"
           (click)="confirm()"
           class="cursor-pointer rounded-md px-4 py-2 text-sm font-medium transition-colors"
-          [class]="confirmButtonClass()">
-          {{ (s.confirmLabel || 'common.confirm') | translate }}
+          [class]="confirmButtonClass">
+          {{ s.confirmLabel || 'common.confirm' | translate }}
         </button>
       </div>
     </div>

@@ -30,11 +30,7 @@
             <div class="mb-1 flex flex-wrap items-center gap-2">
               <span
                 class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                [ngClass]="
-                  item.type === 'INCOME'
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                ">
+                [ngClass]="item.type === 'INCOME' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'">
                 {{ 'recurring.type.' + item.type.toLowerCase() | translate }}
               </span>
               <span class="bg-muted text-muted-foreground inline-flex rounded-full px-2 py-0.5 text-xs font-medium">
@@ -42,7 +38,7 @@
               </span>
               @if (item.paused) {
                 <span
-                  class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                  class="bg-muted text-muted-foreground inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                   ⏸ {{ 'recurring.paused' | translate }}
                 </span>
               }
@@ -52,10 +48,7 @@
             </p>
             <p class="text-muted-foreground text-xs">
               {{ item.categoryName }} ·
-              <span
-                [ngClass]="
-                  item.type === 'INCOME' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                ">
+              <span [ngClass]="item.type === 'INCOME' ? 'text-primary' : 'text-foreground'">
                 {{ item.type === 'INCOME' ? '+' : '-' }}{{ item.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
               </span>
             </p>
@@ -79,7 +72,7 @@
             </button>
             <button
               (click)="onDelete(item)"
-              class="cursor-pointer px-2 text-sm text-red-500 transition-colors hover:text-red-700">
+              class="cursor-pointer px-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
               {{ 'common.delete' | translate }}
             </button>
           </div>

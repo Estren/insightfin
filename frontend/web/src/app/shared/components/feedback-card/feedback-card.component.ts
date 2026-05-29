@@ -11,12 +11,8 @@ const TYPE_LABEL_KEYS: Record<AiFeedbackType, string> = {
   GOAL_PROJECTION: 'dashboard.feedbackTypes.goalProjection',
 };
 
-const TYPE_BADGE_CLASSES: Record<AiFeedbackType, string> = {
-  MONTHLY_REPORT: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  HEALTH_SCORE: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-  ALERT: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-  GOAL_PROJECTION: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-};
+// All feedback types share one palette badge; the label text distinguishes them.
+const TYPE_BADGE_CLASS = 'bg-primary/10 text-primary';
 
 @Component({
   selector: 'app-feedback-card',
@@ -35,7 +31,7 @@ export class FeedbackCardComponent {
   }
 
   get badgeClass(): string {
-    return TYPE_BADGE_CLASSES[this.feedback().type];
+    return TYPE_BADGE_CLASS;
   }
 
   toggle(): void {
