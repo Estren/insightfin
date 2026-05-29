@@ -17,15 +17,14 @@
     <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
       <app-stat-card
         [label]="'reports.totalIncome' | translate"
-        tone="positive"
+        tone="primary"
         [value]="totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
       <app-stat-card
         [label]="'reports.totalExpense' | translate"
-        tone="negative"
         [value]="totalExpense | currency: 'BRL' : 'symbol' : '1.2-2'" />
       <app-stat-card
         [label]="'reports.balance' | translate"
-        [tone]="balance >= 0 ? 'positive' : 'negative'"
+        [tone]="balance >= 0 ? 'primary' : 'neutral'"
         [value]="balance | currency: 'BRL' : 'symbol' : '1.2-2'" />
     </div>
 

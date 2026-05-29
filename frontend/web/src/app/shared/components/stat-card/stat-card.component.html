@@ -9,7 +9,8 @@
     class="mt-2 text-2xl font-bold"
     [class.text-foreground]="tone() === 'neutral'"
     [class.text-green-500]="tone() === 'positive'"
-    [class.text-red-500]="tone() === 'negative'">
+    [class.text-red-500]="tone() === 'negative'"
+    [class.text-primary]="tone() === 'primary'">
     {{ value() }}
   </p>
   @if (delta() !== null) {

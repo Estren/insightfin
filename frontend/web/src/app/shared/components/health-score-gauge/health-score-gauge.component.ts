@@ -1,11 +1,9 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, effect, Inject, input, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApexChart, ApexFill, ApexPlotOptions, ApexStroke, NgApexchartsModule } from 'ng-apexcharts';
 import { HealthScoreMetadata } from '../../../core/models/health-score.model';
-
-const RED = '#ef4444';
-const AMBER = '#f59e0b';
-const GREEN = '#22c55e';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
   selector: 'app-health-score-gauge',
@@ -15,8 +13,12 @@ const GREEN = '#22c55e';
 export class HealthScoreGaugeComponent {
   data = input.required<HealthScoreMetadata>();
 
+  // The gauge follows the theme's --primary (read live on theme change) so it
+  // stays within the palette instead of using traffic-light colors. The score
+  // value and band label communicate the level.
+  private readonly primary = signal<string>('#2490FF');
+
   readonly series = computed(() => [this.data().score]);
-  readonly color = computed(() => bandColor(this.data().score));
   readonly labelKey = computed(() => bandLabelKey(this.data().score));
 
   // Static — the dynamic bits (score value, color) come from inputs/computed.
@@ -39,7 +41,7 @@ export class HealthScoreGaugeComponent {
           show: true,
           fontSize: '36px',
           fontWeight: 700,
-          color: this.color(),
+          color: this.primary(),
           offsetY: 8,
           formatter: (val) => `${Math.round(Number(val))}`,
         },
@@ -49,7 +51,7 @@ export class HealthScoreGaugeComponent {
 
   readonly fill = computed<ApexFill>(() => ({
     type: 'solid',
-    colors: [this.color()],
+    colors: [this.primary()],
   }));
 
   // Sub-score breakdown rendered as small cards next to the gauge.
@@ -63,15 +65,21 @@ export class HealthScoreGaugeComponent {
     ];
   });
 
-  bandColorFor(value: number): string {
-    return bandColor(value);
+  constructor(
+    private readonly themeService: ThemeService,
+    @Inject(DOCUMENT) private readonly document: Document,
+  ) {
+    this.applyPrimary();
+    effect(() => {
+      this.themeService.theme();
+      queueMicrotask(() => this.applyPrimary());
+    });
   }
-}
 
-function bandColor(score: number): string {
-  if (score < 40) return RED;
-  if (score < 70) return AMBER;
-  return GREEN;
+  private applyPrimary(): void {
+    const value = getComputedStyle(this.document.documentElement).getPropertyValue('--primary').trim();
+    this.primary.set(value || '#2490FF');
+  }
 }
 
 function bandLabelKey(score: number): string {

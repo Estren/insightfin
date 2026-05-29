@@ -11,7 +11,7 @@
     @for (item of breakdownItems(); track item.key) {
       <div class="bg-muted/30 rounded-md p-3">
         <p class="text-muted-foreground text-xs">{{ item.labelKey | translate }}</p>
-        <p class="text-lg font-semibold" [style.color]="bandColorFor(item.value)">
+        <p class="text-foreground text-lg font-semibold">
           {{ item.value }}
         </p>
       </div>
