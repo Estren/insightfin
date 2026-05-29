@@ -56,6 +56,20 @@
     }
   }
 
+  <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+    <app-stat-card
+      [label]="'dashboard.income' | translate"
+      [value]="summary.totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
+    <app-stat-card
+      [label]="'dashboard.expenses' | translate"
+      tone="negative"
+      [value]="summary.totalExpense | currency: 'BRL' : 'symbol' : '1.2-2'" />
+    <app-stat-card
+      [label]="'dashboard.balance' | translate"
+      [tone]="summary.balance >= 0 ? 'positive' : 'negative'"
+      [value]="summary.balance | currency: 'BRL' : 'symbol' : '1.2-2'" />
+  </div>
+
   <app-card class="mb-6 block" [title]="'dashboard.healthScore.title' | translate">
     @if (feedbackStore.loading$ | async) {
       <app-loading />
@@ -72,48 +86,51 @@
     }
   </app-card>
 
-  <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-    <app-stat-card
-      [label]="'dashboard.income' | translate"
-      [value]="summary.totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
-    <app-stat-card
-      [label]="'dashboard.expenses' | translate"
-      tone="negative"
-      [value]="summary.totalExpense | currency: 'BRL' : 'symbol' : '1.2-2'" />
-    <app-stat-card
-      [label]="'dashboard.balance' | translate"
-      [tone]="summary.balance >= 0 ? 'positive' : 'negative'"
-      [value]="summary.balance | currency: 'BRL' : 'symbol' : '1.2-2'" />
-  </div>
-
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-    <app-card [title]="'dashboard.recentTransactions' | translate">
-      @if (summary.recentTransactions.length === 0) {
-        <app-empty-state
-          [icon]="'assets/icons/heroicons/outline/view-grid.svg'"
-          [title]="'dashboard.noTransactions' | translate"
-          [description]="'dashboard.noTransactionsDesc' | translate" />
+  <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <app-card
+      [title]="'dashboard.charts.spendingProgress' | translate"
+      [subtitle]="'dashboard.charts.spendingProgressSubtitle' | translate">
+      @if (chartsLoading) {
+        <app-loading />
+      } @else if (hasExpenses) {
+        <apx-chart
+          [series]="cumulativeSeries"
+          [chart]="cumulativeChart"
+          [xaxis]="cumulativeXaxis"
+          [yaxis]="cumulativeYaxis"
+          [stroke]="cumulativeStroke"
+          [dataLabels]="cumulativeDataLabels"
+          [tooltip]="cumulativeTooltip"
+          [colors]="cumulativeColors()" />
       } @else {
-        <div class="space-y-3">
-          @for (t of summary.recentTransactions; track t.id) {
-            <div class="flex items-center justify-between gap-3 rounded-md p-3">
-              <div class="min-w-0 flex-1">
-                <p class="text-foreground truncate text-sm font-medium">{{ t.description || t.categoryName }}</p>
-                <p class="text-muted-foreground truncate text-xs">
-                  {{ t.categoryName }} &middot; {{ t.date | date: 'dd/MM/yyyy' }}
-                </p>
-              </div>
-              <span
-                class="shrink-0 text-sm font-semibold whitespace-nowrap"
-                [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
-                {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
-              </span>
-            </div>
-          }
-        </div>
+        <app-empty-state
+          [icon]="'assets/icons/heroicons/outline/chart-pie.svg'"
+          [title]="'dashboard.charts.noExpenses' | translate"
+          [description]="'dashboard.noTransactionsDesc' | translate" />
       }
     </app-card>
 
+    <app-card [title]="'dashboard.charts.expensesByCategory' | translate">
+      @if (chartsLoading) {
+        <app-loading />
+      } @else if (categorySeries.length) {
+        <apx-chart
+          [series]="categorySeries"
+          [chart]="donutChart"
+          [labels]="categoryLabels"
+          [legend]="donutLegend"
+          [theme]="donutTheme()"
+          [tooltip]="donutTooltip" />
+      } @else {
+        <app-empty-state
+          [icon]="'assets/icons/heroicons/outline/chart-pie.svg'"
+          [title]="'dashboard.charts.noExpenses' | translate"
+          [description]="'dashboard.noTransactionsDesc' | translate" />
+      }
+    </app-card>
+  </div>
+
+  <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
     <app-card [title]="'dashboard.budgets' | translate">
       @if (summary.budgetStatuses.length === 0) {
         <app-empty-state
@@ -146,9 +163,7 @@
         </div>
       }
     </app-card>
-  </div>
 
-  <div class="mt-6">
     <app-card [title]="'dashboard.activeGoals' | translate">
       @if (summary.activeGoals.length === 0) {
         <app-empty-state
@@ -156,7 +171,7 @@
           [title]="'dashboard.noActiveGoals' | translate"
           [description]="'dashboard.noActiveGoalsDesc' | translate" />
       } @else {
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           @for (g of summary.activeGoals; track g.id) {
             <div class="rounded-md p-4">
               <p class="text-foreground text-sm font-semibold">{{ g.title }}</p>
@@ -181,7 +196,7 @@
     </app-card>
   </div>
 
-  <div class="mt-6">
+  <div class="mb-6">
     <app-card [title]="'dashboard.aiInsights' | translate">
       @if (feedbackStore.loading$ | async) {
         <app-loading />
@@ -203,6 +218,35 @@
             </a>
           </div>
         }
+      }
+    </app-card>
+  </div>
+
+  <div>
+    <app-card [title]="'dashboard.recentTransactions' | translate">
+      @if (summary.recentTransactions.length === 0) {
+        <app-empty-state
+          [icon]="'assets/icons/heroicons/outline/view-grid.svg'"
+          [title]="'dashboard.noTransactions' | translate"
+          [description]="'dashboard.noTransactionsDesc' | translate" />
+      } @else {
+        <div class="space-y-3">
+          @for (t of summary.recentTransactions; track t.id) {
+            <div class="flex items-center justify-between gap-3 rounded-md p-3">
+              <div class="min-w-0 flex-1">
+                <p class="text-foreground truncate text-sm font-medium">{{ t.description || t.categoryName }}</p>
+                <p class="text-muted-foreground truncate text-xs">
+                  {{ t.categoryName }} &middot; {{ t.date | date: 'dd/MM/yyyy' }}
+                </p>
+              </div>
+              <span
+                class="shrink-0 text-sm font-semibold whitespace-nowrap"
+                [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+                {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
+              </span>
+            </div>
+          }
+        </div>
       }
     </app-card>
   </div>
