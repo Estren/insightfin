@@ -262,6 +262,13 @@
     "noInsightsDesc": "AI analysis will appear here after the first monthly report.",
     "viewAllInsights": "View all insights",
     "deadline": "Deadline:",
+    "charts": {
+      "spendingProgress": "Spending this month",
+      "spendingProgressSubtitle": "Cumulative spending, day by day",
+      "cumulativeSpending": "Cumulative spending",
+      "expensesByCategory": "Expenses by category",
+      "noExpenses": "No expenses this month"
+    },
     "feedbackTypes": {
       "monthlyReport": "Monthly Report",
       "healthScore": "Financial Health",

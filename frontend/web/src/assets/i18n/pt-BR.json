@@ -262,6 +262,13 @@
     "noInsightsDesc": "A análise de IA aparecerá aqui após o primeiro relatório mensal.",
     "viewAllInsights": "Ver todos os insights",
     "deadline": "Prazo:",
+    "charts": {
+      "spendingProgress": "Gastos acumulados no mês",
+      "spendingProgressSubtitle": "Total gasto acumulado, dia a dia",
+      "cumulativeSpending": "Gasto acumulado",
+      "expensesByCategory": "Despesas por categoria",
+      "noExpenses": "Sem despesas neste mês"
+    },
     "feedbackTypes": {
       "monthlyReport": "Relatório Mensal",
       "healthScore": "Saúde Financeira",
