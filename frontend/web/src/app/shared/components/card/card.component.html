@@ -1,16 +1,28 @@
 <div class="bg-background rounded-lg p-6">
-  @if (title()) {
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <div class="min-w-0">
-        <h3 class="text-foreground text-base font-semibold">{{ title() }}</h3>
+  @if (loading()) {
+    @if (title()) {
+      <div class="mb-4 space-y-2">
+        <app-skeleton variant="text" class="h-5 w-32" />
         @if (subtitle()) {
-          <p class="text-muted-foreground mt-1 text-xs">{{ subtitle() }}</p>
+          <app-skeleton variant="text" class="h-3 w-48" />
         }
       </div>
-      <div class="shrink-0">
-        <ng-content select="[card-action]"></ng-content>
+    }
+    <app-skeleton class="h-24" />
+  } @else {
+    @if (title()) {
+      <div class="mb-4 flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <h3 class="text-foreground text-base font-semibold">{{ title() }}</h3>
+          @if (subtitle()) {
+            <p class="text-muted-foreground mt-1 text-xs">{{ subtitle() }}</p>
+          }
+        </div>
+        <div class="shrink-0">
+          <ng-content select="[card-action]"></ng-content>
+        </div>
       </div>
-    </div>
+    }
+    <ng-content></ng-content>
   }
-  <ng-content></ng-content>
 </div>
