@@ -7,7 +7,6 @@ import { BudgetStatusResponse } from '../../../../core/models/budget.model';
 import { BudgetStore } from '../../../../core/stores/budget.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { ProgressRingComponent } from '../../../../shared/components/progress-ring/progress-ring.component';
 
@@ -23,7 +22,6 @@ import { ProgressRingComponent } from '../../../../shared/components/progress-ri
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
-    LoadingComponent,
     ProgressRingComponent,
     RouterOutlet,
   ],

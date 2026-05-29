@@ -8,7 +8,6 @@ import { TransactionStore } from '../../../../core/stores/transaction.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { DataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { Tab, TabsComponent } from '../../../../shared/components/tabs/tabs.component';
@@ -34,7 +33,6 @@ interface TransactionGroup {
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
-    LoadingComponent,
     TabsComponent,
     DataTableComponent,
     ModalComponent,

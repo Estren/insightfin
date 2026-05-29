@@ -22,7 +22,7 @@
 </app-page-header>
 
 @if (budgetStore.loading$ | async) {
-  <app-loading />
+  <app-card [loading]="true" />
 } @else if (budgetStore.error$ | async; as error) {
   <app-card>
     <p class="text-center text-sm text-red-500">{{ error }}</p>

@@ -7,7 +7,7 @@
 </app-page-header>
 
 @if (transactionStore.loading$ | async) {
-  <app-loading />
+  <app-card [loading]="true" />
 } @else if (transactionStore.error$ | async; as error) {
   <app-card>
     <p class="text-center text-sm text-red-500">{{ error }}</p>
