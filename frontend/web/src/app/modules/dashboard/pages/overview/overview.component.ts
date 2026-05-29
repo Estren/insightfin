@@ -27,8 +27,8 @@ import { DashboardStore } from '../../../../core/stores/dashboard.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { FeedbackCardComponent } from '../../../../shared/components/feedback-card/feedback-card.component';
+import { FeedbackCardSkeletonComponent } from '../../../../shared/components/feedback-card/feedback-card-skeleton.component';
 import { HealthScoreGaugeComponent } from '../../../../shared/components/health-score-gauge/health-score-gauge.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
 import { StatCardComponent } from '../../../../shared/components/stat-card/stat-card.component';
@@ -60,8 +60,8 @@ interface CoachPrompt {
     PageHeaderComponent,
     EmptyStateComponent,
     FeedbackCardComponent,
+    FeedbackCardSkeletonComponent,
     HealthScoreGaugeComponent,
-    LoadingComponent,
     SkeletonComponent,
     StatCardComponent,
   ],

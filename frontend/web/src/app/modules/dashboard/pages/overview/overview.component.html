@@ -89,7 +89,15 @@
 
   <app-card class="mb-6 block" [title]="'dashboard.healthScore.title' | translate">
     @if (feedbackStore.loading$ | async) {
-      <app-loading />
+      <div class="grid grid-cols-1 items-center gap-6 md:grid-cols-2">
+        <app-skeleton variant="circle" class="mx-auto h-40 w-40" />
+        <div class="grid grid-cols-2 gap-3">
+          <app-skeleton class="h-16" />
+          <app-skeleton class="h-16" />
+          <app-skeleton class="h-16" />
+          <app-skeleton class="h-16" />
+        </div>
+      </div>
     } @else if (feedbackStore.feedbacks$ | async; as feedbacks) {
       @let scoreData = healthScore(feedbacks);
       @if (scoreData) {
@@ -108,7 +116,7 @@
       [title]="'dashboard.charts.spendingProgress' | translate"
       [subtitle]="'dashboard.charts.spendingProgressSubtitle' | translate">
       @if (chartsLoading) {
-        <app-loading />
+        <app-skeleton class="h-80" />
       } @else if (hasExpenses) {
         <apx-chart
           [series]="cumulativeSeries"
@@ -129,7 +137,7 @@
 
     <app-card [title]="'dashboard.charts.expensesByCategory' | translate">
       @if (chartsLoading) {
-        <app-loading />
+        <app-skeleton class="h-80" />
       } @else if (categorySeries.length) {
         <apx-chart
           [series]="categorySeries"
@@ -215,7 +223,11 @@
   <div class="mb-6">
     <app-card [title]="'dashboard.aiInsights' | translate">
       @if (feedbackStore.loading$ | async) {
-        <app-loading />
+        <div class="space-y-2">
+          <app-feedback-card-skeleton />
+          <app-feedback-card-skeleton />
+          <app-feedback-card-skeleton />
+        </div>
       } @else if (feedbackStore.feedbacks$ | async; as feedbacks) {
         @if (feedbacks.length === 0) {
           <app-empty-state

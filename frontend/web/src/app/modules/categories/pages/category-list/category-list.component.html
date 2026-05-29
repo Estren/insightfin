@@ -7,7 +7,7 @@
 </app-page-header>
 
 @if (categoryStore.loading$ | async) {
-  <app-loading />
+  <app-card [loading]="true" />
 } @else if (categoryStore.categories$ | async; as categories) {
   <app-card>
     <!-- Filter tabs -->
