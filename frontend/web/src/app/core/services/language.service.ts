@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 const LANGUAGE_KEY = 'insightfin_language';
-const DEFAULT_LANGUAGE = 'pt-BR';
+const DEFAULT_LANGUAGE = 'en-US';
 const SUPPORTED_LANGUAGES = ['pt-BR', 'en-US'] as const;
 
 export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
