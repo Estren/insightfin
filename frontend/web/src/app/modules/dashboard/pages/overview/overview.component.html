@@ -11,13 +11,13 @@
     @if (criticalCount > 0) {
       <a
         routerLink="/budgets"
-        class="mb-6 flex items-center gap-3 rounded-lg border border-red-500/40 bg-red-50 px-4 py-3 text-sm transition-colors hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30">
+        class="mb-6 flex items-center gap-3 rounded-lg border border-primary/40 bg-primary/5 px-4 py-3 text-sm transition-colors hover:bg-primary/10">
         <svg-icon
           class="shrink-0"
           src="assets/icons/heroicons/outline/exclamation-triangle.svg"
-          [svgClass]="'h-5 w-5 text-red-600 dark:text-red-400'">
+          [svgClass]="'h-5 w-5 text-primary'">
         </svg-icon>
-        <span class="text-red-700 dark:text-red-300">
+        <span class="text-foreground">
           @if (criticalCount === 1) {
             {{ 'budgets.criticalAlertSingular' | translate }}
           } @else {
@@ -59,14 +59,14 @@
   <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
     <app-stat-card
       [label]="'dashboard.income' | translate"
+      tone="primary"
       [value]="summary.totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
     <app-stat-card
       [label]="'dashboard.expenses' | translate"
-      tone="negative"
       [value]="summary.totalExpense | currency: 'BRL' : 'symbol' : '1.2-2'" />
     <app-stat-card
       [label]="'dashboard.balance' | translate"
-      [tone]="summary.balance >= 0 ? 'positive' : 'negative'"
+      [tone]="summary.balance >= 0 ? 'primary' : 'neutral'"
       [value]="summary.balance | currency: 'BRL' : 'symbol' : '1.2-2'" />
   </div>
 
@@ -152,9 +152,8 @@
                 <div
                   class="h-full rounded-full transition-all"
                   [ngClass]="{
-                    'bg-green-500': b.percentageUsed < 70,
-                    'bg-amber-500': b.percentageUsed >= 70 && b.percentageUsed < 90,
-                    'bg-red-500': b.percentageUsed >= 90,
+                    'bg-primary/60': b.percentageUsed < 90,
+                    'bg-primary': b.percentageUsed >= 90,
                   }"
                   [style.width.%]="b.percentageUsed > 100 ? 100 : b.percentageUsed"></div>
               </div>
@@ -241,7 +240,7 @@
               </div>
               <span
                 class="shrink-0 text-sm font-semibold whitespace-nowrap"
-                [ngClass]="t.type === 'INCOME' ? 'text-green-500' : 'text-red-500'">
+                [ngClass]="t.type === 'INCOME' ? 'text-primary' : 'text-foreground'">
                 {{ t.type === 'INCOME' ? '+' : '-' }}{{ t.amount | currency: 'BRL' : 'symbol' : '1.2-2' }}
               </span>
             </div>

@@ -1,7 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 import { AngularSvgIconModule } from 'angular-svg-icon';
 
-type Tone = 'neutral' | 'positive' | 'negative';
+type Tone = 'neutral' | 'positive' | 'negative' | 'primary';
 
 @Component({
   selector: 'app-stat-card',
