@@ -1,61 +1,67 @@
+<app-page-header [title]="'reports.title' | translate" [subtitle]="'reports.subtitle' | translate" />
+
 @if (loading) {
-  <app-loading />
+  <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+    <app-stat-card-skeleton />
+    <app-stat-card-skeleton />
+    <app-stat-card-skeleton />
+  </div>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <app-skeleton class="h-80" />
+    <app-skeleton class="h-80" />
+  </div>
+} @else if (error) {
+  <app-empty-state
+    [icon]="'assets/icons/heroicons/outline/exclamation-triangle.svg'"
+    [title]="'reports.loadError' | translate"
+    [description]="'reports.loadErrorDesc' | translate" />
+} @else if (!hasData) {
+  <app-empty-state
+    [icon]="'assets/icons/heroicons/outline/chart-pie.svg'"
+    [title]="'reports.empty' | translate"
+    [description]="'reports.emptyDesc' | translate" />
 } @else {
-  <app-page-header [title]="'reports.title' | translate" [subtitle]="'reports.subtitle' | translate" />
+  <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+    <app-stat-card
+      [label]="'reports.totalIncome' | translate"
+      tone="primary"
+      [value]="totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
+    <app-stat-card
+      [label]="'reports.totalExpense' | translate"
+      [value]="totalExpense | currency: 'BRL' : 'symbol' : '1.2-2'" />
+    <app-stat-card
+      [label]="'reports.balance' | translate"
+      [tone]="balance >= 0 ? 'primary' : 'neutral'"
+      [value]="balance | currency: 'BRL' : 'symbol' : '1.2-2'" />
+  </div>
 
-  @if (error) {
-    <app-empty-state
-      [icon]="'assets/icons/heroicons/outline/exclamation-triangle.svg'"
-      [title]="'reports.loadError' | translate"
-      [description]="'reports.loadErrorDesc' | translate" />
-  } @else if (!hasData) {
-    <app-empty-state
-      [icon]="'assets/icons/heroicons/outline/chart-pie.svg'"
-      [title]="'reports.empty' | translate"
-      [description]="'reports.emptyDesc' | translate" />
-  } @else {
-    <div class="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
-      <app-stat-card
-        [label]="'reports.totalIncome' | translate"
-        tone="primary"
-        [value]="totalIncome | currency: 'BRL' : 'symbol' : '1.2-2'" />
-      <app-stat-card
-        [label]="'reports.totalExpense' | translate"
-        [value]="totalExpense | currency: 'BRL' : 'symbol' : '1.2-2'" />
-      <app-stat-card
-        [label]="'reports.balance' | translate"
-        [tone]="balance >= 0 ? 'primary' : 'neutral'"
-        [value]="balance | currency: 'BRL' : 'symbol' : '1.2-2'" />
-    </div>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <app-chart-card [title]="'reports.incomeVsExpense' | translate">
+      <apx-chart
+        [series]="trendSeries"
+        [chart]="trendChart"
+        [xaxis]="trendXaxis"
+        [yaxis]="trendYaxis"
+        [stroke]="trendStroke"
+        [dataLabels]="trendDataLabels"
+        [tooltip]="trendTooltip"
+        [colors]="trendColors()" />
+    </app-chart-card>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <app-chart-card [title]="'reports.incomeVsExpense' | translate">
+    <app-chart-card [title]="'reports.expensesByCategory' | translate">
+      @if (categorySeries.length) {
         <apx-chart
-          [series]="trendSeries"
-          [chart]="trendChart"
-          [xaxis]="trendXaxis"
-          [yaxis]="trendYaxis"
-          [stroke]="trendStroke"
-          [dataLabels]="trendDataLabels"
-          [tooltip]="trendTooltip"
-          [colors]="trendColors()" />
-      </app-chart-card>
-
-      <app-chart-card [title]="'reports.expensesByCategory' | translate">
-        @if (categorySeries.length) {
-          <apx-chart
-            [series]="categorySeries"
-            [chart]="donutChart"
-            [labels]="categoryLabels"
-            [legend]="donutLegend"
-            [theme]="donutTheme()"
-            [tooltip]="donutTooltip" />
-        } @else {
-          <p class="text-muted-foreground py-12 text-center text-sm">
-            {{ 'reports.noExpensesThisMonth' | translate }}
-          </p>
-        }
-      </app-chart-card>
-    </div>
-  }
+          [series]="categorySeries"
+          [chart]="donutChart"
+          [labels]="categoryLabels"
+          [legend]="donutLegend"
+          [theme]="donutTheme()"
+          [tooltip]="donutTooltip" />
+      } @else {
+        <p class="text-muted-foreground py-12 text-center text-sm">
+          {{ 'reports.noExpensesThisMonth' | translate }}
+        </p>
+      }
+    </app-chart-card>
+  </div>
 }

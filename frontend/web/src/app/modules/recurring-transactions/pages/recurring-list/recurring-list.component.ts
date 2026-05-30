@@ -7,7 +7,6 @@ import { ConfirmDialogService } from '../../../../core/services/confirm-dialog.s
 import { RecurringTransactionStore } from '../../../../core/stores/recurring-transaction.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 
 @Component({
@@ -24,7 +23,6 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
     CardComponent,
     PageHeaderComponent,
     EmptyStateComponent,
-    LoadingComponent,
   ],
 })
 export class RecurringListComponent implements OnInit {

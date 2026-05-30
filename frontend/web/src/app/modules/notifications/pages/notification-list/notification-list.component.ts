@@ -4,8 +4,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NotificationStore } from '../../../../core/stores/notification.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { NotificationCardComponent } from '../../../../shared/components/notification-card/notification-card.component';
+import { NotificationCardSkeletonComponent } from '../../../../shared/components/notification-card/notification-card-skeleton.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 
 @Component({
@@ -16,8 +16,8 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header/p
     TranslateModule,
     CardComponent,
     EmptyStateComponent,
-    LoadingComponent,
     NotificationCardComponent,
+    NotificationCardSkeletonComponent,
     PageHeaderComponent,
   ],
 })
