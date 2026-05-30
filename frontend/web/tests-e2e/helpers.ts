@@ -2,6 +2,11 @@ import type { Page } from '@playwright/test';
 
 const ACCESS_TOKEN_KEY = 'insightfin_access_token';
 const REFRESH_TOKEN_KEY = 'insightfin_refresh_token';
+const LANGUAGE_KEY = 'insightfin_language';
+// The app's runtime default is en-US (see LanguageService). The E2E suite
+// pins pt-BR so its hard-coded labels (Editar / Excluir / Carregar mais /
+// Score ainda não gerado / ...) match what the page actually renders.
+const E2E_LANGUAGE = 'pt-BR';
 
 function base64url(value: string): string {
   return Buffer.from(value).toString('base64url');
@@ -29,11 +34,12 @@ export function fakeJwt(claims: Record<string, unknown> = {}): string {
 /** Seeds an authenticated session into localStorage before the app boots. */
 export async function seedAuthSession(page: Page): Promise<void> {
   await page.addInitScript(
-    ([accessKey, refreshKey, token, refresh]) => {
+    ([accessKey, refreshKey, languageKey, token, refresh, language]) => {
       localStorage.setItem(accessKey, token);
       localStorage.setItem(refreshKey, refresh);
+      localStorage.setItem(languageKey, language);
     },
-    [ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, fakeJwt(), 'e2e-refresh-token'],
+    [ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY, LANGUAGE_KEY, fakeJwt(), 'e2e-refresh-token', E2E_LANGUAGE],
   );
 }
 

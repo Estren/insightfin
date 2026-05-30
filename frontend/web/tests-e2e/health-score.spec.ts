@@ -50,7 +50,7 @@ test.describe('Health score gauge', () => {
     await page.goto('/dashboard');
 
     await expect(page.locator('app-health-score-gauge')).toHaveCount(0);
-    // Empty state title comes from i18n notifications.healthScore.empty — pt-BR is the default locale.
+    // Empty state title comes from i18n dashboard.healthScore.empty.
     await expect(page.getByText('Score ainda não gerado')).toBeVisible();
   });
 
