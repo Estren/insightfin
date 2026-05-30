@@ -1,8 +1,8 @@
 {
-  "name": "angular-tailwind",
+  "name": "insightfin-web",
   "displayName": "insightfin",
   "version": "0.11.0",
-  "description": "Angular & Tailwind CSS Admin Dashboard Starter Kit, Free and Open Source",
+  "description": "Angular 21 + Tailwind CSS 4 frontend for InsightFin.",
   "homepage": "https://github.com/Estren/insightfin#readme",
   "repository": {
     "type": "git",
