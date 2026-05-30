@@ -29,7 +29,11 @@
 
 <app-card>
   @if (feedbackStore.loading$ | async) {
-    <app-loading />
+    <div class="space-y-2">
+      <app-feedback-card-skeleton />
+      <app-feedback-card-skeleton />
+      <app-feedback-card-skeleton />
+    </div>
   } @else if (feedbackStore.feedbacks$ | async; as all) {
     @let filtered = applyTypeFilter(all);
     @if (filtered.length === 0) {

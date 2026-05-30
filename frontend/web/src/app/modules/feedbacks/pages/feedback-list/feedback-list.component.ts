@@ -7,7 +7,7 @@ import { AiFeedbackStore } from '../../../../core/stores/ai-feedback.store';
 import { CardComponent } from '../../../../shared/components/card/card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { FeedbackCardComponent } from '../../../../shared/components/feedback-card/feedback-card.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
+import { FeedbackCardSkeletonComponent } from '../../../../shared/components/feedback-card/feedback-card-skeleton.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 
 interface TypeChip {
@@ -26,7 +26,7 @@ interface TypeChip {
     CardComponent,
     EmptyStateComponent,
     FeedbackCardComponent,
-    LoadingComponent,
+    FeedbackCardSkeletonComponent,
     PageHeaderComponent,
   ],
 })

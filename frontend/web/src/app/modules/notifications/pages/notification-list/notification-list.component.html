@@ -2,7 +2,11 @@
 
 <app-card>
   @if ((store.loading$ | async) && (store.notifications$ | async)?.length === 0) {
-    <app-loading />
+    <div class="space-y-2">
+      <app-notification-card-skeleton />
+      <app-notification-card-skeleton />
+      <app-notification-card-skeleton />
+    </div>
   } @else if (store.notifications$ | async; as items) {
     @if (items.length === 0) {
       <app-empty-state

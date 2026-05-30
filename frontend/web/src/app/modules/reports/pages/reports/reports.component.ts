@@ -18,9 +18,10 @@ import { TransactionService } from '../../../../core/services/transaction.servic
 import { ThemeService } from '../../../../core/services/theme.service';
 import { ChartCardComponent } from '../../../../shared/components/chart-card/chart-card.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
-import { LoadingComponent } from '../../../../shared/components/loading/loading.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
+import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
 import { StatCardComponent } from '../../../../shared/components/stat-card/stat-card.component';
+import { StatCardSkeletonComponent } from '../../../../shared/components/stat-card/stat-card-skeleton.component';
 
 const MONTHS = 6;
 
@@ -34,8 +35,9 @@ const MONTHS = 6;
     PageHeaderComponent,
     ChartCardComponent,
     StatCardComponent,
+    StatCardSkeletonComponent,
     EmptyStateComponent,
-    LoadingComponent,
+    SkeletonComponent,
   ],
 })
 export class ReportsComponent implements OnInit {
