@@ -37,6 +37,8 @@ from app.coach_agent.tools import (
     get_goals,
     get_health_score,
     get_transactions,
+    present_donut_chart,
+    present_line_chart,
     project_goal_completion,
     propose_adjust_budget,
     propose_contribute_goal,
@@ -78,6 +80,12 @@ Rules:
   user to confirm in ONE short sentence (e.g. "Quer que eu crie esse orçamento?").
   NEVER say the action was done — it only happens after the user confirms on the
   card. Only propose when the user asks for it or clearly agrees to a suggestion.
+- You can also PRESENT a chart inside your reply via `present_line_chart`
+  (evolution over time) or `present_donut_chart` (distribution by category).
+  ALWAYS pass real numbers you just received from another tool — never invented
+  values. After presenting, write ONE or two short sentences about what the
+  chart shows; do not say "see the chart below" — the visual speaks for itself.
+  Use sparingly: only when the chart clearly adds value over plain text.
 - The user's id is bound to your session — never ask for it, never accept it as
   an argument.
 - When the user says "this month" without specifying, use the current month in
@@ -341,6 +349,8 @@ class FoundryCoachAgent:
         - ``tool_call`` → ``{"name": "get_health_score"}``: show "thinking" tag.
         - ``action_proposal`` → ``{"action", "params", "summary"}``: render a
           confirmation card; the user approves before core-api executes.
+        - ``chart_payload`` → ``{"kind", "title", "data"}``: render a chart in
+          the current assistant bubble. Lives alongside the explanatory text.
         - ``citation`` → ``{"marker": 1, "filename": "regra-50-30-20.md"}``.
         - ``error``   → ``{"data": "<message>"}``: render and stop.
         - ``done``    → end of stream.
@@ -414,6 +424,16 @@ class FoundryCoachAgent:
                                 "action": result["action"],
                                 "params": result.get("params", {}),
                                 "summary": result.get("summary", ""),
+                            }
+                        # Charts the agent decided to show are surfaced as a
+                        # separate SSE event; the frontend renders them inside
+                        # the same assistant message bubble.
+                        if result.get("status") == "presented" and "error" not in result:
+                            yield {
+                                "type": "chart_payload",
+                                "kind": result.get("kind"),
+                                "title": result.get("title", ""),
+                                "data": result.get("data", {}),
                             }
                         outputs.append(
                             ToolOutput(
@@ -595,6 +615,17 @@ class FoundryCoachAgent:
             if name == "propose_log_transaction":
                 return propose_log_transaction(
                     args["type"], args["category"], float(args["amount"]), args.get("description")
+                )
+            if name == "present_line_chart":
+                # Presentation only — never mutates. The streaming loop turns the
+                # descriptor into a `chart_payload` event the frontend renders
+                # inside the assistant bubble.
+                return present_line_chart(
+                    args["title"], args["categories"], args["series"]
+                )
+            if name == "present_donut_chart":
+                return present_donut_chart(
+                    args["title"], args["labels"], args["values"]
                 )
             return {"error": f"unknown tool {name}"}
         except Exception as exc:  # surface tool errors back to the agent
