@@ -31,6 +31,8 @@ It answers five anchor questions, each requiring multi-step tool calling plus sy
 
 - **Real data, never hallucinated numbers.** Every figure comes from a tool call against the user's live financial data; the prompt forbids rounding or paraphrasing tool output.
 - **Grounded answers with citations.** Conceptual questions ("what is the 50/30/20 rule?") are answered from a curated financial-education corpus retrieved via **Foundry IQ**, with inline `[n]` source markers.
+- **Acts on data, with explicit consent.** Beyond reading, the agent can _propose_ writes — create a budget, log a transaction, contribute to a goal. Each proposal renders as a confirmation card in the chat; nothing mutates until the user approves, and execution is then handled by a deterministic core-api endpoint with no LLM in the loop.
+- **Renders charts inline.** When a visual lands better than prose (an evolution, a category breakdown), the agent emits a line or donut chart that renders inside its own message bubble, theme-reactive to the live `--primary` token.
 - **Multi-turn.** Follow-ups like "and how do I fix it?" keep context across the conversation.
 - **Multi-conversation.** A ChatGPT-style sidebar of past conversations, persisted across devices.
 - **Proactive.** The dashboard detects a blown budget or a low score and offers a one-click "Ask the Coach" prompt that deep-links into a fresh conversation.
@@ -46,39 +48,81 @@ The submission uses two layers of Microsoft Foundry:
 | **Foundry Agent Service** | Hosts the agent (gpt-4.1-mini, region `eastus2`). Owns the reasoning loop, tool-call orchestration, and conversation threads. |
 | **Foundry IQ** (`file_search`) | Grounds answers in a financial-education corpus (50/30/20 rule, emergency funds, SMART goals, cutting expenses, savings rate). Returns cited, retrieved passages so advice is sourced rather than invented. |
 
-**Seven tools** wrap the platform's existing read endpoints — the agent never invents data, and `user_id` is bound to the agent session, never exposed as a tool argument (so a prompt-injected message can't read another user's data):
+**Fourteen tools** are exposed to the agent — `user_id` is bound to the session by closure, never as a tool argument, so a prompt-injected message can't read another user's data. They fall into three families:
 
-`get_health_score` · `get_transactions` · `get_budget_status` · `get_goals` · `compare_months` · `project_goal_completion` · `simulate_budget_change`
+| Family | Tools | Effect |
+| --- | --- | --- |
+| **Reads + helpers** | `get_health_score`, `get_transactions`, `get_budget_status`, `get_goals`, `compare_months`, `project_goal_completion`, `simulate_budget_change` | Wrap the platform's existing read endpoints; never mutate. |
+| **Write proposals** | `propose_create_budget`, `propose_adjust_budget`, `propose_contribute_goal`, `propose_create_goal`, `propose_log_transaction` | Emit an `action_proposal` SSE event the frontend renders as a confirmation card. The user approves; a deterministic core-api endpoint executes. |
+| **Inline charts** | `present_line_chart`, `present_donut_chart` | Emit a `chart_payload` SSE event the frontend renders inside the assistant bubble. Splitting line vs donut into separate tools (instead of one parametric tool) avoids the model inventing the data shape. |
 
 ## 🏗️ Architecture
 
-The agent is reached through the existing platform, so it inherits its auth and data:
+The agent is reached through the existing platform, so it inherits its auth and data.
 
+```mermaid
+flowchart LR
+    User([User])
+    Web["Angular /coach<br/>insightfin.app"]
+    API["Quarkus core-api<br/>JWT + SSE proxy"]
+    AI["FastAPI AI service<br/>FoundryCoachAgent"]
+    Foundry[("Microsoft Foundry<br/>gpt-4.1-mini")]
+    IQ[("Foundry IQ<br/>file_search")]
+    DB[("PostgreSQL<br/>+ Flyway")]
+
+    User -->|chat| Web
+    Web -->|POST /api/coach/chat<br/>Bearer JWT| API
+    API -->|POST /coach/chat/stream<br/>internal| AI
+    AI -->|agent runs| Foundry
+    AI -->|grounding| IQ
+    AI -->|/internal/* reads<br/>user financial data| API
+    API --> DB
+    Foundry -.->|tool_calls| AI
+    AI -.->|SSE: token / tool_call /<br/>chart_payload / action_proposal /<br/>citation| API
+    API -.->|SSE pass-through| Web
 ```
-Angular /coach page
-  │  POST /api/coach/chat   (Bearer JWT)
-  ▼
-Quarkus core-api            ── validates JWT, resolves the user, proxies SSE
-  │  POST /coach/chat/stream (internal)
-  ▼
-FastAPI AI service          ── FoundryCoachAgent, tool dispatch, SSE
-  │
-  ├─► Microsoft Foundry Agent Service   (reasoning + tool calls)
-  ├─► Foundry IQ / file_search          (grounding + citations)
-  └─► core-api /internal/* endpoints    (the user's real financial data)
+
+- Responses **stream** end to end via Server-Sent Events (token, `tool_call`, `chart_payload`, `action_proposal`, `citation`).
+- The AI service has **internal ingress only** — the only path to it is through the Quarkus proxy, which holds the JWT trust boundary.
+- Conversation **metadata** lives in the platform DB (`coach_threads`); the **messages** live in Foundry threads, so no chat content is duplicated into our database.
+
+### The reasoning loop, end to end
+
+A single anchor prompt usually triggers two or three tool calls before the agent has enough to synthesize an answer. Here's a real trace of _"How am I doing vs last month?"_:
+
+```mermaid
+sequenceDiagram
+    actor U as User
+    participant W as Angular /coach
+    participant Q as Quarkus core-api
+    participant A as FastAPI AI service
+    participant F as Foundry Agent
+
+    U->>W: "How am I doing vs last month?"
+    W->>Q: POST /api/coach/chat (Bearer JWT)
+    Q->>A: POST /coach/chat/stream
+    A->>F: runs.create (14 tool defs + corpus)
+    F-->>A: tool_call: compare_months(05, 04)
+    A->>Q: GET /internal/transactions?month=2026-05
+    A->>Q: GET /internal/transactions?month=2026-04
+    A->>F: submit_tool_outputs (deltas)
+    F-->>A: tool_call: get_health_score(05)
+    F-->>A: tool_call: get_health_score(04)
+    A->>Q: GET /internal/users/{id}/feedbacks
+    A->>F: submit_tool_outputs (scores)
+    F-->>A: stream tokens + citations
+    A-->>Q: SSE events
+    Q-->>W: SSE pass-through
+    W-->>U: tokens stream into bubble + citation chips
 ```
 
-- Responses **stream** end to end via Server-Sent Events (token-by-token, tool-call progress, citations).
-- The AI service is **never public** — only the Quarkus core-api (which holds the JWT trust boundary) talks to it.
-- Conversation **metadata** lives in the platform DB (`coach_threads`); the **messages** live in Foundry threads — so no chat content is duplicated into our database.
-
-> 📐 Detailed architecture diagram: _coming soon_
-
-The `core-api` follows **Hexagonal Architecture (Ports & Adapters)**:
+### Hexagonal Architecture (core-api)
 
 ```
 Request → Adapter (in/web) → UseCase (application) → Domain → Port (out) → Adapter (out/persistence) → Database
 ```
+
+The platform predates the hackathon, so the agent layer slots in as a new adapter + new port without modifying any existing use case.
 
 ## 📦 Monorepo structure
 
