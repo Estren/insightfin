@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CoachEvent, CoachMessage, CoachThread } from '../models/coach.model';
+import { CoachChartData, CoachChartKind, CoachEvent, CoachMessage, CoachThread } from '../models/coach.model';
 import { AuthStore } from '../stores/auth.store';
 
 interface ThreadMessageDto {
@@ -174,6 +174,15 @@ export class CoachService {
           params: (payload['params'] as Record<string, unknown>) ?? {},
           summary: String(payload['summary'] ?? ''),
         };
+      case 'chart_payload': {
+        const kind = payload['kind'] === 'donut' ? 'donut' : ('line' as CoachChartKind);
+        return {
+          type: 'chart_payload',
+          kind,
+          title: String(payload['title'] ?? ''),
+          data: (payload['data'] as CoachChartData) ?? ({ categories: [], series: [] } as CoachChartData),
+        };
+      }
       case 'citation':
         return {
           type: 'citation',
