@@ -2,7 +2,8 @@
 
 Creates ONE user (`coach-demo@insightfin.app`) with 3 months of transactions,
 budgets and goals designed to give the Coach Agent a coherent story to tell
-across the 5 anchor questions from AGENTS_LEAGUE_PLAN.md.
+across the 5 anchor questions from the Agents League plan
+(`.claude/docs/agents-league/plan.md`).
 
 Designed narrative:
     - March 2026: "good" month — high savings, all budgets within limit

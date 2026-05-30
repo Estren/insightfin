@@ -350,4 +350,92 @@ TOOL_DEFINITIONS: list[dict] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "present_line_chart",
+            "description": (
+                "Show a LINE chart inside your reply — best for evolution over "
+                "time (months, days). Use AFTER a read tool produced the numbers; "
+                "NEVER invent values. After calling it, write ONE or two short "
+                "sentences about what the chart shows; do not say 'see the chart "
+                "below' — the visual speaks for itself. Use sparingly: only when "
+                "the chart clearly adds value over plain text."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Short descriptive title (e.g. 'Receita vs Despesa — últimos 3 meses').",
+                    },
+                    "categories": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "X-axis labels in order (e.g. ['2026-03', '2026-04', '2026-05']).",
+                    },
+                    "series": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Series name shown in the legend (e.g. 'Receita').",
+                                },
+                                "data": {
+                                    "type": "array",
+                                    "items": {"type": "number"},
+                                    "description": (
+                                        "Numeric points aligned with categories — same length, "
+                                        "same order."
+                                    ),
+                                },
+                            },
+                            "required": ["name", "data"],
+                        },
+                        "description": "One or more named series sharing the same x-axis.",
+                    },
+                },
+                "required": ["title", "categories", "series"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "present_donut_chart",
+            "description": (
+                "Show a DONUT chart inside your reply — best for distribution by "
+                "category (where the money goes, share of a total). Use AFTER a "
+                "read tool produced the numbers; NEVER invent values. After "
+                "calling it, write ONE or two short sentences about what the "
+                "chart shows; do not say 'see the chart below' — the visual "
+                "speaks for itself. Use sparingly: only when the chart clearly "
+                "adds value over plain text."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Short descriptive title (e.g. 'Despesas por categoria — maio/2026').",
+                    },
+                    "labels": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "One label per slice (e.g. ['Alimentação', 'Transporte', ...]).",
+                    },
+                    "values": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": (
+                            "Numeric value per slice — same length and order as labels."
+                        ),
+                    },
+                },
+                "required": ["title", "labels", "values"],
+            },
+        },
+    },
 ]
