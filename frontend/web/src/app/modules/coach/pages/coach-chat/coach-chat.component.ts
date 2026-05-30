@@ -15,6 +15,7 @@ import { CoachMessage, CoachSuggestion } from '../../../../core/models/coach.mod
 import { CoachStore } from '../../../../core/stores/coach.store';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
 import { SkeletonComponent } from '../../../../shared/components/skeleton/skeleton.component';
+import { CoachChartComponent } from '../../components/coach-chart/coach-chart.component';
 import { CoachSidebarComponent } from '../../components/coach-sidebar/coach-sidebar.component';
 
 const SUGGESTIONS: CoachSuggestion[] = [
@@ -28,7 +29,15 @@ const SUGGESTIONS: CoachSuggestion[] = [
   selector: 'app-coach-chat',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './coach-chat.component.html',
-  imports: [NgClass, FormsModule, TranslateModule, PageHeaderComponent, SkeletonComponent, CoachSidebarComponent],
+  imports: [
+    NgClass,
+    FormsModule,
+    TranslateModule,
+    PageHeaderComponent,
+    SkeletonComponent,
+    CoachSidebarComponent,
+    CoachChartComponent,
+  ],
 })
 export class CoachChatComponent implements OnInit, AfterViewChecked {
   readonly suggestions = SUGGESTIONS;

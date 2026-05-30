@@ -2,15 +2,16 @@
  * Server-sent events emitted by the Coach Agent via POST /api/coach/chat.
  *
  * Wire format (one SSE event per object below):
- *   event: token        — { data: "<text chunk>" }
- *   event: tool_call    — { name: "get_health_score" }
- *   event: citation     — { marker: 1, filename: "regra-50-30-20.md" }
- *   event: error        — { data: "<message>" }
- *   event: done         — {}
+ *   event: token         — { data: "<text chunk>" }
+ *   event: tool_call     — { name: "get_health_score" }
+ *   event: chart_payload — { kind: "line"|"donut", title, data }
+ *   event: citation      — { marker: 1, filename: "regra-50-30-20.md" }
+ *   event: error         — { data: "<message>" }
+ *   event: done          — {}
  *
  * The UI joins every `token.data` into the assistant bubble, badges the
- * `tool_call` events ("consultando orçamentos..."), and appends citations
- * as numbered chips at the end of the bubble.
+ * `tool_call` events ("consultando orçamentos..."), renders `chart_payload`
+ * inline inside the assistant bubble, and appends citations as numbered chips.
  */
 
 export type CoachEvent =
@@ -18,6 +19,7 @@ export type CoachEvent =
   | { type: 'token'; data: string }
   | { type: 'tool_call'; name: string }
   | { type: 'action_proposal'; action: string; params: Record<string, unknown>; summary: string }
+  | { type: 'chart_payload'; kind: CoachChartKind; title: string; data: CoachChartData }
   | { type: 'citation'; marker: number; filename: string }
   | { type: 'error'; data: string }
   | { type: 'done' };
@@ -33,12 +35,27 @@ export interface CoachActionProposal {
   resultMessage?: string;
 }
 
+export type CoachChartKind = 'line' | 'donut';
+
+/** Wire shape (matches the AI service's `present_*_chart` tool descriptors). */
+export type CoachChartData =
+  | { categories: string[]; series: { name: string; data: number[] }[] }
+  | { labels: string[]; series: number[] };
+
+export interface CoachChart {
+  kind: CoachChartKind;
+  title: string;
+  data: CoachChartData;
+}
+
 export interface CoachMessage {
   id: string;
   role: 'user' | 'assistant';
   text: string;
   toolCalls: string[];
   citations: { marker: number; filename: string }[];
+  /** Charts the agent decided to show alongside its text. Not persisted across thread hydration (v1). */
+  charts?: CoachChart[];
   isStreaming?: boolean;
   errored?: boolean;
   proposal?: CoachActionProposal;

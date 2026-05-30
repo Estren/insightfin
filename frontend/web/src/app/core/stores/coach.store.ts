@@ -1,7 +1,14 @@
 import { Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { CoachActionStatus, CoachMessage, CoachThread } from '../models/coach.model';
+import {
+  CoachActionStatus,
+  CoachChart,
+  CoachChartData,
+  CoachChartKind,
+  CoachMessage,
+  CoachThread,
+} from '../models/coach.model';
 import { CoachService } from '../services/coach.service';
 
 /**
@@ -126,6 +133,9 @@ export class CoachStore {
           case 'action_proposal':
             this.attachProposal(assistantId, event.action, event.params, event.summary);
             break;
+          case 'chart_payload':
+            this.attachChart(assistantId, event.kind, event.title, event.data);
+            break;
           case 'citation':
             this.recordCitation(assistantId, event.marker, event.filename);
             break;
@@ -238,6 +248,11 @@ export class CoachStore {
     this.messages.update((prev) =>
       prev.map((m) => (m.id === id ? { ...m, proposal: { action, params, summary, status: 'pending' as const } } : m)),
     );
+  }
+
+  private attachChart(id: string, kind: CoachChartKind, title: string, data: CoachChartData): void {
+    const chart: CoachChart = { kind, title, data };
+    this.messages.update((prev) => prev.map((m) => (m.id === id ? { ...m, charts: [...(m.charts ?? []), chart] } : m)));
   }
 
   private setProposalStatus(id: string, status: CoachActionStatus, resultMessage?: string): void {
