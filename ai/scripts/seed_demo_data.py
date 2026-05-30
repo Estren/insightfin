@@ -12,11 +12,12 @@ Designed narrative:
 
 Usage (from `ai/` with venv active):
 
-    python -m scripts.seed_demo_data
+    python -m scripts.seed_demo_data           # seed (idempotent only for new users)
+    python -m scripts.seed_demo_data --reset   # wipe + re-seed for guaranteed clean state
 
-Idempotency: if the demo user already exists, the script logs in instead of
-registering. It does NOT clean up existing categories/transactions — re-running
-will duplicate them. To start fresh, drop the user via API or DB.
+Without `--reset`, re-running the script accumulates duplicates because the
+API has no natural unique key for transactions/budgets. Use `--reset` whenever
+you want a clean slate (e.g. before recording the demo video).
 
 Prerequisites:
     1. core-api running locally at http://localhost:8080
@@ -27,10 +28,16 @@ Prerequisites:
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import sys
 
 import httpx
+
+# Force UTF-8 on stdout/stderr so the checkmark/cross/info glyphs render on
+# Windows consoles (default cp1252 can't encode them and raises mid-run).
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
 
 API_BASE = "http://localhost:8080/api"
 
@@ -157,6 +164,29 @@ async def register_or_login(http: httpx.AsyncClient) -> str:
     return login_resp.json()["accessToken"]
 
 
+async def delete_existing_demo_user(http: httpx.AsyncClient) -> None:
+    """Wipe the demo user (cascades to all their data) so seeding starts clean.
+
+    No-op when the user doesn't exist yet.
+    """
+    login_resp = await http.post(
+        "/auth/login",
+        json={"email": DEMO_USER["email"], "password": DEMO_USER["password"]},
+    )
+    # core-api returns 400 ("Invalid email or password") when the user simply
+    # doesn't exist; 401 covers other auth-rejection variants.
+    if login_resp.status_code in (400, 401):
+        print("ℹ Demo user doesn't exist yet — nothing to reset")
+        return
+    login_resp.raise_for_status()
+    token = login_resp.json()["accessToken"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    delete_resp = await http.delete("/users/me", headers=headers)
+    delete_resp.raise_for_status()
+    print("✓ Wiped existing demo user (and cascaded data)")
+
+
 async def create_categories(
     http: httpx.AsyncClient, headers: dict
 ) -> dict[str, str]:
@@ -228,8 +258,10 @@ async def fetch_user_id(http: httpx.AsyncClient, headers: dict) -> str:
     return resp.json()["id"]
 
 
-async def main() -> int:
+async def main(reset: bool) -> int:
     async with httpx.AsyncClient(base_url=API_BASE, timeout=30.0) as http:
+        if reset:
+            await delete_existing_demo_user(http)
         token = await register_or_login(http)
         headers = {"Authorization": f"Bearer {token}"}
 
@@ -256,8 +288,15 @@ async def main() -> int:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        "--reset",
+        action="store_true",
+        help="Wipe the demo user (and all their data) before seeding — clean slate.",
+    )
+    args = parser.parse_args()
     try:
-        sys.exit(asyncio.run(main()))
+        sys.exit(asyncio.run(main(reset=args.reset)))
     except httpx.HTTPStatusError as exc:
         print(f"\n❌ HTTP {exc.response.status_code}: {exc.response.text}", file=sys.stderr)
         sys.exit(1)
