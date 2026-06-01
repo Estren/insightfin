@@ -29,7 +29,10 @@ public class RateLimitFilter implements ContainerRequestFilter {
             "api/auth/login",
             "api/auth/register",
             "api/auth/forgot-password",
-            "api/auth/resend-verification");
+            "api/auth/resend-verification",
+            // F-05: also gate /reset-password to keep token brute-force impractical
+            // (UUID v4 token + 30-min TTL is already hard, but inclusion is cheap)
+            "api/auth/reset-password");
 
     private static final long WINDOW_MILLIS = 60_000L;
     private static final int MAX_TRACKED_IPS = 10_000;
