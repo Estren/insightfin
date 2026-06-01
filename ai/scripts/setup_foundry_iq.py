@@ -20,6 +20,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+# Force UTF-8 on stdout/stderr so the checkmark glyph renders on Windows
+# consoles (default cp1252 can't encode it and raises mid-run).
+sys.stdout.reconfigure(encoding="utf-8")
+sys.stderr.reconfigure(encoding="utf-8")
+
 # Make `app` importable when running from `ai/`.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
