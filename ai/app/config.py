@@ -2,12 +2,18 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # Azure OpenAI (standalone resource — used by the batch orchestrator)
-    azure_openai_endpoint: str = ""
-    azure_openai_key: str = ""
-    azure_openai_model: str = "gpt-4o-mini"
-
-    # Azure AI Foundry project (used by the Coach Agent)
+    # Azure AI Foundry — single resource serving both the batch orchestrator
+    # (via the OpenAI-compatible inference endpoint) and the Coach Agent (via
+    # the Agent Service surface).
+    #
+    # `inference_url` points at the resource-scoped OpenAI endpoint
+    # (https://<resource>.services.ai.azure.com/openai/v1) and is consumed by
+    # `openai.AsyncOpenAI` in app/agent/llm_client.py.
+    #
+    # `project_endpoint` points at the project-scoped Agents endpoint
+    # (https://<resource>.services.ai.azure.com/api/projects/<project>) and is
+    # consumed by `azure-ai-projects` in app/coach_agent/agent.py.
+    azure_foundry_inference_url: str = ""
     azure_foundry_project_endpoint: str = ""
     azure_foundry_api_key: str = ""
     azure_foundry_model: str = "gpt-4.1-mini"
