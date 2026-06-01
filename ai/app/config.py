@@ -25,6 +25,10 @@ class Settings(BaseSettings):
 
     # Core-API
     core_api_url: str = "http://core-api:8080"
+    # Shared secret required by core-api on /internal/* endpoints. The AI
+    # service is the only legitimate caller of those endpoints; the secret
+    # turns a bare ingress allowlist into proper authentication.
+    internal_shared_secret: str = ""
 
     # Kafka
     kafka_bootstrap_servers: str = "kafka:9092"

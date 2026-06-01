@@ -79,4 +79,9 @@ class CoreApiClient:
 
 
 def make_http_client() -> httpx.AsyncClient:
-    return httpx.AsyncClient(timeout=httpx.Timeout(30.0))
+    # /internal/* endpoints on core-api now require the shared secret; without
+    # it every call returns 401. The header is sent on every request so the
+    # Coach Agent's tool calls and the batch orchestrator both authenticate
+    # without any per-call boilerplate.
+    headers = {"X-Internal-Auth": settings.internal_shared_secret} if settings.internal_shared_secret else {}
+    return httpx.AsyncClient(timeout=httpx.Timeout(30.0), headers=headers)
