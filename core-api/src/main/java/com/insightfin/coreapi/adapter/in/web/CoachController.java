@@ -57,6 +57,12 @@ public class CoachController {
     @ConfigProperty(name = "ai.service.url", defaultValue = "http://ai:8081")
     String aiServiceUrl;
 
+    // Shared with CoachAgentHttpClient — the AI service rejects requests
+    // without this header. Empty here means we don't send it; the upstream
+    // call will 401 in that case (fail-secure both directions).
+    @ConfigProperty(name = "app.internal.shared-secret")
+    java.util.Optional<String> internalSharedSecret;
+
     private static final Logger LOG = Logger.getLogger(CoachController.class);
 
     // Force HTTP/1.1 — uvicorn (FastAPI) is HTTP/1.1 only; the JDK client
@@ -103,11 +109,16 @@ public class CoachController {
         LOG.infof("coach_chat_proxy upstream=%s userId=%s threadId=%s questionLength=%d",
                 aiServiceUrl, userId, threadId, body.question().length());
 
-        HttpRequest upstream = HttpRequest.newBuilder()
+        HttpRequest.Builder upstreamBuilder = HttpRequest.newBuilder()
                 .uri(URI.create(aiServiceUrl + "/coach/chat/stream"))
                 .timeout(Duration.ofMinutes(2))
                 .header("Content-Type", "application/json")
-                .header("Accept", "text/event-stream")
+                .header("Accept", "text/event-stream");
+        String secret = internalSharedSecret.orElse("");
+        if (!secret.isBlank()) {
+            upstreamBuilder.header("X-Internal-Auth", secret);
+        }
+        HttpRequest upstream = upstreamBuilder
                 .POST(HttpRequest.BodyPublishers.ofString(payload))
                 .build();
 
