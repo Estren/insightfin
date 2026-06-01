@@ -347,6 +347,8 @@ class FoundryCoachAgent:
           client can keep the same thread across follow-up requests (multi-turn).
         - ``token``   → ``{"data": "<text chunk>"}``: append to assistant bubble.
         - ``tool_call`` → ``{"name": "get_health_score"}``: show "thinking" tag.
+        - ``tool_executed`` → ``{"name", "args", "result"}``: append to the
+          assistant message's reasoning trail (expandable in the UI).
         - ``action_proposal`` → ``{"action", "params", "summary"}``: render a
           confirmation card; the user approves before core-api executes.
         - ``chart_payload`` → ``{"kind", "title", "data"}``: render a chart in
@@ -410,11 +412,28 @@ class FoundryCoachAgent:
                     tool_calls = required_action.submit_tool_outputs.tool_calls
                     outputs: list[ToolOutput] = []
                     for call in tool_calls:
+                        name = call.function.name
+                        try:
+                            args = json.loads(call.function.arguments or "{}")
+                        except json.JSONDecodeError:
+                            args = {}
                         yield {
                             "type": "tool_call",
-                            "name": call.function.name,
+                            "name": name,
                         }
                         result = await self._dispatch_tool(call, user_id)
+                        # Surface the executed call to the frontend so it can
+                        # render an expandable "reasoning trail" under the
+                        # assistant message — name, args from Foundry, and the
+                        # full result dict the agent received back. Lets the
+                        # user see exactly which tools fired with which
+                        # inputs and outputs.
+                        yield {
+                            "type": "tool_executed",
+                            "name": name,
+                            "args": args,
+                            "result": result,
+                        }
                         # A successful proposal (no "error") is surfaced to the
                         # client as a confirmation card; the user must approve it
                         # before core-api executes anything.
