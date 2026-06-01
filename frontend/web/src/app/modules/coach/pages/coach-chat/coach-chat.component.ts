@@ -1,4 +1,4 @@
-import { NgClass } from '@angular/common';
+import { JsonPipe, NgClass } from '@angular/common';
 import {
   AfterViewChecked,
   ChangeDetectionStrategy,
@@ -30,6 +30,7 @@ const SUGGESTIONS: CoachSuggestion[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './coach-chat.component.html',
   imports: [
+    JsonPipe,
     NgClass,
     FormsModule,
     TranslateModule,

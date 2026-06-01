@@ -550,6 +550,12 @@
     "rename": "Rename",
     "thinking": "Consulting {{tool}}...",
     "sources": "Sources",
+    "reasoning": {
+      "summaryOne": "How I got here · {{count}} call",
+      "summaryOther": "How I got here · {{count}} calls",
+      "args": "Arguments",
+      "result": "Result"
+    },
     "action": {
       "confirm": "Confirm",
       "cancel": "Cancel",

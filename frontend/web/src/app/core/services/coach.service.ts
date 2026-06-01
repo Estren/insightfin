@@ -167,6 +167,13 @@ export class CoachService {
         return { type: 'token', data: String(payload['data'] ?? '') };
       case 'tool_call':
         return { type: 'tool_call', name: String(payload['name'] ?? '') };
+      case 'tool_executed':
+        return {
+          type: 'tool_executed',
+          name: String(payload['name'] ?? ''),
+          args: (payload['args'] as Record<string, unknown>) ?? {},
+          result: payload['result'],
+        };
       case 'action_proposal':
         return {
           type: 'action_proposal',

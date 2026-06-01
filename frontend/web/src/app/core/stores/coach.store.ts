@@ -8,6 +8,7 @@ import {
   CoachChartKind,
   CoachMessage,
   CoachThread,
+  CoachToolExecution,
 } from '../models/coach.model';
 import { CoachService } from '../services/coach.service';
 
@@ -130,6 +131,9 @@ export class CoachStore {
             this.currentToolCall.set(event.name);
             this.recordToolCall(assistantId, event.name);
             break;
+          case 'tool_executed':
+            this.recordToolExecution(assistantId, { name: event.name, args: event.args, result: event.result });
+            break;
           case 'action_proposal':
             this.attachProposal(assistantId, event.action, event.params, event.summary);
             break;
@@ -242,6 +246,12 @@ export class CoachStore {
 
   private recordToolCall(id: string, name: string): void {
     this.messages.update((prev) => prev.map((m) => (m.id === id ? { ...m, toolCalls: [...m.toolCalls, name] } : m)));
+  }
+
+  private recordToolExecution(id: string, exec: CoachToolExecution): void {
+    this.messages.update((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, toolExecutions: [...(m.toolExecutions ?? []), exec] } : m)),
+    );
   }
 
   private attachProposal(id: string, action: string, params: Record<string, unknown>, summary: string): void {

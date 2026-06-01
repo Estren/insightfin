@@ -117,6 +117,33 @@
                 }
               }
 
+              @let execs = message.toolExecutions ?? [];
+              @if (message.role === 'assistant' && execs.length > 0) {
+                <details class="mt-3 rounded-md border border-border bg-background">
+                  <summary
+                    class="cursor-pointer select-none px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
+                    {{
+                      (execs.length === 1 ? 'coach.reasoning.summaryOne' : 'coach.reasoning.summaryOther')
+                        | translate: { count: execs.length }
+                    }}
+                  </summary>
+                  <div class="space-y-2 border-t border-border px-3 py-2">
+                    @for (exec of execs; track $index) {
+                      <div class="rounded border border-border bg-card/50 p-2 text-xs">
+                        <div class="break-all font-mono text-primary">{{ exec.name }}({{ exec.args | json }})</div>
+                        <div class="mt-1 mb-0.5 text-[0.65rem] uppercase tracking-wide text-muted-foreground">
+                          {{ 'coach.reasoning.result' | translate }}
+                        </div>
+                        <pre
+                          class="overflow-x-auto whitespace-pre-wrap break-words font-mono text-[0.7rem] text-foreground"
+                          >{{ exec.result | json }}</pre
+                        >
+                      </div>
+                    }
+                  </div>
+                </details>
+              }
+
               @if (message.citations.length > 0) {
                 <div class="mt-3 border-t border-border pt-2">
                   <div class="mb-1 text-xs font-medium text-muted-foreground">{{ 'coach.sources' | translate }}</div>
