@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * HTTP adapter to the AI service for non-streaming Coach operations.
@@ -33,17 +34,32 @@ public class CoachAgentHttpClient implements CoachAgentGateway {
     @ConfigProperty(name = "ai.service.url", defaultValue = "http://ai:8081")
     String aiServiceUrl;
 
+    // Mirrors the shared secret that core-api itself requires on /internal/*.
+    // Sent on every upstream call so the AI service can refuse anonymous
+    // traffic from inside the ACA environment. Empty = no header sent; the
+    // AI service will reject with 401 in that case (fail-secure on both ends).
+    @ConfigProperty(name = "app.internal.shared-secret")
+    Optional<String> internalSharedSecret;
+
     private static final HttpClient HTTP = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .version(HttpClient.Version.HTTP_1_1)
             .build();
 
+    private HttpRequest.Builder withAuth(HttpRequest.Builder builder) {
+        String secret = internalSharedSecret.orElse("");
+        if (!secret.isBlank()) {
+            builder.header("X-Internal-Auth", secret);
+        }
+        return builder;
+    }
+
     @Override
     public String createThread() {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest request = withAuth(HttpRequest.newBuilder()
                 .uri(URI.create(aiServiceUrl + "/coach/threads"))
                 .timeout(Duration.ofSeconds(30))
-                .header("Content-Type", "application/json")
+                .header("Content-Type", "application/json"))
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
         try {
@@ -63,10 +79,10 @@ public class CoachAgentHttpClient implements CoachAgentGateway {
 
     @Override
     public List<CoachMessage> listMessages(String foundryThreadId) {
-        HttpRequest request = HttpRequest.newBuilder()
+        HttpRequest request = withAuth(HttpRequest.newBuilder()
                 .uri(URI.create(aiServiceUrl + "/coach/threads/" + foundryThreadId + "/messages"))
                 .timeout(Duration.ofSeconds(30))
-                .header("Accept", "application/json")
+                .header("Accept", "application/json"))
                 .GET()
                 .build();
         try {
