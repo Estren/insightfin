@@ -1,4 +1,10 @@
-fastapi==0.115.5
+fastapi==0.121.0
+# F-02: starlette pinned to 0.49.1 (max version fastapi 0.121 allows).
+# Clears CVE-2025-54121 and CVE-2025-62727. PYSEC-2026-161 still affects this
+# version and is only fixed in starlette 1.0.1, which requires fastapi 0.122+
+# (not yet released as of this commit). Tracking upstream; will bump as soon
+# as fastapi 0.122 lands.
+starlette==0.49.1
 uvicorn[standard]==0.34.0
 httpx==0.28.1
 aiokafka==0.11.0
@@ -12,4 +18,6 @@ prometheus-fastapi-instrumentator==7.0.0
 sentry-sdk[fastapi]==2.42.1
 azure-ai-projects==1.0.0
 azure-identity==1.19.0
-aiohttp==3.11.11
+# F-02: bumps aiohttp through 19 HTTP smuggling / DoS / parsing CVEs
+# (CVE-2026-34513..34525, CVE-2025-53643, CVE-2025-69223..69230)
+aiohttp==3.13.4
