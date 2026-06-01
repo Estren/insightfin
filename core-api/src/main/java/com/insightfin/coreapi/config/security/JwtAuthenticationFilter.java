@@ -17,6 +17,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Provider
@@ -30,8 +31,11 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
     @Inject
     AuthenticatedUser authenticatedUser;
 
-    @ConfigProperty(name = "app.internal.shared-secret", defaultValue = "")
-    String internalSharedSecret;
+    // Optional<String> because SmallRye Config converts an empty env var to
+    // null and refuses to inject it into a plain String at boot — see the
+    // same pattern used for azure.storage.public-base-url.
+    @ConfigProperty(name = "app.internal.shared-secret")
+    Optional<String> internalSharedSecret;
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
@@ -42,9 +46,9 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
         // accidentally reachable from the public ingress (root cause: this
         // filter used to allowlist anything starting with "internal").
         if (normalize(path).startsWith("internal")) {
+            String configured = internalSharedSecret.orElse("");
             String secret = requestContext.getHeaderString("X-Internal-Auth");
-            if (internalSharedSecret == null || internalSharedSecret.isBlank()
-                    || secret == null || !secret.equals(internalSharedSecret)) {
+            if (configured.isBlank() || secret == null || !secret.equals(configured)) {
                 requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
             }
             return;
