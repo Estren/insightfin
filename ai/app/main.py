@@ -20,6 +20,7 @@ from app.coach_agent.api.chat_routes import router as coach_router
 from app.config import settings
 from app.core_api.client import CoreApiClient, make_http_client
 from app.kafka.consumer import KafkaConsumer
+from app.middleware.internal_auth import internal_auth_middleware
 from app.scheduler.jobs import Scheduler
 
 if settings.sentry_dsn:
@@ -125,6 +126,9 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(title="insightfin AI Service", version="1.0.0", lifespan=lifespan)
+    # Gate every non-health, non-metrics route behind the shared secret. Mounts
+    # before include_router so it wraps every handler regardless of source.
+    app.middleware("http")(internal_auth_middleware)
     app.include_router(router)
     app.include_router(coach_router)
     Instrumentator().instrument(app).expose(app, endpoint="/metrics")
