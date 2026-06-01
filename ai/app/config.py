@@ -43,6 +43,13 @@ class Settings(BaseSettings):
     analysis_batch_size: int = 10
     llm_timeout_seconds: int = 30
 
+    # F-04: per-user rate limit on Coach Agent chat endpoints. 30 calls per
+    # hour per user is generous for exploration but blunts scripted abuse
+    # before the global MAX_LLM_CALLS_PER_DAY cap fires. Set max_calls=0 to
+    # disable (used in tests).
+    coach_rate_limit_max_calls: int = 30
+    coach_rate_limit_window_seconds: int = 3600
+
     # Observability — Sentry is off when the DSN is empty.
     sentry_dsn: str = ""
     sentry_environment: str = "production"

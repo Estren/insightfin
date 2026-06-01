@@ -23,6 +23,8 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from app.coach_agent.api.throttle import check_quota
+
 log = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/coach", tags=["coach"])
@@ -84,9 +86,21 @@ async def thread_messages(thread_id: str, request: Request) -> list[dict]:
         raise HTTPException(status_code=502, detail="Failed to load thread messages.")
 
 
+def _enforce_quota(user_id: UUID) -> None:
+    allowed, retry_after = check_quota(user_id)
+    if not allowed:
+        log.warning("coach_rate_limited", user_id=str(user_id), retry_after=retry_after)
+        raise HTTPException(
+            status_code=429,
+            detail="Coach Agent rate limit exceeded for this user.",
+            headers={"Retry-After": str(retry_after)},
+        )
+
+
 @router.post("/chat", response_model=CoachChatResponse)
 async def chat(body: CoachChatRequest, request: Request) -> CoachChatResponse:
     coach_agent = _require_coach_agent(request)
+    _enforce_quota(body.userId)
     try:
         answer = await coach_agent.ask(body.userId, body.question)
     except Exception as exc:
@@ -113,6 +127,7 @@ async def chat_stream(body: CoachChatRequest, request: Request) -> StreamingResp
     final assistant message.
     """
     coach_agent = _require_coach_agent(request)
+    _enforce_quota(body.userId)
 
     async def event_generator():
         try:
