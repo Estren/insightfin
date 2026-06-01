@@ -37,9 +37,13 @@ def _check_and_increment() -> None:
 
 class LLMClient:
     def __init__(self) -> None:
+        # Foundry's resource-scoped OpenAI endpoint is wire-compatible with the
+        # plain Azure OpenAI surface this client used to talk to, so the openai
+        # SDK keeps working unchanged — only the base_url/key/model source
+        # changed.
         self._client = AsyncOpenAI(
-            base_url=settings.azure_openai_endpoint,
-            api_key=settings.azure_openai_key,
+            base_url=settings.azure_foundry_inference_url,
+            api_key=settings.azure_foundry_api_key,
         )
 
     @retry(
@@ -53,7 +57,7 @@ class LLMClient:
 
         start = time.monotonic()
         response = await self._client.chat.completions.create(
-            model=settings.azure_openai_model,
+            model=settings.azure_foundry_model,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message},
