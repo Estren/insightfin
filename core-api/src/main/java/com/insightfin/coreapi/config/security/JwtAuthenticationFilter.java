@@ -12,6 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -29,9 +30,25 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
     @Inject
     AuthenticatedUser authenticatedUser;
 
+    @ConfigProperty(name = "app.internal.shared-secret", defaultValue = "")
+    String internalSharedSecret;
+
     @Override
     public void filter(ContainerRequestContext requestContext) {
         String path = requestContext.getUriInfo().getPath();
+
+        // /internal/* endpoints are JWT-less but require the shared secret
+        // header that only the AI service knows. Without this guard they were
+        // accidentally reachable from the public ingress (root cause: this
+        // filter used to allowlist anything starting with "internal").
+        if (normalize(path).startsWith("internal")) {
+            String secret = requestContext.getHeaderString("X-Internal-Auth");
+            if (internalSharedSecret == null || internalSharedSecret.isBlank()
+                    || secret == null || !secret.equals(internalSharedSecret)) {
+                requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+            }
+            return;
+        }
 
         if (isPublicPath(path)) {
             return;
@@ -103,7 +120,6 @@ public class JwtAuthenticationFilter implements ContainerRequestFilter {
                 || normalized.startsWith("api/auth/verify-email")
                 || normalized.startsWith("api/auth/verify-email-pin")
                 || normalized.startsWith("api/auth/resend-verification")
-                || normalized.startsWith("internal")
                 || normalized.startsWith("swagger-ui")
                 || normalized.startsWith("q/")
                 || normalized.startsWith("v3/api-docs")
