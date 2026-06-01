@@ -550,6 +550,12 @@
     "rename": "Renomear",
     "thinking": "Consultando {{tool}}...",
     "sources": "Fontes",
+    "reasoning": {
+      "summaryOne": "Como cheguei nisso · {{count}} consulta",
+      "summaryOther": "Como cheguei nisso · {{count}} consultas",
+      "args": "Argumentos",
+      "result": "Resultado"
+    },
     "action": {
       "confirm": "Confirmar",
       "cancel": "Cancelar",

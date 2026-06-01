@@ -4,20 +4,24 @@
  * Wire format (one SSE event per object below):
  *   event: token         — { data: "<text chunk>" }
  *   event: tool_call     — { name: "get_health_score" }
+ *   event: tool_executed — { name, args, result }
  *   event: chart_payload — { kind: "line"|"donut", title, data }
  *   event: citation      — { marker: 1, filename: "regra-50-30-20.md" }
  *   event: error         — { data: "<message>" }
  *   event: done          — {}
  *
  * The UI joins every `token.data` into the assistant bubble, badges the
- * `tool_call` events ("consultando orçamentos..."), renders `chart_payload`
- * inline inside the assistant bubble, and appends citations as numbered chips.
+ * `tool_call` events ("consultando orçamentos..."), accumulates
+ * `tool_executed` into an expandable reasoning trail under the message,
+ * renders `chart_payload` inline inside the assistant bubble, and appends
+ * citations as numbered chips.
  */
 
 export type CoachEvent =
   | { type: 'thread'; id: string }
   | { type: 'token'; data: string }
   | { type: 'tool_call'; name: string }
+  | { type: 'tool_executed'; name: string; args: Record<string, unknown>; result: unknown }
   | { type: 'action_proposal'; action: string; params: Record<string, unknown>; summary: string }
   | { type: 'chart_payload'; kind: CoachChartKind; title: string; data: CoachChartData }
   | { type: 'citation'; marker: number; filename: string }
@@ -48,6 +52,12 @@ export interface CoachChart {
   data: CoachChartData;
 }
 
+export interface CoachToolExecution {
+  name: string;
+  args: Record<string, unknown>;
+  result: unknown;
+}
+
 export interface CoachMessage {
   id: string;
   role: 'user' | 'assistant';
@@ -56,6 +66,8 @@ export interface CoachMessage {
   citations: { marker: number; filename: string }[];
   /** Charts the agent decided to show alongside its text. Not persisted across thread hydration (v1). */
   charts?: CoachChart[];
+  /** Tool calls + their args + their results — surfaced as an expandable reasoning trail. */
+  toolExecutions?: CoachToolExecution[];
   isStreaming?: boolean;
   errored?: boolean;
   proposal?: CoachActionProposal;
