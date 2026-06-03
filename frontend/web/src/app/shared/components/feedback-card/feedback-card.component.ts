@@ -18,6 +18,7 @@ const TYPE_BADGE_CLASS = 'bg-primary/10 text-primary';
   selector: 'app-feedback-card',
   templateUrl: './feedback-card.component.html',
   imports: [NgClass, TranslateModule],
+  host: { class: 'block' },
 })
 export class FeedbackCardComponent {
   private readonly store = inject(AiFeedbackStore);

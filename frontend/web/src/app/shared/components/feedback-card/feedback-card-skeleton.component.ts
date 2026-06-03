@@ -9,6 +9,7 @@ import { SkeletonComponent } from '../skeleton/skeleton.component';
 @Component({
   selector: 'app-feedback-card-skeleton',
   imports: [SkeletonComponent],
+  host: { class: 'block' },
   template: `
     <div class="bg-muted/30 rounded-md p-3">
       <div class="mb-1">

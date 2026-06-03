@@ -1,9 +1,14 @@
 """Seed the local core-api with a realistic demo user for Coach Agent testing.
 
 Creates ONE user (`coach-demo@insightfin.app`) with 3 months of transactions,
-budgets and goals designed to give the Coach Agent a coherent story to tell
-across the 5 anchor questions from the Agents League plan
-(`.claude/docs/agents-league/plan.md`).
+budgets, goals, and a handful of AI feedbacks (so the navbar bell dropdown
+has notifications to click on without waiting for the monthly cron). Designed
+to give the Coach Agent a coherent story to tell across the 5 anchor
+questions from the Agents League plan (`.claude/docs/agents-league/plan.md`).
+
+Budget-alert notifications (kind=BUDGET_ALERT) are *not* directly seeded:
+they fire from the Kafka consumer when transactions cross 50/80/100% of a
+budget. They appear automatically if Kafka is up locally during the seed.
 
 Designed narrative:
     - March 2026: "good" month — high savings, all budgets within limit
@@ -31,6 +36,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import sys
+from datetime import date
 
 import httpx
 
@@ -40,6 +46,10 @@ sys.stdout.reconfigure(encoding="utf-8")
 sys.stderr.reconfigure(encoding="utf-8")
 
 API_BASE = "http://localhost:8080/api"
+# Internal endpoints (consumed only by the AI service) are NOT under /api —
+# they're mounted at the root path. The seed uses both: /api/* for the public
+# routes it calls as the demo user, and INTERNAL_BASE for /internal/feedbacks.
+INTERNAL_BASE = "http://localhost:8080"
 
 DEMO_USER = {
     "name": "Coach Demo",
@@ -117,6 +127,114 @@ BUDGETS: list[tuple[str, float, str]] = [
     ("Transporte", 500, "2026-05"),    # ~96% — within
     ("Lazer", 300, "2026-05"),         # ~150% — blown
     ("Moradia", 2000, "2026-05"),      # 90% — within
+]
+
+# AI feedbacks — surfaced as AI_FEEDBACK notifications in the bell dropdown.
+# Created directly via /internal/feedbacks (same path the AI orchestrator uses
+# in prod) because the local seed doesn't run the monthly cron. All start
+# unread, so the navbar badge will show them and the deep-link flow has
+# something to click.
+#
+# Each entry: (type, title, content, reference_month)
+AI_FEEDBACKS: list[tuple[str, str, str, str | None]] = [
+    (
+        "MONTHLY_REPORT",
+        "Março fechou no azul",
+        (
+            "Você economizou cerca de R$ 3.400 em março — mês forte: salário cheio + freelance, "
+            "orçamentos todos dentro do limite. Continue assim e a reserva de emergência fecha o "
+            "ano completa."
+        ),
+        "2026-03",
+    ),
+    (
+        "HEALTH_SCORE",
+        "Health score: 82",
+        (
+            "Sua saúde financeira em março ficou em 82/100. Pontos fortes: receita diversificada "
+            "(salário + freelance) e zero estouro de orçamento. Atenção: Alimentação subiu 18% vs "
+            "o mês anterior."
+        ),
+        "2026-03",
+    ),
+    (
+        "MONTHLY_REPORT",
+        "Abril ok, sem freelance",
+        (
+            "Abril sem renda extra: sobraram aproximadamente R$ 1.800. Tudo dentro do esperado, "
+            "exceto Alimentação que segue em alta. Vale revisar o quanto vai em delivery."
+        ),
+        "2026-04",
+    ),
+    (
+        "ALERT",
+        "Lazer estourou em maio",
+        (
+            "Seu orçamento de Lazer (R$ 300) chegou a 150% em maio — gasto total R$ 450. Os "
+            "principais lançamentos foram Show, Restaurante+bar e Cinema+jantar. Considere "
+            "remanejar para o próximo mês."
+        ),
+        "2026-05",
+    ),
+    (
+        "HEALTH_SCORE",
+        "Health score caiu para 62",
+        (
+            "Sua saúde financeira em maio ficou em 62/100 (queda de 20 pontos vs março). "
+            "Causas principais: estouro do orçamento de Lazer, Alimentação acima do teto e "
+            "redução da contribuição para a reserva. Nada grave, mas atenção pro próximo mês."
+        ),
+        "2026-05",
+    ),
+    (
+        "GOAL_PROJECTION",
+        "Viagem Europa: ritmo abaixo do necessário",
+        (
+            "No ritmo atual, a meta Viagem Europa só seria atingida em fevereiro/2027 — quatro "
+            "meses depois da deadline (set/2026). Aumentar a contribuição mensal em ~R$ 750 "
+            "reequilibra a projeção."
+        ),
+        "2026-05",
+    ),
+]
+
+# Current-month feedbacks (dynamic so they show up on the /feedbacks page and
+# the dashboard AI Insights card, which both default to today's month).
+# Without these, the seeded data is invisible there even though it appears in
+# the notification bell (which doesn't filter by month).
+_CURRENT_MONTH = date.today().strftime("%Y-%m")
+
+AI_FEEDBACKS_CURRENT_MONTH: list[tuple[str, str, str, str]] = [
+    (
+        "MONTHLY_REPORT",
+        "Revisão do mês anterior",
+        (
+            "Maio fechou em alerta: orçamento de Lazer estourou (150%) e Alimentação ficou em "
+            "110%. O mês corrente é o momento de reequilibrar — começar com um teto menor de "
+            "Lazer e priorizar refeições em casa nas duas primeiras semanas costuma resolver."
+        ),
+        _CURRENT_MONTH,
+    ),
+    (
+        "HEALTH_SCORE",
+        "Seu score começou o mês em 65",
+        (
+            "Score atual ponderado: 65/100. A queda vem majoritariamente do estouro recorrente "
+            "em Lazer nos últimos 30 dias. Manter o orçamento atual de R$ 300 com gasto até R$ "
+            "250 sobe o score para ~75 até o fim do mês."
+        ),
+        _CURRENT_MONTH,
+    ),
+    (
+        "ALERT",
+        "Padrão recorrente em delivery",
+        (
+            "Detectamos um padrão: gastos de delivery cresceram 40% nos últimos 60 dias. Esses "
+            "lançamentos somam ~R$ 480/mês, equivalente a 4× a sua contribuição extra mensal "
+            "pra Viagem Europa. Vale conversar com o Coach pra discutir alternativas."
+        ),
+        _CURRENT_MONTH,
+    ),
 ]
 
 # Goals + their contributions over time
@@ -258,6 +376,28 @@ async def fetch_user_id(http: httpx.AsyncClient, headers: dict) -> str:
     return resp.json()["id"]
 
 
+async def create_ai_feedbacks(user_id: str) -> None:
+    """POST AI feedbacks via the internal endpoint — no auth header needed."""
+    all_feedbacks = AI_FEEDBACKS + AI_FEEDBACKS_CURRENT_MONTH
+    async with httpx.AsyncClient(base_url=INTERNAL_BASE, timeout=30.0) as http:
+        for fb_type, title, content, ref_month in all_feedbacks:
+            payload = {
+                "userId": user_id,
+                "type": fb_type,
+                "title": title,
+                "content": content,
+                "referenceMonth": ref_month,
+            }
+            resp = await http.post("/internal/feedbacks", json=payload)
+            # 409 = duplicate (userId, type, month) — fine on re-runs without --reset
+            if resp.status_code not in (201, 409):
+                resp.raise_for_status()
+    print(
+        f"✓ Created {len(all_feedbacks)} AI feedbacks "
+        f"({len(AI_FEEDBACKS_CURRENT_MONTH)} in current month {_CURRENT_MONTH})"
+    )
+
+
 async def main(reset: bool) -> int:
     async with httpx.AsyncClient(base_url=API_BASE, timeout=30.0) as http:
         if reset:
@@ -271,6 +411,7 @@ async def main(reset: bool) -> int:
         await create_goals(http, headers)
 
         user_id = await fetch_user_id(http, headers)
+        await create_ai_feedbacks(user_id)
         print()
         print("=" * 60)
         print(f"Demo user_id: {user_id}")

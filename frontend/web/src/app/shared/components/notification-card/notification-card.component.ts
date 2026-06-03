@@ -1,5 +1,5 @@
 import { CurrencyPipe, DatePipe, NgClass } from '@angular/common';
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AiFeedbackType } from '../../../core/models/ai-feedback.model';
 import { NotificationResponse } from '../../../core/models/notification.model';
@@ -19,6 +19,7 @@ const BADGE_CLASS = 'bg-primary/10 text-primary';
   selector: 'app-notification-card',
   templateUrl: './notification-card.component.html',
   imports: [CurrencyPipe, DatePipe, NgClass, TranslateModule],
+  host: { class: 'block' },
 })
 export class NotificationCardComponent {
   private readonly store = inject(NotificationStore);
@@ -26,8 +27,16 @@ export class NotificationCardComponent {
   notification = input.required<NotificationResponse>();
   /** Compact mode disables the inline expand of AI content — used in the navbar popover where space is tight. */
   compact = input<boolean>(false);
+  /** When true, the card mounts already expanded. Used by deep-links from the notification dropdown. */
+  defaultExpanded = input<boolean>(false);
 
   readonly expanded = signal(false);
+
+  private readonly _autoExpand = effect(() => {
+    if (this.defaultExpanded() && !this.compact() && this.notification().kind === 'AI_FEEDBACK') {
+      this.expanded.set(true);
+    }
+  });
 
   get badgeClass(): string {
     return BADGE_CLASS;

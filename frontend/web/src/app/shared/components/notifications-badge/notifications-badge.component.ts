@@ -48,8 +48,9 @@ export class NotificationsBadgeComponent implements OnInit {
   }
 
   onItemClick(notification: NotificationResponse): void {
-    // Per D5: marking read keeps the dropdown open so the user can browse more.
     this.store.markAsRead(notification);
+    this.close();
+    this.router.navigate(['/notifications'], { queryParams: { focus: notification.id } });
   }
 
   @HostListener('document:click', ['$event'])

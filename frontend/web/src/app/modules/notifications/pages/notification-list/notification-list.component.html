@@ -16,7 +16,9 @@
     } @else {
       <div class="space-y-2">
         @for (n of items; track n.id) {
-          <app-notification-card [notification]="n" />
+          <div [id]="'notification-' + n.id">
+            <app-notification-card [notification]="n" [defaultExpanded]="n.id === focusedId()" />
+          </div>
         }
       </div>
       @if (store.hasMore$ | async) {
