@@ -66,6 +66,11 @@ services:
         condition: service_healthy
       azurite:
         condition: service_started
+    # Loads INTERNAL_SHARED_SECRET (and anything else dev-only) without
+    # exposing it in the compose file. Vars in `environment:` below
+    # override these, so the hardcoded defaults still win when present.
+    env_file:
+      - ./core-api/.env
     environment:
       DB_USERNAME: insightfin
       DB_PASSWORD: insightfin
