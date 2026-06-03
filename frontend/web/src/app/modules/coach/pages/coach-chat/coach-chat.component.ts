@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { AngularSvgIconModule } from 'angular-svg-icon';
 import { CoachMessage, CoachSuggestion, CoachToolExecution } from '../../../../core/models/coach.model';
 import { CoachStore } from '../../../../core/stores/coach.store';
 import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header.component';
@@ -34,6 +35,7 @@ const SUGGESTIONS: CoachSuggestion[] = [
     NgClass,
     FormsModule,
     TranslateModule,
+    AngularSvgIconModule,
     PageHeaderComponent,
     SkeletonComponent,
     CoachSidebarComponent,
