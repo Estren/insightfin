@@ -49,6 +49,7 @@ export class CoachChatComponent implements OnInit, AfterViewChecked {
   private shouldScroll = true;
 
   @ViewChild('scrollContainer') scrollContainer?: ElementRef<HTMLElement>;
+  @ViewChild('composer') composer?: ElementRef<HTMLTextAreaElement>;
 
   constructor(
     readonly store: CoachStore,
@@ -110,6 +111,8 @@ export class CoachChatComponent implements OnInit, AfterViewChecked {
     const text = this.store.draft().trim();
     if (!text || this.store.streaming()) return;
     this.store.draft.set('');
+    // Collapse the textarea back to one line; CSS min-h does the rest.
+    if (this.composer) this.composer.nativeElement.style.height = 'auto';
     void this.store.ask(text);
   }
 
@@ -121,7 +124,13 @@ export class CoachChatComponent implements OnInit, AfterViewChecked {
   }
 
   onInput(event: Event): void {
-    this.store.draft.set((event.target as HTMLTextAreaElement).value);
+    const ta = event.target as HTMLTextAreaElement;
+    this.store.draft.set(ta.value);
+    // Auto-grow: shrink first so removing a line actually shrinks the box,
+    // then let scrollHeight set the new height. CSS max-h caps the growth
+    // and kicks in the internal scroll once the content goes past it.
+    ta.style.height = 'auto';
+    ta.style.height = `${ta.scrollHeight}px`;
   }
 
   applySuggestion(s: CoachSuggestion): void {
