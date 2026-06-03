@@ -136,7 +136,7 @@ test.describe('Notifications', () => {
       await expect(dropdown.getByRole('link', { name: 'Ver todas as notificações' })).toBeVisible();
     });
 
-    test('clicking an item marks it read, keeps the dropdown open and decrements the badge', async ({ page }) => {
+    test('clicking an item marks it read and deep-links to /notifications', async ({ page }) => {
       await seedAuthSession(page);
       await mockApi(page, {
         notifications: [BUDGET_ALERT],
@@ -154,9 +154,13 @@ test.describe('Notifications', () => {
       await dropdown.locator('app-notification-card').first().click();
       await patchRequest;
 
-      // Dropdown stays open (per spec) and the badge zeroes out optimistically.
-      await expect(dropdown).toBeVisible();
-      await expect(page.locator('app-notifications-badge span[aria-hidden="true"]')).toHaveCount(0);
+      // Click → markAsRead + close dropdown + navigate with focus=<id> so the
+      // list page can scroll to the item and auto-expand it. Optimistic
+      // badge decrement is already covered by the test on the list page
+      // above; we can't reassert it here because the navigation triggers a
+      // fresh loadUnreadCount() and the static mock replays the original 1.
+      await expect(page).toHaveURL(/\/notifications\?focus=alert-1$/);
+      await expect(page.getByRole('dialog')).toHaveCount(0);
     });
 
     test('"Ver todas" navigates to /notifications and closes the dropdown', async ({ page }) => {
