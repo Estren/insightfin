@@ -548,8 +548,37 @@
     "noConversations": "Nenhuma conversa ainda",
     "loading": "Carregando...",
     "rename": "Renomear",
+    "agentName": "Coach",
     "thinking": "Consultando {{tool}}...",
     "sources": "Fontes",
+    "groups": {
+      "today": "Hoje",
+      "yesterday": "Ontem",
+      "lastWeek": "Últimos 7 dias",
+      "older": "Mais antigas"
+    },
+    "relative": {
+      "today": "hoje",
+      "yesterday": "ontem",
+      "daysAgo": "{{n}}d",
+      "weeksAgo": "{{n}}sem"
+    },
+    "tools": {
+      "get_health_score": "Consultou seu health score · {{month}}",
+      "get_transactions": "Listou as transações · {{month}}",
+      "get_budget_status": "Conferiu o status dos orçamentos · {{month}}",
+      "get_goals": "Consultou suas metas",
+      "simulate_budget_change": "Simulou uma mudança de orçamento · {{month}}",
+      "project_goal_completion": "Projetou a conclusão da meta",
+      "compare_months": "Comparou {{monthA}} vs {{monthB}}",
+      "fields": {
+        "score": "Score",
+        "savingsRate": "Taxa de poupança",
+        "budgetAdherence": "Aderência ao orçamento",
+        "goalProgress": "Progresso de metas",
+        "expenseConsistency": "Consistência de gastos"
+      }
+    },
     "reasoning": {
       "summaryOne": "Como cheguei nisso · {{count}} consulta",
       "summaryOther": "Como cheguei nisso · {{count}} consultas",
