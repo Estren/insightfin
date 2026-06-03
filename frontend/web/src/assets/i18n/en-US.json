@@ -548,8 +548,37 @@
     "noConversations": "No conversations yet",
     "loading": "Loading...",
     "rename": "Rename",
+    "agentName": "Coach",
     "thinking": "Consulting {{tool}}...",
     "sources": "Sources",
+    "groups": {
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "lastWeek": "Last 7 days",
+      "older": "Older"
+    },
+    "relative": {
+      "today": "today",
+      "yesterday": "yesterday",
+      "daysAgo": "{{n}}d",
+      "weeksAgo": "{{n}}w"
+    },
+    "tools": {
+      "get_health_score": "Checked your health score · {{month}}",
+      "get_transactions": "Listed transactions · {{month}}",
+      "get_budget_status": "Checked budget status · {{month}}",
+      "get_goals": "Looked up your goals",
+      "simulate_budget_change": "Simulated a budget change · {{month}}",
+      "project_goal_completion": "Projected goal completion",
+      "compare_months": "Compared {{monthA}} vs {{monthB}}",
+      "fields": {
+        "score": "Score",
+        "savingsRate": "Savings rate",
+        "budgetAdherence": "Budget adherence",
+        "goalProgress": "Goal progress",
+        "expenseConsistency": "Expense consistency"
+      }
+    },
     "reasoning": {
       "summaryOne": "How I got here · {{count}} call",
       "summaryOther": "How I got here · {{count}} calls",

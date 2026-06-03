@@ -2,10 +2,15 @@
   <app-page-header [title]="'coach.title' | translate" [subtitle]="'coach.subtitle' | translate"></app-page-header>
 
   <div class="flex min-h-0 flex-1 gap-4">
-    <!-- Sidebar: fixed column on desktop -->
-    <aside class="hidden w-72 shrink-0 rounded-2xl border border-border bg-background shadow-sm md:block">
-      <app-coach-sidebar></app-coach-sidebar>
-    </aside>
+    <!-- Sidebar: fixed column on desktop. Hidden when there are no
+         conversations yet so the empty state has the full width — the
+         suggestion chips in the empty state already act as the "start a
+         conversation" CTAs in that case. -->
+    @if (store.loadingThreads() || store.threads().length > 0) {
+      <aside class="hidden w-72 shrink-0 rounded-2xl border border-border bg-background shadow-sm md:block">
+        <app-coach-sidebar></app-coach-sidebar>
+      </aside>
+    }
 
     <!-- Sidebar: drawer on mobile -->
     @if (sidebarOpen()) {
@@ -61,7 +66,7 @@
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d="M9.348 14.652a3.75 3.75 0 0 1 0-5.304m5.304 0a3.75 3.75 0 0 1 0 5.304m-7.425 2.121a6.75 6.75 0 0 1 0-9.546m9.546 0a6.75 6.75 0 0 1 0 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.808 3.808 9.981 0 13.788M12 12h.008v.008H12V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                  d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
               </svg>
             </div>
             <h2 class="mb-2 text-lg font-semibold text-foreground">{{ 'coach.empty.title' | translate }}</h2>
@@ -81,129 +86,159 @@
         }
 
         @for (message of store.messages(); track trackById($index, message)) {
-          <div [ngClass]="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
-            <div
-              [ngClass]="
-                message.role === 'user'
-                  ? 'max-w-[80%] rounded-2xl rounded-br-md bg-primary px-4 py-3 text-primary-foreground shadow-sm'
-                  : 'max-w-[80%] rounded-2xl rounded-bl-md border border-border bg-card px-4 py-3 text-foreground shadow-sm'
-              ">
-              @if (
-                message.role === 'assistant' &&
-                message.toolCalls.length > 0 &&
-                message.isStreaming &&
-                store.currentToolCall()
-              ) {
-                <div
-                  class="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                  <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-primary"></span>
-                  {{ 'coach.thinking' | translate: { tool: store.currentToolCall() } }}
-                </div>
-              }
+          @if (message.role === 'user') {
+            <div class="flex justify-end">
+              <div class="max-w-[80%] rounded-2xl rounded-br-md bg-primary px-4 py-3 text-primary-foreground shadow-sm">
+                <div class="whitespace-pre-wrap break-words text-sm leading-relaxed">{{ message.text }}</div>
+              </div>
+            </div>
+          } @else {
+            <div class="flex max-w-[85%] justify-start gap-3">
+              <!-- Coach avatar -->
+              <div
+                class="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.8"
+                  stroke="currentColor"
+                  class="h-4 w-4">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 0 0 1.423 1.423l1.183.394-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z" />
+                </svg>
+              </div>
 
-              <div class="whitespace-pre-wrap break-words text-sm leading-relaxed">{{ message.text }}</div>
+              <!-- Name + bubble stack -->
+              <div class="flex min-w-0 flex-col gap-1">
+                <span class="text-xs font-semibold text-muted-foreground">{{ 'coach.agentName' | translate }}</span>
+                <div class="rounded-2xl rounded-bl-md border border-border bg-card px-4 py-3 text-foreground shadow-sm">
+                  @if (message.toolCalls.length > 0 && message.isStreaming && store.currentToolCall()) {
+                    <div
+                      class="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                      <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-primary"></span>
+                      {{ 'coach.thinking' | translate: { tool: store.currentToolCall() } }}
+                    </div>
+                  }
 
-              @if (message.role === 'assistant' && message.isStreaming && !message.text) {
-                <div class="flex items-center gap-1.5 py-1">
-                  <span class="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:0ms]"></span>
-                  <span class="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:150ms]"></span>
-                  <span class="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:300ms]"></span>
-                </div>
-              }
+                  <div class="whitespace-pre-wrap break-words text-sm leading-relaxed">{{ message.text }}</div>
 
-              @if (message.role === 'assistant' && message.charts?.length) {
-                @for (chart of message.charts; track $index) {
-                  <app-coach-chart [chart]="chart" />
-                }
-              }
-
-              @let execs = message.toolExecutions ?? [];
-              @if (message.role === 'assistant' && execs.length > 0) {
-                <details class="mt-3 rounded-md border border-border bg-background">
-                  <summary
-                    class="cursor-pointer select-none px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
-                    {{
-                      (execs.length === 1 ? 'coach.reasoning.summaryOne' : 'coach.reasoning.summaryOther')
-                        | translate: { count: execs.length }
-                    }}
-                  </summary>
-                  <div class="space-y-2 border-t border-border px-3 py-2">
-                    @for (exec of execs; track $index) {
-                      <div class="rounded border border-border bg-card/50 p-2 text-xs">
-                        <div class="break-all font-mono text-primary">{{ exec.name }}({{ exec.args | json }})</div>
-                        <div class="mt-1 mb-0.5 text-[0.65rem] uppercase tracking-wide text-muted-foreground">
-                          {{ 'coach.reasoning.result' | translate }}
-                        </div>
-                        <pre
-                          class="overflow-x-auto whitespace-pre-wrap break-words font-mono text-[0.7rem] text-foreground"
-                          >{{ exec.result | json }}</pre
-                        >
-                      </div>
-                    }
-                  </div>
-                </details>
-              }
-
-              @if (message.citations.length > 0) {
-                <div class="mt-3 border-t border-border pt-2">
-                  <div class="mb-1 text-xs font-medium text-muted-foreground">{{ 'coach.sources' | translate }}</div>
-                  <div class="flex flex-wrap gap-1.5">
-                    @for (citation of message.citations; track citation.marker) {
+                  @if (message.isStreaming && !message.text) {
+                    <div class="flex items-center gap-1.5 py-1">
+                      <span class="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:0ms]"></span>
                       <span
-                        class="inline-flex items-center gap-1 rounded-md bg-background px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-border">
-                        <span class="font-semibold text-primary">[{{ citation.marker }}]</span>
-                        {{ citation.filename }}
-                      </span>
-                    }
-                  </div>
-                </div>
-              }
+                        class="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:150ms]"></span>
+                      <span
+                        class="h-2 w-2 animate-pulse rounded-full bg-muted-foreground [animation-delay:300ms]"></span>
+                    </div>
+                  }
 
-              @if (message.proposal; as proposal) {
-                <div class="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
-                  <p class="text-sm text-foreground">{{ proposal.summary }}</p>
-                  @switch (proposal.status) {
-                    @case ('pending') {
-                      <div class="mt-2 flex gap-2">
-                        <button
-                          type="button"
-                          (click)="store.confirmAction(message.id)"
-                          class="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition hover:bg-primary/90">
-                          {{ 'coach.action.confirm' | translate }}
-                        </button>
-                        <button
-                          type="button"
-                          (click)="store.cancelAction(message.id)"
-                          class="cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground">
-                          {{ 'coach.action.cancel' | translate }}
-                        </button>
-                      </div>
-                    }
-                    @case ('executing') {
-                      <p class="mt-2 text-xs font-medium text-muted-foreground">
-                        {{ 'coach.action.executing' | translate }}
-                      </p>
-                    }
-                    @case ('done') {
-                      <p class="mt-2 text-xs font-medium text-primary">
-                        ✓ {{ proposal.resultMessage || ('coach.action.done' | translate) }}
-                      </p>
-                    }
-                    @case ('error') {
-                      <p class="mt-2 text-xs font-medium text-muted-foreground">
-                        ⚠️ {{ proposal.resultMessage || ('coach.action.failed' | translate) }}
-                      </p>
-                    }
-                    @case ('cancelled') {
-                      <p class="mt-2 text-xs font-medium text-muted-foreground">
-                        {{ 'coach.action.cancelled' | translate }}
-                      </p>
+                  @if (message.charts?.length) {
+                    @for (chart of message.charts; track $index) {
+                      <app-coach-chart [chart]="chart" />
                     }
                   }
+
+                  @let execs = message.toolExecutions ?? [];
+                  @if (execs.length > 0) {
+                    <details class="mt-3 rounded-md border border-border bg-background">
+                      <summary
+                        class="cursor-pointer select-none px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground">
+                        {{
+                          (execs.length === 1 ? 'coach.reasoning.summaryOne' : 'coach.reasoning.summaryOther')
+                            | translate: { count: execs.length }
+                        }}
+                      </summary>
+                      <div class="space-y-2 border-t border-border px-3 py-2">
+                        @for (exec of execs; track $index) {
+                          <div class="rounded border border-border bg-card/50 p-2 text-xs">
+                            <div class="font-medium text-foreground">{{ humanizeToolCall(exec) }}</div>
+                            @let summary = summarizeToolResult(exec);
+                            @if (summary.length > 0) {
+                              <dl class="mt-1.5 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5">
+                                @for (row of summary; track row.label) {
+                                  <dt class="text-muted-foreground">{{ row.label }}</dt>
+                                  <dd class="font-medium text-foreground">{{ row.value }}</dd>
+                                }
+                              </dl>
+                            } @else {
+                              <pre
+                                class="mt-1.5 overflow-x-auto whitespace-pre-wrap break-words font-mono text-[0.7rem] text-foreground"
+                                >{{ exec.result | json }}</pre
+                              >
+                            }
+                          </div>
+                        }
+                      </div>
+                    </details>
+                  }
+
+                  @if (message.citations.length > 0) {
+                    <div class="mt-3 border-t border-border pt-2">
+                      <div class="mb-1 text-xs font-medium text-muted-foreground">
+                        {{ 'coach.sources' | translate }}
+                      </div>
+                      <div class="flex flex-wrap gap-1.5">
+                        @for (citation of message.citations; track citation.marker) {
+                          <span
+                            class="inline-flex items-center gap-1 rounded-md bg-background px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-border">
+                            <span class="font-semibold text-primary">[{{ citation.marker }}]</span>
+                            {{ citation.filename }}
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  @if (message.proposal; as proposal) {
+                    <div class="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                      <p class="text-sm text-foreground">{{ proposal.summary }}</p>
+                      @switch (proposal.status) {
+                        @case ('pending') {
+                          <div class="mt-2 flex gap-2">
+                            <button
+                              type="button"
+                              (click)="store.confirmAction(message.id)"
+                              class="inline-flex cursor-pointer items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition hover:bg-primary/90">
+                              {{ 'coach.action.confirm' | translate }}
+                            </button>
+                            <button
+                              type="button"
+                              (click)="store.cancelAction(message.id)"
+                              class="cursor-pointer rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:text-foreground">
+                              {{ 'coach.action.cancel' | translate }}
+                            </button>
+                          </div>
+                        }
+                        @case ('executing') {
+                          <p class="mt-2 text-xs font-medium text-muted-foreground">
+                            {{ 'coach.action.executing' | translate }}
+                          </p>
+                        }
+                        @case ('done') {
+                          <p class="mt-2 text-xs font-medium text-primary">
+                            ✓ {{ proposal.resultMessage || ('coach.action.done' | translate) }}
+                          </p>
+                        }
+                        @case ('error') {
+                          <p class="mt-2 text-xs font-medium text-muted-foreground">
+                            ⚠️ {{ proposal.resultMessage || ('coach.action.failed' | translate) }}
+                          </p>
+                        }
+                        @case ('cancelled') {
+                          <p class="mt-2 text-xs font-medium text-muted-foreground">
+                            {{ 'coach.action.cancelled' | translate }}
+                          </p>
+                        }
+                      }
+                    </div>
+                  }
                 </div>
-              }
+              </div>
             </div>
-          </div>
+          }
         }
       </div>
 
