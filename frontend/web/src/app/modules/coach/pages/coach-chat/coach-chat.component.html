@@ -244,12 +244,15 @@
 
       <div class="border-t border-border px-4 py-4 sm:px-8">
         <form (submit)="$event.preventDefault(); submitDraft()">
-          <!-- Composite composer: textarea + send button share one bordered
-               container, the way every modern chat product does it. Border
-               lives on the wrapper and lights up via focus-within when the
-               textarea inside gains focus. -->
+          <!-- Composite composer: textarea and button live inside the same
+               bordered wrapper. Layout is flex with items-end so the button
+               sits at the bottom — on a one-line textarea that aligns it
+               with the text baseline (looks centered); on a tall textarea
+               it stays next to the most-recent line. Button is shrink-0 in
+               its own flex column so it never overlaps the textarea's
+               native scrollbar when content overflows max-h. -->
           <div
-            class="relative rounded-2xl border border-border bg-background shadow-sm transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+            class="flex items-end gap-2 rounded-2xl border border-border bg-background p-2 shadow-sm transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
             <textarea
               #composer
               [value]="store.draft()"
@@ -258,14 +261,14 @@
               rows="1"
               [disabled]="store.streaming()"
               [placeholder]="'coach.inputPlaceholder' | translate"
-              class="block max-h-48 min-h-[2.75rem] w-full resize-none rounded-2xl border-0 bg-transparent py-3 pl-4 pr-14 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"></textarea>
+              class="block max-h-48 min-h-[2.25rem] flex-1 resize-none border-0 bg-transparent px-2 py-1.5 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-60"></textarea>
 
             @if (store.streaming()) {
               <button
                 type="button"
                 (click)="cancel()"
                 [attr.aria-label]="'coach.stop' | translate"
-                class="absolute bottom-2 right-2 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition hover:border-destructive hover:bg-destructive/10 hover:text-destructive">
+                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition hover:border-destructive hover:bg-destructive/10 hover:text-destructive">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-3.5 w-3.5">
                   <rect x="5" y="5" width="10" height="10" rx="1.5" />
                 </svg>
@@ -275,7 +278,7 @@
                 type="submit"
                 [disabled]="!store.draft().trim()"
                 [attr.aria-label]="'coach.send' | translate"
-                class="absolute bottom-2 right-2 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground">
+                class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
                   <path
                     d="M3.105 2.289a.75.75 0 0 0-.826.95l1.414 4.926A.75.75 0 0 0 4.42 8.66l3.498-.875a.25.25 0 0 1 0 .484L4.42 9.149a.75.75 0 0 0-.727.496l-1.414 4.926a.75.75 0 0 0 .826.95 28.685 28.685 0 0 0 15.293-7.155.75.75 0 0 0 0-1.144A28.689 28.689 0 0 0 3.105 2.289Z" />
