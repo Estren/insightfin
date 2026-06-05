@@ -198,10 +198,6 @@ python main.py                                      # AI service at http://local
 
 CI runs one GitHub Actions workflow per service, scoped by path filter — PRs run the `test` job; pushes to `main` also `deploy`.
 
-## 📝 A note on the name
-
-The codebase namespace was originally **Orizon**; the product was renamed to **InsightFin** when the domain became available, and the Java package was migrated to `com.insightfin.coreapi`. Any lingering "Orizon" reference is historical.
-
 ## 📄 License
 
 [MIT](LICENSE) © 2026 Thiago Dias
