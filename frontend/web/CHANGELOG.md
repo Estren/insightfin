@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `/coach` Financial Coach Agent page: streaming chat, suggestion chips, source citations, inline charts, and a multi-conversation sidebar
+- proactive dashboard cards that deep-link into a fresh Coach conversation
+
 ## [0.11.0] - 2025-10-11
 
 ### removed
