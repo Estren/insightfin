@@ -46,7 +46,7 @@ The submission uses two layers of Microsoft Foundry:
 | Layer | Role in InsightFin |
 | --- | --- |
 | **Foundry Agent Service** | Hosts the agent (gpt-4.1-mini, region `eastus2`). Owns the reasoning loop, tool-call orchestration, and conversation threads. |
-| **Foundry IQ** (`file_search`) | Grounds answers in a financial-education corpus (50/30/20 rule, emergency funds, SMART goals, cutting expenses, savings rate). Returns cited, retrieved passages so advice is sourced rather than invented. |
+| **Foundry IQ** (`file_search`) | Grounds answers in a curated financial-education corpus spanning **global** investing concepts (compound interest, index funds & ETFs, diversification & asset allocation, dollar-cost averaging, inflation) and **Brazil-specific** topics (Open Finance, Tesouro Direto, the over-indebtedness law, income tax). Answers follow the language of the question and carry inline citations, so advice is sourced rather than invented. |
 
 **Fourteen tools** are exposed to the agent — `user_id` is bound to the session by closure, never as a tool argument, so a prompt-injected message can't read another user's data. They fall into three families:
 
