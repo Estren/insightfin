@@ -10,10 +10,10 @@ Budget-alert notifications (kind=BUDGET_ALERT) are *not* directly seeded:
 they fire from the Kafka consumer when transactions cross 50/80/100% of a
 budget. They appear automatically if Kafka is up locally during the seed.
 
-Designed narrative:
-    - March 2026: "good" month — high savings, all budgets within limit
-    - April 2026: "decent" month — no freelance, food slightly up
-    - May 2026:   "bad" month — Lazer budget blown, savings drop
+Designed narrative (anchored so the "bad" month is the CURRENT month):
+    - April 2026: "good" month — high savings, all budgets within limit
+    - May 2026:   "decent" month — no freelance, food slightly up
+    - June 2026:  "bad" month — Lazer budget blown, savings drop
 
 Usage (from `ai/` with venv active):
 
@@ -35,10 +35,15 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import sys
 from datetime import date
+from uuid import UUID
 
 import httpx
+
+from app.coach_agent.tools.get_health_score import get_health_score
+from app.core_api.client import CoreApiClient, make_http_client
 
 # Force UTF-8 on stdout/stderr so the checkmark/cross/info glyphs render on
 # Windows consoles (default cp1252 can't encode them and raises mid-run).
@@ -46,10 +51,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 sys.stderr.reconfigure(encoding="utf-8")
 
 API_BASE = "http://localhost:8080/api"
-# Internal endpoints (consumed only by the AI service) are NOT under /api —
-# they're mounted at the root path. The seed uses both: /api/* for the public
-# routes it calls as the demo user, and INTERNAL_BASE for /internal/feedbacks.
-INTERNAL_BASE = "http://localhost:8080"
+# AI feedbacks go to the internal /internal/feedbacks endpoint via the shared
+# app client (make_http_client) — it targets settings.core_api_url and attaches
+# the X-Internal-Auth shared secret automatically, so no header boilerplate here.
 
 DEMO_USER = {
     "name": "Coach Demo",
@@ -69,64 +73,68 @@ CATEGORIES = [
 ]
 
 # Each entry: (category_name, type, amount, date, description)
+# Narrative is anchored so the "bad" month is the CURRENT month (the agent
+# resolves "este mês" from today's date). Shift the whole arc forward if the
+# recording month changes.
 TRANSACTIONS: list[tuple[str, str, float, str, str]] = [
-    # === MARCH 2026 — good month ===
-    ("Salário", "INCOME", 6500, "2026-03-05", "Salário março"),
-    ("Freelance", "INCOME", 800, "2026-03-15", "Projeto consultoria"),
-    ("Moradia", "EXPENSE", 1800, "2026-03-10", "Aluguel"),
-    ("Alimentação", "EXPENSE", 320, "2026-03-08", "Supermercado mensal"),
-    ("Alimentação", "EXPENSE", 180, "2026-03-14", "Mercado semanal"),
-    ("Alimentação", "EXPENSE", 150, "2026-03-22", "Restaurante"),
-    ("Alimentação", "EXPENSE", 90, "2026-03-27", "Delivery"),
-    ("Alimentação", "EXPENSE", 60, "2026-03-30", "Padaria"),
-    ("Transporte", "EXPENSE", 220, "2026-03-05", "Combustível"),
-    ("Transporte", "EXPENSE", 130, "2026-03-19", "Uber + transporte"),
-    ("Lazer", "EXPENSE", 120, "2026-03-12", "Cinema com amigos"),
-    ("Lazer", "EXPENSE", 80, "2026-03-25", "Show"),
-    ("Saúde", "EXPENSE", 150, "2026-03-18", "Farmácia + consulta"),
-    ("Assinaturas", "EXPENSE", 39.90, "2026-03-01", "Netflix"),
-    ("Assinaturas", "EXPENSE", 21.90, "2026-03-01", "Spotify"),
-    # === APRIL 2026 — decent month ===
+    # === APRIL 2026 — good month ===
     ("Salário", "INCOME", 6500, "2026-04-05", "Salário abril"),
+    ("Freelance", "INCOME", 800, "2026-04-15", "Projeto consultoria"),
     ("Moradia", "EXPENSE", 1800, "2026-04-10", "Aluguel"),
-    ("Alimentação", "EXPENSE", 380, "2026-04-08", "Supermercado mensal"),
-    ("Alimentação", "EXPENSE", 220, "2026-04-15", "Mercado + feira"),
-    ("Alimentação", "EXPENSE", 180, "2026-04-22", "Restaurante aniversário"),
-    ("Alimentação", "EXPENSE", 120, "2026-04-26", "Delivery"),
-    ("Alimentação", "EXPENSE", 50, "2026-04-28", "Padaria"),
-    ("Transporte", "EXPENSE", 260, "2026-04-06", "Combustível"),
-    ("Transporte", "EXPENSE", 160, "2026-04-20", "Uber + transporte"),
-    ("Lazer", "EXPENSE", 150, "2026-04-14", "Bar com amigos"),
-    ("Lazer", "EXPENSE", 140, "2026-04-27", "Cinema + lanche"),
-    ("Saúde", "EXPENSE", 100, "2026-04-12", "Farmácia"),
+    ("Alimentação", "EXPENSE", 320, "2026-04-08", "Supermercado mensal"),
+    ("Alimentação", "EXPENSE", 180, "2026-04-14", "Mercado semanal"),
+    ("Alimentação", "EXPENSE", 150, "2026-04-22", "Restaurante"),
+    ("Alimentação", "EXPENSE", 90, "2026-04-27", "Delivery"),
+    ("Alimentação", "EXPENSE", 60, "2026-04-30", "Padaria"),
+    ("Transporte", "EXPENSE", 220, "2026-04-05", "Combustível"),
+    ("Transporte", "EXPENSE", 130, "2026-04-19", "Uber + transporte"),
+    ("Lazer", "EXPENSE", 120, "2026-04-12", "Cinema com amigos"),
+    ("Lazer", "EXPENSE", 80, "2026-04-25", "Show"),
+    ("Saúde", "EXPENSE", 150, "2026-04-18", "Farmácia + consulta"),
     ("Assinaturas", "EXPENSE", 39.90, "2026-04-01", "Netflix"),
     ("Assinaturas", "EXPENSE", 21.90, "2026-04-01", "Spotify"),
-    # === MAY 2026 — bad month: Lazer blown, savings drop ===
+    # === MAY 2026 — decent month ===
     ("Salário", "INCOME", 6500, "2026-05-05", "Salário maio"),
     ("Moradia", "EXPENSE", 1800, "2026-05-10", "Aluguel"),
-    ("Alimentação", "EXPENSE", 410, "2026-05-08", "Supermercado mensal"),
-    ("Alimentação", "EXPENSE", 240, "2026-05-15", "Mercado"),
-    ("Alimentação", "EXPENSE", 200, "2026-05-20", "Delivery (semana corrida)"),
-    ("Alimentação", "EXPENSE", 160, "2026-05-22", "Delivery"),
-    ("Alimentação", "EXPENSE", 90, "2026-05-25", "Padaria + café"),
-    ("Transporte", "EXPENSE", 280, "2026-05-06", "Combustível"),
-    ("Transporte", "EXPENSE", 200, "2026-05-21", "Uber + reparo"),
-    # Lazer estoura: orçamento de 300, gasta 450
-    ("Lazer", "EXPENSE", 180, "2026-05-09", "Show com amigos"),
-    ("Lazer", "EXPENSE", 150, "2026-05-16", "Restaurante + bar"),
-    ("Lazer", "EXPENSE", 120, "2026-05-23", "Cinema + jantar"),
-    ("Saúde", "EXPENSE", 180, "2026-05-12", "Consulta + exames"),
-    ("Saúde", "EXPENSE", 100, "2026-05-19", "Medicamentos"),
+    ("Alimentação", "EXPENSE", 380, "2026-05-08", "Supermercado mensal"),
+    ("Alimentação", "EXPENSE", 220, "2026-05-15", "Mercado + feira"),
+    ("Alimentação", "EXPENSE", 180, "2026-05-22", "Restaurante aniversário"),
+    ("Alimentação", "EXPENSE", 120, "2026-05-26", "Delivery"),
+    ("Alimentação", "EXPENSE", 50, "2026-05-28", "Padaria"),
+    ("Transporte", "EXPENSE", 260, "2026-05-06", "Combustível"),
+    ("Transporte", "EXPENSE", 160, "2026-05-20", "Uber + transporte"),
+    ("Lazer", "EXPENSE", 150, "2026-05-14", "Bar com amigos"),
+    ("Lazer", "EXPENSE", 140, "2026-05-27", "Cinema + lanche"),
+    ("Saúde", "EXPENSE", 100, "2026-05-12", "Farmácia"),
     ("Assinaturas", "EXPENSE", 39.90, "2026-05-01", "Netflix"),
     ("Assinaturas", "EXPENSE", 21.90, "2026-05-01", "Spotify"),
+    # === JUNE 2026 — bad month (CURRENT): Lazer blown, savings drop ===
+    # Dates compressed to days 1-10 so nothing lands in the future.
+    ("Salário", "INCOME", 6500, "2026-06-05", "Salário junho"),
+    ("Moradia", "EXPENSE", 1800, "2026-06-08", "Aluguel"),
+    ("Alimentação", "EXPENSE", 410, "2026-06-02", "Supermercado mensal"),
+    ("Alimentação", "EXPENSE", 240, "2026-06-04", "Mercado"),
+    ("Alimentação", "EXPENSE", 200, "2026-06-05", "Delivery (semana corrida)"),
+    ("Alimentação", "EXPENSE", 160, "2026-06-06", "Delivery"),
+    ("Alimentação", "EXPENSE", 90, "2026-06-07", "Padaria + café"),
+    ("Transporte", "EXPENSE", 280, "2026-06-03", "Combustível"),
+    ("Transporte", "EXPENSE", 200, "2026-06-06", "Uber + reparo"),
+    # Lazer estoura: orçamento de 300, gasta 450
+    ("Lazer", "EXPENSE", 180, "2026-06-03", "Show com amigos"),
+    ("Lazer", "EXPENSE", 150, "2026-06-05", "Restaurante + bar"),
+    ("Lazer", "EXPENSE", 120, "2026-06-07", "Cinema + jantar"),
+    ("Saúde", "EXPENSE", 180, "2026-06-04", "Consulta + exames"),
+    ("Saúde", "EXPENSE", 100, "2026-06-06", "Medicamentos"),
+    ("Assinaturas", "EXPENSE", 39.90, "2026-06-01", "Netflix"),
+    ("Assinaturas", "EXPENSE", 21.90, "2026-06-01", "Spotify"),
 ]
 
-# Budgets for May 2026 (current month — what the agent will discuss)
+# Budgets for June 2026 (current month — what the agent will discuss)
 BUDGETS: list[tuple[str, float, str]] = [
-    ("Alimentação", 1000, "2026-05"),  # ~110% — over
-    ("Transporte", 500, "2026-05"),    # ~96% — within
-    ("Lazer", 300, "2026-05"),         # ~150% — blown
-    ("Moradia", 2000, "2026-05"),      # 90% — within
+    ("Alimentação", 1000, "2026-06"),  # ~110% — over
+    ("Transporte", 500, "2026-06"),    # ~96% — within
+    ("Lazer", 300, "2026-06"),         # ~150% — blown
+    ("Moradia", 2000, "2026-06"),      # 90% — within
 ]
 
 # AI feedbacks — surfaced as AI_FEEDBACK notifications in the bell dropdown.
@@ -139,52 +147,52 @@ BUDGETS: list[tuple[str, float, str]] = [
 AI_FEEDBACKS: list[tuple[str, str, str, str | None]] = [
     (
         "MONTHLY_REPORT",
-        "Março fechou no azul",
+        "Abril fechou no azul",
         (
-            "Você economizou cerca de R$ 3.400 em março — mês forte: salário cheio + freelance, "
+            "Você economizou cerca de R$ 3.400 em abril — mês forte: salário cheio + freelance, "
             "orçamentos todos dentro do limite. Continue assim e a reserva de emergência fecha o "
             "ano completa."
         ),
-        "2026-03",
+        "2026-04",
     ),
     (
         "HEALTH_SCORE",
         "Health score: 82",
         (
-            "Sua saúde financeira em março ficou em 82/100. Pontos fortes: receita diversificada "
+            "Sua saúde financeira em abril ficou em 82/100. Pontos fortes: receita diversificada "
             "(salário + freelance) e zero estouro de orçamento. Atenção: Alimentação subiu 18% vs "
             "o mês anterior."
-        ),
-        "2026-03",
-    ),
-    (
-        "MONTHLY_REPORT",
-        "Abril ok, sem freelance",
-        (
-            "Abril sem renda extra: sobraram aproximadamente R$ 1.800. Tudo dentro do esperado, "
-            "exceto Alimentação que segue em alta. Vale revisar o quanto vai em delivery."
         ),
         "2026-04",
     ),
     (
-        "ALERT",
-        "Lazer estourou em maio",
+        "MONTHLY_REPORT",
+        "Maio ok, sem freelance",
         (
-            "Seu orçamento de Lazer (R$ 300) chegou a 150% em maio — gasto total R$ 450. Os "
+            "Maio sem renda extra: sobraram aproximadamente R$ 1.800. Tudo dentro do esperado, "
+            "exceto Alimentação que segue em alta. Vale revisar o quanto vai em delivery."
+        ),
+        "2026-05",
+    ),
+    (
+        "ALERT",
+        "Lazer estourou em junho",
+        (
+            "Seu orçamento de Lazer (R$ 300) chegou a 150% em junho — gasto total R$ 450. Os "
             "principais lançamentos foram Show, Restaurante+bar e Cinema+jantar. Considere "
             "remanejar para o próximo mês."
         ),
-        "2026-05",
+        "2026-06",
     ),
     (
         "HEALTH_SCORE",
         "Health score caiu para 62",
         (
-            "Sua saúde financeira em maio ficou em 62/100 (queda de 20 pontos vs março). "
+            "Sua saúde financeira em junho ficou em 62/100 (queda de 20 pontos vs abril). "
             "Causas principais: estouro do orçamento de Lazer, Alimentação acima do teto e "
             "redução da contribuição para a reserva. Nada grave, mas atenção pro próximo mês."
         ),
-        "2026-05",
+        "2026-06",
     ),
     (
         "GOAL_PROJECTION",
@@ -194,7 +202,7 @@ AI_FEEDBACKS: list[tuple[str, str, str, str | None]] = [
             "meses depois da deadline (set/2026). Aumentar a contribuição mensal em ~R$ 750 "
             "reequilibra a projeção."
         ),
-        "2026-05",
+        "2026-06",
     ),
 ]
 
@@ -204,14 +212,21 @@ AI_FEEDBACKS: list[tuple[str, str, str, str | None]] = [
 # the notification bell (which doesn't filter by month).
 _CURRENT_MONTH = date.today().strftime("%Y-%m")
 
+# Portuguese month names for HEALTH_SCORE feedback copy (kept in sync with the
+# computed score so the bell card and the dashboard gauge always agree).
+_MONTH_NAMES_PT = [
+    "", "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+    "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+]
+
 AI_FEEDBACKS_CURRENT_MONTH: list[tuple[str, str, str, str]] = [
     (
         "MONTHLY_REPORT",
-        "Revisão do mês anterior",
+        "Junho começou no vermelho",
         (
-            "Maio fechou em alerta: orçamento de Lazer estourou (150%) e Alimentação ficou em "
-            "110%. O mês corrente é o momento de reequilibrar — começar com um teto menor de "
-            "Lazer e priorizar refeições em casa nas duas primeiras semanas costuma resolver."
+            "O mês corrente já acende alerta: o orçamento de Lazer estourou (150%) e Alimentação "
+            "está em 110%. É hora de reequilibrar — começar com um teto menor de Lazer e priorizar "
+            "refeições em casa nas próximas semanas costuma resolver."
         ),
         _CURRENT_MONTH,
     ),
@@ -244,9 +259,9 @@ GOALS: list[dict] = [
         "targetAmount": 10000,
         "deadline": "2026-12-31",
         "contributions": [
-            (1500, "2026-03-15"),
-            (2000, "2026-04-15"),
-            (1500, "2026-05-15"),
+            (1500, "2026-04-15"),
+            (2000, "2026-05-15"),
+            (1500, "2026-06-08"),
         ],  # 5000/10000 = 50%, on track
     },
     {
@@ -254,8 +269,8 @@ GOALS: list[dict] = [
         "targetAmount": 8000,
         "deadline": "2026-09-30",
         "contributions": [
-            (500, "2026-03-20"),
-            (800, "2026-04-20"),
+            (500, "2026-04-20"),
+            (800, "2026-05-20"),
         ],  # 1300/8000 = 16%, behind
     },
 ]
@@ -377,10 +392,27 @@ async def fetch_user_id(http: httpx.AsyncClient, headers: dict) -> str:
 
 
 async def create_ai_feedbacks(user_id: str) -> None:
-    """POST AI feedbacks via the internal endpoint — no auth header needed."""
-    all_feedbacks = AI_FEEDBACKS + AI_FEEDBACKS_CURRENT_MONTH
-    async with httpx.AsyncClient(base_url=INTERNAL_BASE, timeout=30.0) as http:
-        for fb_type, title, content, ref_month in all_feedbacks:
+    """POST AI feedbacks to the internal /internal/feedbacks endpoint.
+
+    HEALTH_SCORE feedbacks carry a computed `metadata` JSON (score + breakdown)
+    so the dashboard gauge — which reads the latest HEALTH_SCORE feedback's
+    metadata for the current month — has a value to render. The score is pulled
+    from live data via the same path the agent uses, so the bell copy and the
+    gauge can never drift. This mirrors what the batch orchestrator does in prod
+    via the monthly cron. The internal endpoint requires the X-Internal-Auth
+    shared secret, which make_http_client attaches automatically from settings.
+    """
+    # Drop the redundant current-month HEALTH_SCORE: each month already has one
+    # HEALTH_SCORE entry, now enriched with metadata, so the bell shows a single
+    # score card per month instead of two.
+    feedbacks = list(AI_FEEDBACKS) + [
+        f for f in AI_FEEDBACKS_CURRENT_MONTH if f[0] != "HEALTH_SCORE"
+    ]
+    client = make_http_client()
+    core = CoreApiClient(client)
+    created = skipped = 0
+    async with client:
+        for fb_type, title, content, ref_month in feedbacks:
             payload = {
                 "userId": user_id,
                 "type": fb_type,
@@ -388,14 +420,28 @@ async def create_ai_feedbacks(user_id: str) -> None:
                 "content": content,
                 "referenceMonth": ref_month,
             }
-            resp = await http.post("/internal/feedbacks", json=payload)
-            # 409 = duplicate (userId, type, month) — fine on re-runs without --reset
-            if resp.status_code not in (201, 409):
-                resp.raise_for_status()
-    print(
-        f"✓ Created {len(all_feedbacks)} AI feedbacks "
-        f"({len(AI_FEEDBACKS_CURRENT_MONTH)} in current month {_CURRENT_MONTH})"
-    )
+            if fb_type == "HEALTH_SCORE":
+                hs = await get_health_score(core, UUID(user_id), ref_month)
+                breakdown = hs["breakdown"]
+                payload["metadata"] = json.dumps({"score": hs["score"], "breakdown": breakdown})
+                payload["title"] = f"Health score: {hs['score']}"
+                payload["content"] = (
+                    f"Sua saúde financeira em {_MONTH_NAMES_PT[int(ref_month[5:7])]} ficou em "
+                    f"{hs['score']}/100. Taxa de poupança {breakdown['savingsRate']}, aderência ao "
+                    f"orçamento {breakdown['budgetAdherence']}, progresso em metas "
+                    f"{breakdown['goalProgress']}, consistência das despesas "
+                    f"{breakdown['expenseConsistency']}."
+                )
+            try:
+                await core.post_feedback(payload)
+                created += 1
+            except httpx.HTTPStatusError as exc:
+                # 409 = duplicate (userId, type, month) — fine on re-runs without --reset
+                if exc.response.status_code == 409:
+                    skipped += 1
+                else:
+                    raise
+    print(f"✓ Created {created} AI feedbacks ({skipped} skipped as duplicates)")
 
 
 async def main(reset: bool) -> int:
