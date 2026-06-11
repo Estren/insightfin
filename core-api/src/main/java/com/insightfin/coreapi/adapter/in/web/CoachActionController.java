@@ -103,7 +103,7 @@ public class CoachActionController {
         if ("log_transaction".equals(action)) {
             return executeLogTransaction(userId, params);
         }
-        throw new DomainException("Ação não suportada: " + action);
+        throw new DomainException("Unsupported action: " + action);
     }
 
     private Response executeCreateBudget(UUID userId, Map<String, Object> params) {
@@ -116,7 +116,7 @@ public class CoachActionController {
         String month = YearMonth.now().toString();
         createBudgetUseCase.execute(userId, category.getId(), amount, month);
 
-        String summary = "Orçamento de " + category.getName() + " criado para o mês atual.";
+        String summary = "Budget for " + category.getName() + " created for the current month.";
         return Response.ok(Map.of("status", "done", "summary", summary)).build();
     }
 
@@ -127,7 +127,7 @@ public class CoachActionController {
 
         createGoalUseCase.execute(userId, title, target, deadline);
 
-        return Response.ok(Map.of("status", "done", "summary", "Meta \"" + title + "\" criada.")).build();
+        return Response.ok(Map.of("status", "done", "summary", "Goal \"" + title + "\" created.")).build();
     }
 
     private Response executeAdjustBudget(UUID userId, Map<String, Object> params) {
@@ -140,13 +140,13 @@ public class CoachActionController {
                 .filter(b -> b.getCategoryId().equals(category.getId()))
                 .findFirst()
                 .orElseThrow(() -> new DomainException(
-                        "Nenhum orçamento de " + category.getName() + " neste mês para ajustar."));
+                        "No " + category.getName() + " budget this month to adjust."));
 
         updateBudgetUseCase.execute(userId, budget.getId(), amount);
 
         return Response.ok(Map.of(
                 "status", "done",
-                "summary", "Orçamento de " + category.getName() + " ajustado para o mês atual.")).build();
+                "summary", "Budget for " + category.getName() + " adjusted for the current month.")).build();
     }
 
     private Response executeLogTransaction(UUID userId, Map<String, Object> params) {
@@ -162,20 +162,20 @@ public class CoachActionController {
                 .filter(c -> c.getName().equalsIgnoreCase(categoryName))
                 .findFirst()
                 .orElseThrow(() -> new DomainException(
-                        "Categoria '" + categoryName + "' não encontrada para " + typeLabel(type) + "."));
+                        "Category '" + categoryName + "' not found for " + typeLabel(type) + "."));
 
         createTransactionUseCase.execute(userId, category.getId(), type, amount, description, LocalDate.now());
 
         return Response.ok(Map.of(
                 "status", "done",
-                "summary", typeLabel(type) + " registrada em " + category.getName() + ".")).build();
+                "summary", typeLabel(type) + " logged in " + category.getName() + ".")).build();
     }
 
     private Category resolveCategory(UUID userId, String name) {
         return categoryRepository.findByUserId(userId).stream()
                 .filter(c -> c.getName().equalsIgnoreCase(name))
                 .findFirst()
-                .orElseThrow(() -> new DomainException("Categoria não encontrada: " + name));
+                .orElseThrow(() -> new DomainException("Category not found: " + name));
     }
 
     private Response executeContributeGoal(UUID userId, Map<String, Object> params) {
@@ -188,11 +188,11 @@ public class CoachActionController {
         Goal goal = listGoalsUseCase.execute(userId).stream()
                 .filter(g -> g.getTitle().toLowerCase().contains(goalTitle.toLowerCase()))
                 .findFirst()
-                .orElseThrow(() -> new DomainException("Meta não encontrada: " + goalTitle));
+                .orElseThrow(() -> new DomainException("Goal not found: " + goalTitle));
 
         contributeToGoalUseCase.execute(goal.getId(), amount, LocalDate.now());
 
-        String summary = "Contribuição registrada na meta " + goal.getTitle() + ".";
+        String summary = "Contribution recorded for goal " + goal.getTitle() + ".";
         return Response.ok(Map.of("status", "done", "summary", summary)).build();
     }
 
@@ -240,6 +240,6 @@ public class CoachActionController {
     }
 
     private static String typeLabel(TransactionType type) {
-        return type == TransactionType.INCOME ? "Receita" : "Despesa";
+        return type == TransactionType.INCOME ? "Income" : "Expense";
     }
 }

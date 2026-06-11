@@ -31,7 +31,7 @@ def propose_create_budget(category: str, amount: float) -> dict:
         "status": "awaiting_user_confirmation",
         "action": "create_budget",
         "params": {"category": name, "amount": round(float(amount), 2)},
-        "summary": f"Criar orçamento de R$ {amount:.2f} para {name} (mês atual)",
+        "summary": f"Create a R$ {amount:.2f} budget for {name} (current month)",
     }
 
 
@@ -51,7 +51,7 @@ def propose_contribute_goal(goal_title: str, amount: float) -> dict:
         "status": "awaiting_user_confirmation",
         "action": "contribute_goal",
         "params": {"goal_title": title, "amount": round(float(amount), 2)},
-        "summary": f'Contribuir R$ {amount:.2f} para a meta "{title}"',
+        "summary": f'Contribute R$ {amount:.2f} to the "{title}" goal',
     }
 
 
@@ -68,12 +68,12 @@ def propose_create_goal(title: str, target_amount: float, deadline: str | None =
         raise ProposalError("target_amount must be a positive number")
 
     clean_deadline = (deadline or "").strip() or None
-    when = f" até {clean_deadline}" if clean_deadline else " (sem prazo)"
+    when = f" by {clean_deadline}" if clean_deadline else " (no deadline)"
     return {
         "status": "awaiting_user_confirmation",
         "action": "create_goal",
         "params": {"title": name, "target_amount": round(float(target_amount), 2), "deadline": clean_deadline},
-        "summary": f'Criar a meta "{name}" de R$ {target_amount:.2f}{when}',
+        "summary": f'Create the "{name}" goal of R$ {target_amount:.2f}{when}',
     }
 
 
@@ -89,7 +89,7 @@ def propose_adjust_budget(category: str, amount: float) -> dict:
         "status": "awaiting_user_confirmation",
         "action": "adjust_budget",
         "params": {"category": name, "amount": round(float(amount), 2)},
-        "summary": f"Ajustar o orçamento de {name} para R$ {amount:.2f} (mês atual)",
+        "summary": f"Adjust the {name} budget to R$ {amount:.2f} (current month)",
     }
 
 
@@ -107,7 +107,7 @@ def propose_log_transaction(
         raise ProposalError("amount must be a positive number")
 
     clean_description = (description or "").strip() or None
-    kind = "receita" if normalized_type == "INCOME" else "despesa"
+    kind = "income" if normalized_type == "INCOME" else "expense"
     return {
         "status": "awaiting_user_confirmation",
         "action": "log_transaction",
@@ -117,5 +117,5 @@ def propose_log_transaction(
             "amount": round(float(amount), 2),
             "description": clean_description,
         },
-        "summary": f"Registrar {kind} de R$ {amount:.2f} em {name} (hoje)",
+        "summary": f"Log a R$ {amount:.2f} {kind} in {name} (today)",
     }
