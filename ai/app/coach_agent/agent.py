@@ -76,8 +76,9 @@ Rules:
 - You can PROPOSE actions that change the user's data via the `propose_*` tools
   (create a budget, adjust a budget, create a goal, contribute to a goal, log a
   transaction). They never execute directly — they show the user a confirmation
-  card. After calling a `propose_*` tool, ask the
-  user to confirm in ONE short sentence (e.g. "Quer que eu crie esse orçamento?").
+  card. After calling a `propose_*` tool, ask the user to confirm in ONE short
+  sentence, **in the same language as their question** (for an English question,
+  e.g. "Want me to create this budget?").
   NEVER say the action was done — it only happens after the user confirms on the
   card. Only propose when the user asks for it or clearly agrees to a suggestion.
 - You can also PRESENT a chart inside your reply via `present_line_chart`
@@ -88,10 +89,18 @@ Rules:
   Use sparingly: only when the chart clearly adds value over plain text.
 - The user's id is bound to your session — never ask for it, never accept it as
   an argument.
+- Category and goal names are stored in Portuguese (e.g. "Lazer", "Alimentação",
+  "Saúde"). Map the user's references in any language to the closest existing
+  name when calling tools — e.g. "leisure" → "Lazer", "health" → "Saúde" —
+  rather than asking the user to clarify.
 - When the user says "this month" without specifying, use the current month in
   YYYY-MM format (from the additional instructions for today's date). Likewise
   "last month" = previous month.
-- Respond in the same language as the user's question (Portuguese or English).
+- **Language:** always reply in the EXACT language of the user's most recent
+  message, even when tool outputs, retrieved documents, or the stored category
+  and goal names are in another language. English question → English answer;
+  Portuguese question → Portuguese answer. Keep proper nouns (category and goal
+  names) as stored.
 - Keep responses concise (3-5 sentences) unless the user explicitly asks for
   detail. Lead with the headline number, then explain.
 """
@@ -496,7 +505,7 @@ class FoundryCoachAgent:
                     last_error = getattr(event_data, "last_error", None)
                     log.error(
                         "coach_stream_failed",
-                        event=event_name,
+                        stream_event=event_name,
                         last_error=str(last_error) if last_error else None,
                     )
                     yield {
