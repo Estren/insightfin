@@ -7,7 +7,7 @@
 
 **InsightFin** is a personal finance platform in production at **[insightfin.app](https://insightfin.app)**. This repository is its submission to the **[Microsoft Agents League @ AI Skills Fest 2026](https://aka.ms/AgentsLeague/AISF)** — a conversational **Financial Coach Agent** built on **Microsoft Foundry Agent Service** and grounded with **Foundry IQ**.
 
-> 🎥 **Demo video:** _coming soon_
+> 🎥 **Demo video:** [Watch the 5-minute demo on YouTube](https://youtu.be/rJq0JOWwn_Y)
 > 🌐 **Live app:** [insightfin.app](https://insightfin.app) · **API:** [coreapi.insightfin.app/swagger-ui.html](https://coreapi.insightfin.app/swagger-ui.html)
 > 🧠 **Track:** Reasoning Agents (Microsoft Foundry) · **Required IQ layer:** Foundry IQ
 
