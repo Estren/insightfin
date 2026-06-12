@@ -189,6 +189,8 @@ python main.py                                      # AI service at http://local
 | Swagger UI | `http://localhost:8080/swagger-ui.html` |
 | AI service | `http://localhost:8081` |
 | PostgreSQL | `localhost:5432` |
+| Prometheus | `http://localhost:9090` |
+| Grafana | `http://localhost:3000` (admin / insightfin) |
 
 ## 🧪 Testing
 
